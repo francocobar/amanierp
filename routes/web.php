@@ -12,7 +12,9 @@
 */
 
 Route::get('/testing', 'UserController@testing');
-
+Route::get('/', function () {
+    return redirect('/login');
+});
 Route::get('/superadmin', function () {
     return view('superadmin');
 });
