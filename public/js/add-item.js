@@ -2,13 +2,13 @@ var FormValidation = function () {
 
     var onChangeItemType = function() {
         $("select[name='item_type']").change(function(){
-            if($.trim($(this).find("option:selected").text()) == 'Jasa') {
-                console.log("oke");
-                $('#input_incentive').show();
+            $('#input_incentive').hide();
+            $('#input_branch_price').hide();
+            if($.trim($(this).find("option:selected").text()) == 'Produk' || $.trim($(this).find("option:selected").text()) == 'Sewa') {
+                $('#input_branch_price').show();
             }
-            else {
-                console.log("okes");
-                $('#input_incentive').hide();
+            else if($.trim($(this).find("option:selected").text()) == 'Jasa' || $.trim($(this).find("option:selected").text()) == 'Paket') {
+                $('#input_incentive').show();
             }
         });
     }
@@ -47,6 +47,12 @@ var FormValidation = function () {
                     m_price: {
                         required: true
                     },
+                    branch_price: {
+                        required: function(elemment) {
+                            // console.log($.trim($('select[name="item_type"').find("option:selected").text()));
+                            return $.trim($('select[name="item_type"').find("option:selected").text()) == "Produk" || $.trim($('select[name="item_type"').find("option:selected").text()) == "Sewa";
+                        }
+                    },
                     nm_price: {
                         required: true
                     },
@@ -56,7 +62,10 @@ var FormValidation = function () {
                     incentive: {
                         required: function(elemment) {
                             // console.log($.trim($('select[name="item_type"').find("option:selected").text()));
-                            return $.trim($('select[name="item_type"').find("option:selected").text()) == "Jasa";
+                            return $.trim($('select[name="item_type"').find("option:selected").text()) == "Jasa"
+                             || $.trim($('select[name="item_type"').find("option:selected").text()) == "Paket"
+                             || $.trim($('input[name="item_type"').val()) == "jasa"
+                             || $.trim($('input[name="item_type"').val()) == "paket" ;
                         }
                     }
                 },

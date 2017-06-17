@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TransferStock extends Model
 {
-    protected $fillable = ['item_id', 'branch_id', 'stock', 'sender', 'approval', 'approval_status',
-                            'approval_date', 'sender_note', 'approval_note'];
+    protected $guarded = ['id'];
 
     function item()
     {

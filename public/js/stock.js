@@ -30,6 +30,9 @@ var FormValidation = function () {
                     },
                     branch: {
                         required: true
+                    },
+                    modal_per_pcs: {
+                        required: true
                     }
                 },
                 invalidHandler: function (event, validator) { //display error alert on form submit
@@ -75,9 +78,19 @@ var FormValidation = function () {
 
 jQuery(document).ready(function() {
     FormValidation.init();
+    MaskMoney.init();
 
     $('.supply_branch').click(function(e){
         e.preventDefault();
         location.href = $(this).attr('href') + $("select[name='branch']").val();
+    });
+
+    $('#input_add_stock').change(function(){
+        var stock = 0;
+        if(!isInputEmpty('#input_add_stock')){
+            stock = parseInt($.trim($(this).val()));
+        }
+        var price = unmaskMoney($('#branch_price').val());
+        $('#preview-harga').html(maskMoney(stock*price))
     });
 });

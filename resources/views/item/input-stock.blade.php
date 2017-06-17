@@ -46,6 +46,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Modal per pcs saat ini
+                                <span class="required"></span>
+                            </label>
+                            <div class="col-md-4">
+                                <div class="input-icon right">
+                                    <i class="fa"></i>
+                                    <input type="text" class="form-control" value="{{HelperService::maskMoney($modal_per_pcs)}}" disabled/>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label class="control-label col-md-3">Tambahkan stok sebanyak
@@ -55,6 +66,18 @@
                                 <div class="input-icon right">
                                     <i class="fa"></i>
                                     <input type="text" class="form-control" value="" name="add_stock">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Modal per pcs
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <div class="input-icon right">
+                                    <i class="fa"></i>
+                                    <input type="text" class="mask-money form-control" value="" name="modal_per_pcs">
                                 </div>
                             </div>
                         </div>

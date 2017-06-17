@@ -20,6 +20,16 @@ class HelperServiceProvider extends ServiceProvider
         //
     }
 
+    static function randomStr($length=10, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    {
+        $str = '';
+        $max = mb_strlen($keyspace, '8bit') - 1;
+        for ($i = 0; $i < $length; ++$i) {
+            $str .= $keyspace[random_int(0, $max)];
+        }
+        return $str;
+    }
+
     static function round_up($value, $places)
     {
         $mult = pow(10, abs($places));
@@ -67,17 +77,17 @@ class HelperServiceProvider extends ServiceProvider
 
     static function itemTypeById($id)
     {
-        if(Constant::type_id_produk == $id) {
-            return 'produk';
-        }
-        else if(Constant::type_id_jasa == $id) {
-            return 'jasa';
-        }
-        else if(Constant::type_id_sewa == $id) {
-            return 'sewa';
+        $types = [
+            1 => 'produk',
+            2 => 'jasa',
+            3 => 'sewa',
+            4 => 'paket'
+        ];
+        if(isset($types[$id])) {
+            return $types[$id];
         }
 
-        return '';
+        return 'Tipe tidak terdefinisi!';
     }
 
     static function arrayMonth()
@@ -138,11 +148,17 @@ class HelperServiceProvider extends ServiceProvider
         //     return "Desember";
         // }
     }
-    static function inaDate($db_date)
+    static function inaDate($db_date, $type=1)
     {
-        $exploded = explode('-', $db_date);
+        if($type==1) {//date only
+            $exploded = explode('-', $db_date);
 
-        return $exploded[2].' '.HelperService::monthName($exploded[1]).' '.$exploded[0];
+            return $exploded[2].' '.HelperService::monthName($exploded[1]).' '.$exploded[0];
+        }
+
+        //datetime
+        return HelperService::inaDate($db_date->toDateString()).' '.$db_date->toTimeString();
+
     }
     static function createDateFromString($dd_mm_yyyy)
     {

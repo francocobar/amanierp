@@ -6,7 +6,6 @@
 
 @section('optional_js')
 <script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
-<script src="../js/jquery.maskMoney.min.js" type="text/javascript"></script>
 <script src="../js/add-item.js" type="text/javascript"></script>
 @endsection
 
@@ -36,36 +35,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3">Harga Cabang
-                                <span class="required">  </span>
-                            </label>
-                            <div class="col-md-4">
-                                <div class="input-icon right">
-                                    <i class="fa"></i>
-                                    <input type="text" value="0" class="form-control mask-money" name="branch_price" /> </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-md-3">Harga Member
-                                <span class="required"> * </span>
-                            </label>
-                            <div class="col-md-4">
-                                <div class="input-icon right">
-                                    <i class="fa"></i>
-                                    <input type="text" value="0" class="form-control mask-money" name="m_price" /> </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-md-3">Harga Umum
-                                <span class="required"> * </span>
-                            </label>
-                            <div class="col-md-4">
-                                <div class="input-icon right">
-                                    <i class="fa"></i>
-                                    <input type="text" value="0" class="form-control mask-money" name="nm_price" /> </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="control-label col-md-3">Tipe Item
                                 <span class="required"> * </span>
                             </label>
@@ -81,6 +50,36 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group" id="input_branch_price" style="display: none;">
+                            <label class="control-label col-md-3">Harga Cabang
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <div class="input-icon right">
+                                    <i class="fa"></i>
+                                    <input type="text" value="" class="form-control mask-money" name="branch_price" /> </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Harga Member
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <div class="input-icon right">
+                                    <i class="fa"></i>
+                                    <input type="text" value="" class="form-control mask-money" name="m_price" /> </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Harga Umum
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <div class="input-icon right">
+                                    <i class="fa"></i>
+                                    <input type="text" value="" class="form-control mask-money" name="nm_price" /> </div>
+                            </div>
+                        </div>
                         <div class="form-group" id="input_incentive" style="display: none;">
                             <label class="control-label col-md-3">Insentif
                                 <span class="required"> * </span>
@@ -88,7 +87,7 @@
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" value="0" class="form-control mask-money" name="incentive" /> </div>
+                                    <input type="text" value="" class="form-control mask-money" name="incentive" /> </div>
                             </div>
                         </div>
                         <div class="form-group">

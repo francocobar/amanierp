@@ -55,6 +55,11 @@ class UserController extends Controller
 
         $login = UserService::login($credentials);
         if($login == '') {
+            if(session('redirect')) {
+                $redirect = session('redirect');
+                session()->forget('redirect');
+                return redirect($redirect);
+            }
             return redirect()->route('dashboard');
         }
         return redirect('login')->withInput()->with('general-error', $login);

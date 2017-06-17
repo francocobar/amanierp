@@ -15,6 +15,17 @@
                 <div class="caption">
                     <i class="fa fa-list-ol font-purple-rev"></i>
                     <span class="caption-subject font-purple-rev bold uppercase">Daftar Jasa</span>
+                    <div style="margin: 5px;">
+                        @if(request()->keyword)
+                        <a href="{{route('get.items.jasa',['page'=>1])}}">Semua</a> | <a href="{{route('get.items.jasa',['page'=>1,'notconfiguredyet'=>1])}}">Belum Dikonfigurasi</a>
+                        @else
+                            @if(request()->notconfiguredyet)
+                            <a href="{{route('get.items.jasa',['page'=>1])}}">Semua</a> | <span class="bold">Belum Dikonfigurasi</span>
+                            @else
+                            <span class="bold">Semua</span> | <a href="{{route('get.items.jasa',['page'=>1,'notconfiguredyet'=>1])}}">Belum Dikonfigurasi</a>
+                            @endif
+                        @endif
+                    </div>
                 </div>
             </div>
             <div class="portlet-body">

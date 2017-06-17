@@ -157,6 +157,20 @@ var Bootbox = function() {
         }
     };
 }();
+
+function isInputEmpty(id)
+{
+    return $.trim($(id).val()) == '';
+}
+
+function resetInput(id)
+{
+    $(id).val('');
+    if($(id).prop('disabled')) {
+        $(id).prop('disabled',false);
+    }
+}
+
 $(document).ready(function() {
     $('.submit-button').click(function(e) {
         e.preventDefault();
@@ -167,12 +181,30 @@ $(document).ready(function() {
     $('.bootbox-confirmation').click(function(e){
         var current_link = $(this);
         e.preventDefault();
-        bootbox.confirm(current_link.attr('data-message'), function(result) {
-            console.log($(this));
-            if(result) {
-                location.href = current_link.attr('href');
+        // bootbox.confirm(current_link.attr('data-message'), function(result) {
+        //     if(result) {
+        //         location.href = current_link.attr('href');
+        //     }
+        // });
+
+        bootbox.confirm({
+            message: current_link.attr('data-message'),
+            buttons: {
+                confirm: {
+                    label: 'Iya',
+                    className: 'purple-rev'
+                },
+                cancel: {
+                    label: 'Batal',
+                }
+            },
+            callback: function(result){
+                if(result) {
+                    location.href = current_link.attr('href');
+                }
+            /* result is a boolean; true = OK, false = Cancel*/
             }
-        });
+        })
     });
 
     $('.bootbox-view-note').click(function(e) {
@@ -287,6 +319,7 @@ function validateForm($form, $function){
 					});
 				}
                 if(!data.no_reset_form) {
+                    console.log('reset');
                     resetForm($form);
                 }
 			}
@@ -306,6 +339,18 @@ function validateForm($form, $function){
                         window.location.replace(data.redirect_to);
                     });
                 }
+                else if(data.message_box) {
+                    bootbox.dialog({
+						message: data.message_box,
+						buttons: {
+					        confirm: {
+					            label: 'OK',
+					            className: 'purple-rev'
+					        },
+						},
+						backdrop: true,
+					});
+                }
                 else {
     	            $('.general-error').html(data.message);
     				// App.scrollTo('.general-error', -200);
@@ -318,7 +363,7 @@ function validateForm($form, $function){
 
 function resetForm ($form)
 {
-	$form.find('input[type!="hidden"]').val('');
+	$form.find('input').not(':input[type=hidden], :input[type=radio]').val('');
 	$form.find('textarea').val('');
 	$form.find('select').val('');
 	$form.find('select').trigger('change');

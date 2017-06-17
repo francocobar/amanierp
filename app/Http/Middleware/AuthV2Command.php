@@ -17,13 +17,14 @@ class AuthV2Command
     {
         if(Sentinel::getUser())
             return $next($request);
-
         if($request->ajax())
             return response()->json([
                 'status' => 'error',
                 'need_login' =>true,
                 'message' => 'Sesi Anda telah habis, silahkan login kembali terlebih dahulu!'
             ]);
+        $request->session()->put('redirect', $request->fullUrl());
         return redirect('login');
+
     }
 }

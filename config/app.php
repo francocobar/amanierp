@@ -184,7 +184,9 @@ return [
         App\Providers\EmployeeServiceProvider::class,
         App\Providers\ItemServiceProvider::class,
         App\Providers\ConstantServiceProvider::class,
-        App\Providers\MemberServiceProvider::class
+        App\Providers\MemberServiceProvider::class,
+        App\Providers\StockServiceProvider::class,
+        App\Providers\VoucherServiceProvider::class
 
 
     ],
@@ -246,8 +248,9 @@ return [
         'EmployeeService' => App\Providers\EmployeeServiceProvider::class,
         'ItemService' => App\Providers\ItemServiceProvider::class,
         'Constant' => App\Providers\ConstantServiceProvider::class,
-        'MemberService' => App\Providers\MemberServiceProvider::class
-
+        'MemberService' => App\Providers\MemberServiceProvider::class,
+        'StockService' => App\Providers\StockServiceProvider::class,
+        'VoucherService' => App\Providers\VoucherServiceProvider::class
     ],
 
 ];

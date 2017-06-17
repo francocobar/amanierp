@@ -42,11 +42,10 @@
                             <div class="col-md-5">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" class="form-control" value="{{$stock_pusat}}" disabled/>
+                                    <input type="text" class="form-control" value="{{intval($stock_pusat)}}" disabled/>
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="form-group">
                             <label class="control-label col-md-5">Stok di Cabang {{$branch->branch_name}}  saat ini
@@ -59,7 +58,17 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="control-label col-md-5">Harga Jual ke Cabang (per pcs)
+                                <span class="required"></span>
+                            </label>
+                            <div class="col-md-5">
+                                <div class="input-icon right">
+                                    <i class="fa"></i>
+                                    <input type="text" id="branch_price" class="form-control" value="{{HelperService::maskMoney($item->branch_price)}}" disabled/>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="control-label col-md-5">Tambahkan stok di Cabang {{$branch->branch_name}} sebanyak
                                 <span class="required"> * </span>
@@ -67,9 +76,17 @@
                             <div class="col-md-5">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" class="form-control" value="" name="add_stock">
+                                    <input id="input_add_stock" type="text" class="form-control" value="" name="add_stock">
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5">
+                                Jumlah yang dibayarkan cabang:
+                            </label>
+                            <label id="preview-harga" class="bold control-label col-md-5" style="text-align: left !important;">
+                                0
+                            </label>
                         </div>
 
 

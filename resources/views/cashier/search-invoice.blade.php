@@ -9,7 +9,7 @@
                 $('.general-error').html('Isi Invoice Id');
                 return;
             }
-            var url = "{{route('search.invoice.report')}}?invoice=-keyword-";
+            var url = "{{route('search.invoice.cashier')}}?invoice=-keyword-";
             location.href= url.replace("-keyword-", $.trim($('#keyword').val()));
         });
 
@@ -85,19 +85,18 @@
                         <tbody>
                             @foreach($headers as $header)
                             <tr>
-                                <td>{{ $header->invoice_id }} |
+                                <td><a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id])}}">{{ $header->invoice_id }}</a> |
                                     <a href="{{env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=2'}}">Print Struk</a>
                                     @if($header->rentingDatas->count())
                                      |
-                                     <a href="{{route('renting-data.report',[
+                                     <a href="{{route('renting.by.invoice.casier',[
                                         'header_id' => $header->id
                                      ])}}">Data Sewa</a>
                                     @endif
                                 </td>
                                 <td>{{ $header->branch->branch_name}} </td>
-                                <?php $status = $header->is_debt && $header->payment2_date == null; ?>
-                                <td>{!! $status ? 'Belum Lunas <a href="'.route('get.cashier.pleunasan',['invoice'=>str_replace('/','-', $header->invoice_id)]).'">Set Lunas</a>' : 'Lunas' !!}</td>
-                                <td>{{ $status ? HelperService::maskMoney($header->debt) : 0 }}</td>
+                                <td>{!! $header->isDebt() ? 'Belum Lunas <a href="'.route('get.cashier.next-payment',['invoice'=>str_replace('/','-', $header->invoice_id)]).'">Set Lunas</a>' : 'Lunas' !!}</td>
+                                <td>{{ $header->isDebt() ? $header->debtValue(true) : 0 }}</td>
                             </tr>
                             @endforeach
                         </tbody>

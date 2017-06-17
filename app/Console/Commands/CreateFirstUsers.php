@@ -61,6 +61,13 @@ class CreateFirstUsers extends Command
                 'slug' => 'staff',
             ]);
             $this->info('role staff is created!');
+
+            $role3 = Sentinel::getRoleRepository()->createModel()->create([
+                'name' => 'Cashier Staff',
+                'slug' => 'cashier',
+            ]);
+            
+            $this->info('role cashier staff is created!');
         }
 
 

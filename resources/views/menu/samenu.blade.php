@@ -10,6 +10,7 @@
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="fa fa-database"></i>
             <span class="title">Items</span>
+            <span class="arrow"></span>
         </a>
         <ul class="sub-menu">
             <li class="nav-item">
@@ -32,6 +33,11 @@
                     <span class="title">Daftar Sewa</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{route('get.items.paket',['page'=>1])}}" class="nav-link ">
+                    <span class="title">Daftar Paket</span>
+                </a>
+            </li>
         </ul>
     </li>
 
@@ -39,7 +45,6 @@
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="fa fa-expand"></i>
             <span class="title">Cabang</span>
-
             <span class="arrow"></span>
         </a>
         <ul class="sub-menu">
@@ -61,7 +66,6 @@
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="fa fa-child"></i>
             <span class="title">Karyawan</span>
-
             <span class="arrow"></span>
         </a>
         <ul class="sub-menu">
@@ -76,6 +80,12 @@
                     <span class="title">Daftar Karyawan</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{route('unset.incentives.employees')}}"  class="nav-link ">
+                    <span class="title">Insetif Karyawan UNSET</span>
+                </a>
+            </li>
+
         </ul>
     </li>
 
@@ -83,7 +93,6 @@
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="fa fa-users"></i>
             <span class="title">Member</span>
-
             <span class="arrow"></span>
         </a>
         <ul class="sub-menu">
@@ -102,12 +111,31 @@
     </li>
 
     <li class="nav-item {{strpos(Route::currentRouteName(),'.cashier') !== false ? 'active open' : ''}}">
-        <a href="{{route('get.cashier')}}" target="_blank" class="nav-link nav-toggle">
+        <a href="javascript:;" class="nav-link nav-toggle">
             <i class="icon-wallet"></i>
             <span class="title">Cashier</span>
-
             <span class="arrow"></span>
         </a>
+        <ul class="sub-menu">
+            <li class="nav-item ">
+                <a href="{{route('get.cashier')}}" target="_blank" class="nav-link ">
+                    <span class="title">Aplikasi Kasir</span>
+                    <!--  -->
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="{{route('search.invoice.cashier')}}" class="nav-link ">
+                    <span class="title">Cari Invoice</span>
+                    <!--  -->
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="{{route('renting.by.time.casier',['s'=>1])}}" class="nav-link ">
+                    <span class="title">Data Sewa</span>
+                    <!--  -->
+                </a>
+            </li>
+        </ul>
     </li>
 
     <li class="nav-item {{strpos(Route::currentRouteName(),'.sales') !== false ? 'active open' : ''}}">
@@ -120,6 +148,18 @@
 
         <ul class="sub-menu">
             <li class="nav-item">
+                <a href="{{route('get.sales.report.pusat',['period'=>'1','spesific'=>'0'])}}" class="nav-link ">
+                    <span class="title">Lap. Penjualan Pusat</span>
+                    <!--  -->
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{route('pb.report')}}" class="nav-link ">
+                    <span class="title">Pembukuan Cabang</span>
+                    <!--  -->
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{route('get.sales.report',['period'=>'1','spesific'=>'0'])}}" class="nav-link ">
                     <span class="title">Lap. Penjualan Harian</span>
                     <!--  -->
@@ -131,10 +171,24 @@
                     <!--  -->
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{route('search.invoice.report')}}" class="nav-link ">
-                    <span class="title">Cari Invoice</span>
-                    <!--  -->
+        </ul>
+    </li>
+
+    <li class="nav-item {{strpos(Route::currentRouteName(),'.voucher') !== false ? 'active open' : ''}}">
+        <a href="javascript:;" class="nav-link nav-toggle">
+            <i class="fa fa-vimeo"></i>
+            <span class="title">Voucher Diskon</span>
+            <span class="arrow"></span>
+        </a>
+        <ul class="sub-menu">
+            <li class="nav-item ">
+                <a href="{{route('add.discount.vouchers')}}" class="nav-link ">
+                    <span class="title">Tambah Voucher</span>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="{{route('get.discount.vouchers',['page'=>1])}}" class="nav-link ">
+                    <span class="title">Daftar Voucher</span>
                 </a>
             </li>
         </ul>

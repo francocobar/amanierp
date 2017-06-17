@@ -57,6 +57,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'superadmin' => \App\Http\Middleware\CheckSuperadmin::class,
         'checkrole_sa_manager' => \App\Http\Middleware\CheckRole::class,
+        'checkrole_cashier_sa_manager' => \App\Http\Middleware\CheckRole2::class,
         'authv2' => \App\Http\Middleware\AuthV2Command::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];

@@ -7,7 +7,6 @@
 @section('optional_js')
 <script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
 <script src="../assets/global/plugins/moment.min.js" type="text/javascript"></script>
-<script src="../js/jquery.maskMoney.min.js" type="text/javascript"></script>
 <script src="../js/add-employee.js" type="text/javascript"></script>
 @endsection
 

@@ -66,6 +66,7 @@
                             <tr>
                                 <th scope="col" style="width:250px !important">Id Item Produk</th>
                                 <th scope="col">Nama</th>
+                                <th scope="col">Modal</th>
                                 <th scope="col">Harga Member</th>
                                 <th scope="col">Harga Umum</th>
                                 <th scope="col">Stok</a>
@@ -78,9 +79,10 @@
                                     <td>
                                         {{ $item_produk->item_name }}
                                     </td>
+                                    <td>{{ $item_produk->branchStock == null ? '0' : HelperService::maskMoney($item_produk->branchStock->modal_per_pcs)}}</td>
                                     <td>{{ HelperService::maskMoney($item_produk->m_price) }}</td>
                                     <td>{{ HelperService::maskMoney($item_produk->nm_price) }} </td>
-                                    <td>{{ $item_produk->branchStock == null ? '0' : $item_produk->branchStock->stock}}</td>
+                                    <td>{{ $item_produk->branchStock == null ? '0' : intval($item_produk->branchStock->stock)}}</td>
                             @endforeach
                         </tbody>
                     </table>

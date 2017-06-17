@@ -13,6 +13,7 @@ use App\TransferStock;
 use App\JasaConfiguration;
 use App\BranchStock;
 use HelperService;
+use UserService;
 
 class ItemServiceProvider extends ServiceProvider
 {
@@ -81,66 +82,14 @@ class ItemServiceProvider extends ServiceProvider
         return 0;
     }
 
-    static function countPendingStockConfirmation()
-    {
-        $employee = Employee::where('user_id', Sentinel::getUser()->id)->first();
-        if($employee==null) return "";
-
-        $pending_confirmation = TransferStock::where('branch_id', $employee->branch_id)
-                                ->where('approval_status', Constant::status_pending)
-                                ->count();
-        return $pending_confirmation;
-    }
-
-    static function getApprovedStockConfirmation()
-    {
-        $employee = Employee::where('user_id', Sentinel::getUser()->id)->first();
-        if($employee==null) return "";
-
-        $approved_confirmation = TransferStock::where('branch_id', $employee->branch_id)
-                                ->where('approval_status', Constant::status_approved)
-                                ->get();
-        return $approved_confirmation;
-    }
-
-    static function getRejectedStockConfirmation()
-    {
-        $employee = Employee::where('user_id', Sentinel::getUser()->id)->first();
-        if($employee==null) return "";
-
-        $rejected_confirmation = TransferStock::where('branch_id', $employee->branch_id)
-                                ->where('approval_status', Constant::status_rejected)
-                                ->get();
-        return $rejected_confirmation;
-    }
-
-    static function getPendingStockConfirmation()
-    {
-        $employee = Employee::where('user_id', Sentinel::getUser()->id)->first();
-        if($employee==null) return "";
-
-        $pending_confirmation = TransferStock::where('branch_id', $employee->branch_id)
-                                ->where('approval_status', Constant::status_pending)
-                                ->get();
-        return $pending_confirmation;
-    }
-
-    static function updateBranchStockByJasa($inputs)
-    {
-        $jasa_configurations = JasaConfiguration::where('item_id_jasa', $inputs['item_id_jasa'])->get();
-
-        foreach ($jasa_configurations  as $config) {
-            $branch_stock = BranchStock::where('branch_id', $inputs['branch_id'])
-                                    ->where('item_id', $config->item_id_produk)
-                                    ->first();
-            if($branch_stock) {
-                $berkurang = $inputs['qty'] * HelperService::round_up($config->pembilang/$config->penyebut,1);
-                $branch_stock->stock = $branch_stock->stock-$berkurang;
-                $branch_stock->save();
-            }
-        }
-
-        return "";
-
-    }
+    // static function countPendingStockConfirmation()
+    // {
+    //     $employee = Employee::where('user_id', Sentinel::getUser()->id)->first();
+    //     if($employee==null) return "";
+    //
+    //     $pending_confirmation = TransferStock::where('branch_id', $employee->branch_id)
+    //                             ->where('approval_status', Constant::status_pending)
+    //                             ->count();
+    //     return $pending_confirmation;
+    // }
 }

@@ -2,7 +2,6 @@
 
 @if(request()->period == Constant::daily_period)
 @section('optional_css')
-
 <link href="{{ URL::asset('css/jquery-ui.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 

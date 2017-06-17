@@ -75,10 +75,25 @@
     </li>
 
     <li class="nav-item {{strpos(Route::currentRouteName(),'.cashier') !== false ? 'active open' : ''}}">
-        <a target="_blank" href="{{route('get.cashier')}}" class="nav-link nav-toggle">
+        <a href="javascript:;" class="nav-link nav-toggle">
             <i class="icon-wallet"></i>
             <span class="title">Cashier</span>
+            <span class="arrow"></span>
         </a>
+        <ul class="sub-menu">
+            <li class="nav-item ">
+                <a href="{{route('get.cashier')}}" target="_blank" class="nav-link ">
+                    <span class="title">Aplikasi Kasir</span>
+                    <!--  -->
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="{{route('search.invoice.cashier')}}" class="nav-link ">
+                    <span class="title">Cari Invoice</span>
+                    <!--  -->
+                </a>
+            </li>
+        </ul>
     </li>
 
     <li class="nav-item {{strpos(Route::currentRouteName(),'.sales') !== false ? 'active open' : ''}}">
@@ -98,12 +113,6 @@
             <li class="nav-item ">
                 <a href="{{route('get.sales.report',['period'=>'2','spesific'=>'0', 'branch' => session('branch_id')])}}" class="nav-link ">
                     <span class="title">Lap. Penjualan Bulanan</span>
-                    <!--  -->
-                </a>
-            </li>
-            <li class="nav-item ">
-                <a href="{{route('search.invoice.report')}}" class="nav-link ">
-                    <span class="title">Cari Invoice</span>
                     <!--  -->
                 </a>
             </li>

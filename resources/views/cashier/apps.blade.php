@@ -61,7 +61,9 @@
                                     <input id="items" type="text" class="form-control" placeholder="* Nama / Id Item"/>
                                     <input id="item_selected" type="hidden" value="" />
                                     <input id="item_selected_price" type="hidden" value="" />
-                                    <input id="item_pic" type="text" class="form-control" placeholder="* Nama / Id PIC" style="margin-top: 5px; display: none;"/>
+                                    <input id="item_selected_type" type="hidden" value="" />
+                                    <input id="item_selected_stok" type="hidden" value="--" />
+                                    <input id="item_pic" type="text" class="form-control" placeholder="Nama / Id PIC" style="margin-top: 5px; display: none;"/>
                                     <input id="pic_selected" type="hidden" value="" />
                                     <input class="datepicker form-control" id="date_to_rent"  placeholder="* Tanggal sewa" style="display:none; margin-top: 5px;">
                                     <input class="form-control" id="branch_to_rent"  placeholder="* Tempat pengambilan" style="display:none; margin-top: 5px;">
@@ -96,6 +98,16 @@
                                     <div class="form-action text-right" style="margin-top: 5px;">
                                         <a id="btn_add_item" class="btn default">< SEBELUMNYA</a>
                                     </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm">
+                                            <div class="input-group-control">
+                                                <input id="discount_voucher" type="text" class="form-control" placeholder="Vocuher Diskon" style="margin-top: 5px" />
+                                            </div>
+                                            <span class="input-group-btn btn-right">
+                                                <button id="btn_validate_voucher" class="btn green-haze"  style="margin-top: 5px;">Validasi</button>
+                                            </span>
+                                        </div>
+                                    </div>
                                     <input id="discount_total" type="text" class="form-control" placeholder="Diskon dari Total" style="margin-top: 5px;"/>
                                     <label class="bold">Tipe Diskon</label>
                                     <label class="mt-radio">
@@ -110,15 +122,20 @@
                                     </label>
                                     <input id="others" type="text" class="form-control" placeholder="Biaya Lain-lain" style="margin-top: 5px;"/>
                                     <hr/>
-                                    <select id="payment_type" class="form-control" name="branch" style="margin-top: 5px;">
+                                    <label class="mt-checkbox" style="margin-top: 5px;">
+                                        <input id="lunas" type="checkbox" value="1" name="lunas" checked> Lunas
+                                        <span></span>
+                                    </label>
+                                    <select id="payment_type" class="form-control" name="payment_type">
                                         <option value="">* Pilih Tipe Pembayaran</option>
                                             <option value="1">Tunai</option>
-                                            <option value="2">Kredit</option>
                                             <option value="3">Credit Card</option>
                                             <option value="4">Debit Card</option>
                                         </option>
                                     </select>
-                                    <input id="total_paid" type="text" class="form-control" placeholder="*Jumlah Bayar" style="margin-top: 5px; display: none;"/>
+                                    <input id="paid_value" type="text" class="form-control" placeholder="* Nilai yang ingin dibayarkan" style="margin-top: 5px;"/>
+                                    <input id="total_paid" type="text" class="form-control" placeholder="* Jumlah Bayar" style="margin-top: 5px;"/>
+
                                     <div class="form-action" style="margin-top: 5px;">
                                         <div class="general-error"></div>
                                         <a id="btn_process" class="btn purple-rev">Proses</a>
@@ -189,7 +206,15 @@
                                 <div class="col-md-12">
                                     <hr/>
                                     <div class="col-md-9" style="text-align: right;">
-                                        Bayar:
+                                        Nilai yang ingin dibayarkan:
+                                    </div>
+                                    <div id="footer_paid_value" class="col-md-3" style="text-align: right;">
+                                        0
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="col-md-9" style="text-align: right;">
+                                        Jumlah Bayar:
                                     </div>
                                     <div id="footer_total_paid" class="col-md-3" style="text-align: right;">
                                         0
@@ -210,9 +235,12 @@
                                 <input type="hidden" value="0" id="discount_total_type_temp" name="discount_total_type_temp" />
                                 <input type="hidden" value="0" id="discount_total_fixed_temp" name="discount_total_fixed_temp" />
                                 <input type="hidden" value="0" id="others_temp" name="others_temp" />
+                                <input type="hidden" value="0" id="paid_value_temp" name="paid_value_temp" />
                                 <input type="hidden" value="0" id="total_paid_temp" name="total_paid_temp" />
                                 <input type="hidden" value="" id="member_temp" name="member_temp" />
                                 <input type="hidden" value="1" id="payment_type_temp" name="payment_type_temp" />
+                                <input type="hidden" value="" id="discount_voucher_temp" name="discount_voucher_temp" />
+
                                 @if($employee_data==null)
                                 <input type="hidden" value="{{Crypt::encryptString($branch->id)}}" id="cashier_branch_temp" name="cashier_branch_temp" />
                                 @endif

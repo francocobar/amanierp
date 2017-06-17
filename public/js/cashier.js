@@ -26,10 +26,15 @@ $(function() {
                     return false;
                 }
                 else {
-                    $('#item_qty').attr('data-max', ui.item.branch_stock.stock);
+                    var tersedia = parseInt(ui.item.branch_stock.stock);
+                    if($('#'+ui.item.item_id).length!=0) {
+                        tersedia = tersedia - parseInt($('#'+ui.item.item_id).attr('data-item-qty'));
+                    }
+                    $('#item_qty').attr('data-max', tersedia);
+                    $('#item_selected_stok').val(tersedia);
                 }
             }
-            if(ui.item.item_type == 2) {
+            if(ui.item.item_type == 2 || ui.item.item_type==4) {
                 $('#item_pic').show();
             }
             else if(ui.item.item_type == 3) {
@@ -60,11 +65,14 @@ $(function() {
         if(data.item_type == 1) {
             stock = ' | Stok tersedia: ';
             if(data.branch_stock==null) {
-                console.log(data);
                 stock = stock + '0';
             }
             else {
-                stock = stock + data.branch_stock.stock;
+                var tersedia = parseInt(data.branch_stock.stock);
+                if($('#'+data.item_id).length!=0) {
+                    tersedia = tersedia - parseInt($('#'+data.item_id).attr('data-item-qty'));
+                }
+                stock = stock + tersedia;
             }
         }
         return $("<li>")
@@ -223,21 +231,26 @@ $(document).ready(function() {
         $('#discount_total_type_temp').val(0);
         $('#discount_total_fixed_temp').val(0);
         $('#others_temp').val(0);
+        $('#paid_value_temp').val(0);
         $('#total_paid_temp').val(0);
+        $('#discount_voucher_temp').val('');
         $('#member_temp').val('');
         $('#footer_total').html(0);
         $('#footer_discount').html(0);
         $('#footer_end_total').html(0);
+        $('#footer_paid_value').html(0);
         $('#footer_total_paid').html(0);
         $('#footer_change').html(0);
     });
 
     $('input[name="discount_type"]').change(function() {
         $('#item_qty').trigger('change');
+        $('#payment_type').trigger('change');
     });
 
     $('input[name="discount_total_type"]').change(function() {
         $('#discount_total').trigger('change');
+        $('#payment_type').trigger('change');
     });
 
 
@@ -263,6 +276,7 @@ $(document).ready(function() {
         else
             $('#others_temp').val(0);
         $('#discount_total').trigger('change');
+        $('#payment_type').trigger('change');
         $('#total_paid').trigger('change');
     });
 
@@ -298,9 +312,16 @@ $(document).ready(function() {
     });
 
     $('#item_qty').change(function(){
+        var qty_input = parseInt($('#item_qty').val());
+        var tersedia = parseInt($('#item_selected_stok').val());
+        if(qty_input>tersedia) {
+            $(this).val('');
+            alert('Maksimal ' + tersedia);
+            return false;
+        }
         var item_price_total = 0;
         if(!isInputEmpty('#item_selected_price')) {
-            item_price_total = parseInt($('#item_selected_price').val())*parseInt($('#item_qty').val());
+            item_price_total = parseInt($('#item_selected_price').val())*qty_input;
             // console.log(item_price_total);
         }
 
@@ -326,10 +347,6 @@ $(document).ready(function() {
             $('#form_add_item').find('.general-error').html('Lengkapi data wajib [yg terdapat tanda *]');
             return;
         }
-        else if($('#item_pic').css('display') == "block" && isInputEmpty('#item_pic')) {
-            $('#form_add_item').find('.general-error').html('Harap isi PIC');
-            return;
-        }
 
         var container = $('#item_selected').val();
         var item_price_total = 0;
@@ -344,6 +361,7 @@ $(document).ready(function() {
             var clone_temp = $('#temp_detail').clone(true);
             clone_temp.find('.btn_remove').attr('data-item-id',id_container);
             clone_temp.attr('id', container);
+            clone_temp.attr('data-item-qty', $('#item_qty').val());
             var price_per_item = number_format(parseInt($('#item_selected_price').val()), 0, ',', '.');
             clone_temp.find('.item_name').html($('#items').val() +' | <i>@'+price_per_item+'</i>');
             clone_temp.find('.item_qty').html($('#item_qty').val());
@@ -358,6 +376,7 @@ $(document).ready(function() {
             var item_total_price_before_string = $(id_container).find('.item_total_price').html();
             var item_total_price_before = parseInt(item_total_price_before_string.split('.').join(''));
             var new_item_price_total = item_price_total + item_total_price_before;
+            $(id_container).attr('data-item-qty', new_qty);
             $(id_container).find('.item_qty').html(new_qty);
             $(id_container).find('.item_total_price').html(number_format(new_item_price_total, 0, ',', '.'))
             $(id_container).find('.btn_remove').attr('data-item-total-price', new_item_price_total);
@@ -417,10 +436,14 @@ $(document).ready(function() {
         // $('#footer_end_total').html(number_format(new_total_akhir, 0, ',', '.'));
         $('#discount_total').trigger('change');
         // console.log(new_total_akhir);
+        $('#payment_type').trigger('change');
         $('#btn_reset').trigger('click');
         $('#total_paid').trigger('change');
     });
 
+    $('#lunas').click(function(){
+        $('#payment_type').trigger('change');
+    });
     $('#total_paid').change(function(){
         if(isInputEmpty('#total_paid')) {
             // console.log('oke');
@@ -428,7 +451,18 @@ $(document).ready(function() {
         }
         var total_fix = getTotalFix();
         var total_paid = parseInt($('#total_paid').val());
-        var kembalian = total_paid - total_fix;
+        if($('input[name="lunas"]').is(':checked')) {
+            if(total_paid<total_fix) {
+                alert('Pembayaran Lunas minimal ' + maskMoney(total_fix));
+                $(this).val(total_fix);
+                $('#total_paid').trigger('change');
+                return;
+            }
+        }
+        var paid_value = parseInt($('#paid_value').val());
+        var kembalian = total_paid - paid_value;
+
+        $('#footer_paid_value').html(number_format(paid_value, 0, ',', '.'));
         $('#footer_total_paid').html(number_format(total_paid, 0, ',', '.'));
         $('#footer_change').html(number_format(kembalian, 0, ',', '.'));
         $('#total_paid_temp').val(total_paid);
@@ -448,15 +482,24 @@ $(document).ready(function() {
     }
 
     $('#payment_type').change(function(){
-        $('#total_paid').val('');
-        $('#total_paid_temp').val('0');
-        $('#payment_type_temp').val($.trim($('#payment_type').val()));
-        if($.trim($('#payment_type').val()) == '1' || $.trim($('#payment_type').val()) == '2' ) {
-            $('#total_paid').show();
+        $('#form_final').find('.general-error').html('');
+        if($('input[name="lunas"]').is(':checked')) {
+            $('#paid_value').val(getTotalFix());
+            $('#paid_value').prop('disabled', true);
         }
         else {
-            $('#total_paid').hide();
+            $('#form_final').find('.general-error').html('Harap Isi Nilai yang ingin dibayarkan.');
+            $('#paid_value').val('');
+            $('#paid_value').prop('disabled', false);
         }
+        $('#paid_value').trigger('change');
+    });
+
+    $('#paid_value').change(function(){
+        var paid_value = parseInt($('#paid_value').val());
+        $('#footer_paid_value').html(number_format(paid_value, 0, ',', '.'));
+        $('#paid_value_temp').val(paid_value);
+        $('#total_paid').trigger('change');
     });
 
     function validatePayment()
@@ -466,20 +509,93 @@ $(document).ready(function() {
             $('#form_final').find('.general-error').html('Harap pilih tipe pembayaran.');
             return false;
         }
-        else if($.trim($('#payment_type').val()) == '1') {
-            var total_fix = getTotalFix();
-            if(parseInt($('#total_paid_temp').val()) < total_fix) {
-                $('#form_final').find('.general-error').html('Jumlah yang dibayarkan kurang.');
-                console.log(total_fix);
-                return false;
-            }
+        else if(isInputEmpty('#paid_value')) {
+            $('#form_final').find('.general-error').html('Harap Isi Nilai yang ingin dibayarkan.');
+            return false;
         }
-        else if($.trim($('#payment_type').val()) == '3' || $.trim($('#payment_type').val()) == '4') {
+        else if(isInputEmpty('#total_paid')) {
+            $('#form_final').find('.general-error').html('Harap Isi Total yang dibayarkan.');
+            return false;
+        }
+        else {
             var total_fix = getTotalFix();
-            $('#total_paid_temp').val(total_fix);
+            var total_paid = parseInt($('#total_paid').val());
+            if($('input[name="lunas"]').is(':checked')) {
+                if(total_paid<total_fix) {
+                    alert('Pembayaran Lunas minimal ' + maskMoney(total_fix));
+                    $('#total_paid').val(total_fix);
+                    $('#total_paid').trigger('change');
+                    return false;
+                }
+            }
+            else {
+                var paid_value = parseInt($('#paid_value').val());
+                if(total_paid<paid_value) {
+                    alert('Pembayaran minimal ' + maskMoney(paid_value));
+                    $('#total_paid').val(paid_value);
+                    $('#total_paid').trigger('change');
+                    return false;
+                }
+            }
         }
         return true;
     }
+
+    $('#btn_validate_voucher').click(function(){
+        if($(this).text() == 'Batalkan') {
+            $('#discount_total_type1').parent().show();
+            $('#discount_total_type2').parent().show();
+            $('#discount_voucher').prop('disabled',false);
+            $('#discount_voucher').val('');
+            $('#discount_total').prop('disabled',false);
+            $('#discount_total').val('');
+            $('#discount_total').trigger('change');
+            $('#discount_total').trigger('change');
+            $('#payment_type').trigger('change');
+            $('#discount_voucher').trigger('change');
+            $(this).text('Validasi');
+            return;
+        }
+
+        if(isInputEmpty('#discount_voucher')) {
+            alert('Harap isi Kode Voucher');
+            return;
+        }
+        $.ajax({
+    		url:'/validates-voucher?v='+$('#discount_voucher').val(),
+    		method:"GET",
+    		dataType:'JSON',
+            success:function(data){
+                if(data.message=='') {
+                    $('#discount_voucher').trigger('change');
+                    $('#discount_voucher').prop('disabled',true);
+                    if(data.discount_type == 1) {
+                        $('#discount_total_type1').prop("checked", true);
+                        $('#discount_total_type2').parent().hide();
+                        $('#discount_total_type1').parent().show();
+                    }
+                    else if(data.discount_type == 2) {
+                        $('#discount_total_type2').prop("checked", true);
+                        $('#discount_total_type1').parent().hide();
+                        $('#discount_total_type2').parent().show();
+                    }
+                    $('#btn_validate_voucher').text('Batalkan');
+                    $('#discount_total').val(data.discount_value);
+                    $('#discount_total').trigger('change');
+                    $('#discount_total').prop('disabled',true);
+                    $('#payment_type').trigger('change');
+                }
+                else {
+                    alert(data.message);
+                }
+            }
+        });
+    });
+
+
+    $('#discount_voucher').change(function(){
+        $('#discount_voucher_temp').val($('#discount_voucher').val());
+    });
 
     $('.btn_remove').click(function(){
         var total = parseInt($('#total_temp').val());
@@ -494,6 +610,7 @@ $(document).ready(function() {
         $('#footer_end_total').html(number_format(new_total_akhir, 0, ',', '.'));
         $('#end_total_temp').val(new_total_akhir);
         $('#discount_total').trigger('change');
+        $('#payment_type').trigger('change');
         $($(this).attr('data-item-id')).remove();
     });
 
@@ -503,21 +620,16 @@ $(document).ready(function() {
             return;
         }
         if(validatePayment()) {
+            // alert('satu');
             $('#form_final').find('.general-error').html('');
-            if($.trim($('#payment_type').val()) == '') {
+            if($.trim($('#payment_type').val()) == '' || $.trim($('#total_paid').val()) == '') {
                 $('#form_final').find('.general-error').html('Lengkapi data wajib [yg terdapat tanda *]');
                 return;
             }
 
-            if($.trim($('#payment_type').val()) =='1' || $.trim($('#payment_type').val()) =='2') {
-                if($.trim($('#total_paid').val()) == '') {
-                    $('#form_final').find('.general-error').html('Lengkapi data wajib [yg terdapat tanda *]');
-                    return;
-                }
-            }
-
             $('.submit-button').trigger('click');
         }
+        // alert()
         return;
     });
 
@@ -531,6 +643,8 @@ $(document).ready(function() {
         resetInput('#pic_selected');
         resetInput('#item_qty');
         resetInput('#item_discount');
+        // resetInput('#total_paid');
+        $('#item_selected_stok').val('--');
         hideDefault();
         $('#item_price_total').html(0);
     });
@@ -544,17 +658,4 @@ $(document).ready(function() {
         $('#form_final').show();
         $('#form_add_item').hide();
     });
-
-    function isInputEmpty(id)
-    {
-        return $.trim($(id).val()) == '';
-    }
-
-    function resetInput(id)
-    {
-        $(id).val('');
-        if($(id).prop('disabled')) {
-            $(id).prop('disabled',false);
-        }
-    }
 });

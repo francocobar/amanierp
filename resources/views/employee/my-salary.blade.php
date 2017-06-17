@@ -49,8 +49,8 @@
             <div class="portlet-title">
                 <div class="caption">
                     <i class="fa fa-credit-card font-purple-rev"></i>
-                    <span class="caption-subject font-purple-rev bold">Gaji Pokok Bulan Ini: {{
-                        $salary_now ? HelperService::maskMoney($salary_now->employee_salary) : '0'}}</span>
+                    <span class="caption-subject font-purple-rev bold">Gaji Bulan Ini: {{
+                        $salary_now ? HelperService::maskMoney($salary_now->employee_salary+$total_incentive) : HelperService::maskMoney($total_incentive)}}</span>
                 </div>
             </div>
 
@@ -61,7 +61,8 @@
             ?>
             <div class="portlet-body">
                 <div>
-                    Insentif sampai saat ini: {{HelperService::maskMoney($total_incentive)}}
+                    Gaji Pokok: {{$salary_now ? HelperService::maskMoney($salary_now->employee_salary) : 0}}<br/>
+                    Insentif: {{HelperService::maskMoney($total_incentive)}}
                 </div>
                 <div class="table-scrollable">
                     <table class="table table-bordered table-striped">

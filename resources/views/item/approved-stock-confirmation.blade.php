@@ -27,7 +27,7 @@
                             <tr>
                                 <th scope="col">Item</th>
                                 <th scope="col" style="width:100px !important">Kategori</th>
-                                <th scope="col" style="width:150px !important">Jumlah Stok Masuk</th>
+                                <th scope="col" style="width:150px !important">Jumlah Stok Diterima</th>
                                 <th scope="col" style="width:150px !important">Approved Oleh</th>
                                 <th scope="col">Waktu Approved</th>
                             </tr>
@@ -37,7 +37,7 @@
                                 <tr>
                                     <td>{{ $approved_confirmation->item_id.' '.$approved_confirmation->item->item_name }}</td>
                                     <td>{{ ucwords(HelperService::itemTypeById($approved_confirmation->item->item_type)) }}</td>
-                                    <td>{{ $approved_confirmation->stock}}</td>
+                                    <td>{{ intval($approved_confirmation->approved_stock).' dari '.$approved_confirmation->stock}}</td>
                                     <td>{{ $approved_confirmation->approver->first_name }}</td>
                                     <td>{{ $approved_confirmation->approval_date }}</td>
                                 </tr>

@@ -9,7 +9,7 @@
                 $('.general-error').html('Isi Invoice Id');
                 return;
             }
-            var url = "{{route('search.invoice.report')}}?invoice=-keyword-";
+            var url = "{{route('search.invoice.cashier')}}?invoice=-keyword-";
             location.href= url.replace("-keyword-", $.trim($('#keyword').val()));
         });
 
@@ -17,6 +17,7 @@
             e.preventDefault();
             $('#btn_search_invoice').trigger('click');
         });
+        // Bootbox.init();
     });
 </script>
 @endsection
@@ -67,6 +68,21 @@
                 <div class="caption">
                     <i class="icon-social-dribbble font-dark hide"></i>
                     <span class="caption-subject font-dark bold uppercase">Data Penyewaan: {{$header->invoice_id}}</i></span>
+                    <span>{{HelperService::inaDate($header->created_at,2)}}</span>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="col-xs-4">
+                    <b>Status Pembayaran per {{HelperService::inaDate($today,2)}}</b><br/>
+                    {{$header->paymentStatus()}}
+                </div>
+                <div class="col-xs-4">
+                    <b>Total Bayar</b><br/>
+                    {{$header->paidValue(true)}}
+                </div>
+                <div class="col-xs-4">
+                    <b>Sisa Bayar</b><br/>
+                    {{$header->debtValue(true)}}
                 </div>
             </div>
             <div class="portlet-body">
@@ -78,27 +94,92 @@
                                 <th scope="col">Cabang Pengambilan</th>
                                 <th scope="col">Qty</th>
                                 <th scope="col">Tanggal Sewa</th>
-                                <th scope="col">&nbsp;</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Ubah Status</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @if(!$header->isDebt())
+                                @foreach($header->rentingDatas as $renting_data)
+                                <tr>
+                                    <td>{{$renting_data->itemInfo->item_name}}</td>
+                                    <td>{{$renting_data->branch->branch_name}}</td>
+                                    <td>{{$renting_data->qty}}</td>
+                                    <td>{{HelperService::inaDate($renting_data->renting_date)}}</td>
+
+                                    @if($renting_data->taking_date==null)
+                                    <td>
+                                        Belum diambil
+                                    </td>
+                                    <td>
+                                        @if($is_superadmin || ($employee != null && $employee->branch_id == $renting_data->renting_branch))
+                                        <a data-message="Anda yakin {{$renting_data->itemInfo->item_name}} sebanyak {{$renting_data->qty}} telah diambil?" class="bootbox-confirmation" href="{{route('change.status.renting',[
+                                            'action'=>'taking',
+                                            'renting_data_id'=>Crypt::encryptString($renting_data->id)
+                                        ])}}">Diambil</a>
+                                        @else
+                                            <i>Beda Cabang</i>
+                                        @endif
+                                    </td>
+                                    @elseif($renting_data->return_date==null)
+                                    <td>
+                                        Sudah diambil,<br/>belum dikembalikan.
+                                    </td>
+                                    <td>
+                                        @if($is_superadmin || ($employee != null && $employee->branch_id == $renting_data->renting_branch))
+                                        <a data-message="Anda yakin {{$renting_data->itemInfo->item_name}} sebanyak {{$renting_data->qty}} telah dikembalikan?" class="bootbox-confirmation" href="{{route('change.status.renting',[
+                                            'action'=>'return',
+                                            'renting_data_id'=>Crypt::encryptString($renting_data->id)
+                                        ])}}">Dikembalikan</a>
+                                        @else
+                                            <i>Beda Cabang</i>
+                                        @endif
+                                    </td>
+                                    @else
+                                    <td>
+                                        Sudah dikembalikan.
+                                    </td>
+                                    <td>
+                                        &nbsp;
+                                    </td>
+                                    @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            @else
                             @foreach($header->rentingDatas as $renting_data)
                             <tr>
                                 <td>{{$renting_data->itemInfo->item_name}}</td>
                                 <td>{{$renting_data->branch->branch_name}}</td>
                                 <td>{{$renting_data->qty}}</td>
                                 <td>{{HelperService::inaDate($renting_data->renting_date)}}</td>
+
+                                @if($renting_data->taking_date==null)
                                 <td>
-                                    @if($renting_data->taking_date==null)
                                     Belum diambil
-                                    @elseif($renting_data->return_date==null)
-                                    Sudah diambil, belum dikembalikan.
-                                    @else
+                                </td>
+                                <td>
+                                    <i>Belum Lunas.</i>
+                                </td>
+                                @elseif($renting_data->return_date==null)
+                                <td>
+                                    Sudah diambil,<br/>belum dikembalikan.
+                                </td>
+                                <td>
+                                    <i>Belum Lunas</i>
+                                </td>
+                                @else
+                                <td>
                                     Sudah dikembalikan.
-                                    @endif
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                                @endif
                                 </td>
                             </tr>
                             @endforeach
+                            @endif
                         </tbody>
                     </table>
                 </div>

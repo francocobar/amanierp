@@ -55,11 +55,44 @@
                         <ul class="nav navbar-nav pull-right">
                             <!-- BEGIN NOTIFICATION DROPDOWN -->
                             <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
-
-                            @if(strtolower($role_user->slug) == 'manager')
+                            @if(strtolower($role_user->slug) == 'superadmin')
                             <li class="dropdown dropdown-extended dropdown-notification" id="header_notification_bar">
                                 <?php
-                                    $pending_count = ItemService::countPendingStockConfirmation();
+                                    $rejected = StockService::getRejectedStockConfirmation(1, false);
+                                    $rejected_count = $rejected->count();
+                                    $pending = StockService::getPendingStockConfirmation(1);
+                                    $pending_count = $pending->count();
+
+                                    $total = $rejected_count + $pending_count;
+                                ?>
+                                @if($total>0)
+                                <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                    <i class="icon-bell"></i>
+                                    <span class="badge badge-default"> {{$total}} </span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    @if($pending_count>0)
+                                    <li class="external">
+                                        <h3>
+                                            <span class="bold">{{$pending_count}} konfirmasi pending</span></h3>
+                                        <a href="{{route('get.item.pending.confirmations')}}">Lihat Semua</a>
+                                    </li>
+                                    @endif
+                                    @if($rejected_count>0)
+                                    <li class="external">
+                                        <h3>
+                                            <span class="bold">{{$rejected_count}} konfirmasi rejected</span></h3>
+                                        <a href="{{route('get.item.rejected.confirmations',['unseen'=>1])}}">Lihat Semua</a>
+                                    </li>
+                                    @endif
+                                </ul>
+                                @endif
+                            </li>
+                            @elseif(strtolower($role_user->slug) == 'manager')
+                            <li class="dropdown dropdown-extended dropdown-notification" id="header_notification_bar">
+                                <?php
+                                    $pending = StockService::getPendingStockConfirmation(1);
+                                    $pending_count = $pending->count();
                                 ?>
                                 @if($pending_count>0)
                                 <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
@@ -103,7 +136,7 @@
                             @include('menu.samenu')
                         @elseif(strtolower($role_user->slug) == 'manager')
                             @include('menu.managermenu')
-                        @elseif(strtolower($role_user->slug) == 'staff')
+                        @elseif(strtolower($role_user->slug) == 'staff' || strtolower($role_user->slug) == 'cashier')
                             @include('menu.staffmenu')
                         @endif
                     @else
@@ -155,8 +188,8 @@
         <script src="{{ URL::asset('js/app.min.js') }} " type="text/javascript"></script>
         <!-- END THEME GLOBAL SCRIPTS -->
         <!-- BEGIN THEME LAYOUT SCRIPTS -->
-
         <script src="{{ URL::asset('assets/global/plugins/bootbox/bootbox.min.js') }} " type="text/javascript"></script>
+        <script src="{{ URL::asset('js/jquery.maskMoney.min.js') }}" type="text/javascript"></script>
         <!-- END THEME LAYOUT SCRIPTS -->
         @yield('optional_js')
     </body>

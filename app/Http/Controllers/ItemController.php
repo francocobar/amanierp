@@ -15,17 +15,25 @@ use App\BranchStock;
 use App\TransferStock;
 use App\Employee;
 use App\Stock;
+use App\BranchModalLog;
 use Sentinel;
 use Carbon\Carbon;
 use UserService;
 use EmployeeService;
+use App\PaketConfiguration;
+use StockService;
+use Illuminate\Support\Facades\DB;
+use App\BranchStockLog;
+use App\PembukuanPusat;
+use App\PembukuanBranch;
 
 class ItemController extends Controller
 {
     public function __construct()
     {
         $this->middleware('authv2');
-        $this->middleware('superadmin')->only(['addItem','getItemJasaById', 'getItemProdukById', 'getItemSewaById', 'getJasaConfiguration']);
+        $this->middleware('superadmin')->only(['addItem','getItemJasaById', 'getItemProdukById', 'getItemSewaById',
+        'getJasaConfiguration', 'getItemPaketById', 'getPaketConfiguration']);
 
         // $this->middleware('log')->only('index');
         //
@@ -39,6 +47,7 @@ class ItemController extends Controller
             Crypt::encryptString(Constant::type_id_produk) => 'Produk',
             Crypt::encryptString(Constant::type_id_jasa) => 'Jasa',
             Crypt::encryptString(Constant::type_id_sewa) => 'Sewa',
+            Crypt::encryptString(Constant::type_id_paket) => 'Paket'
         ];
         return view('item.add-item',[
             'item_types' => $item_types
@@ -52,7 +61,9 @@ class ItemController extends Controller
         $item_id = Crypt::decryptString($inputs['item']);
         unset($inputs['item']);unset($inputs['_token']);
 
-        $inputs['branch_price'] = str_replace('.', '', $inputs['branch_price']);
+        if(isset($inputs['branch_price']) && !empty(trim($inputs['branch_price'])))
+            $inputs['branch_price'] = str_replace('.', '', $inputs['branch_price']);
+
         $inputs['m_price'] = str_replace('.', '', $inputs['m_price']);
         $inputs['nm_price'] = str_replace('.', '', $inputs['nm_price']);
         $incentive = -1;
@@ -116,6 +127,20 @@ class ItemController extends Controller
             'item' => $item
         ]);
     }
+
+    function getItemPaketById($id)
+    {
+        $item = Item::where('item_id', $id)
+                ->where('item_type', Constant::type_id_paket)->first();
+
+        if($item == null) {
+            abort(404);
+        }
+        return view('item.edit-item',[
+            'item' => $item
+        ]);
+    }
+
     // function editItem($item_id_encrypted, $url_ref)
     // {
     //     // return HelperService::itemTypeById(1);
@@ -135,9 +160,17 @@ class ItemController extends Controller
         $inputs = $request->all();
         $inputs['item_type'] = Crypt::decryptString($inputs['item_type']);
         unset($inputs['_token']);
-        if(!empty(trim($inputs['branch_price']))) {
-            $inputs['branch_price'] = str_replace('.', '', $inputs['branch_price']);
+        if(intval($inputs['item_type']) == 1 || intval($inputs['item_type']) == 3) {
+            if(!empty(trim($inputs['branch_price'])))
+                $inputs['branch_price'] = str_replace('.', '', $inputs['branch_price']);
+            else {
+                return "error";
+            }
         }
+        else {
+
+        }
+
         $inputs['m_price'] = str_replace('.', '', $inputs['m_price']);
         $inputs['nm_price'] = str_replace('.', '', $inputs['nm_price']);
         $add_item = ItemService::addItem($inputs);
@@ -189,11 +222,43 @@ class ItemController extends Controller
         $total = Item::where('item_type', Constant::type_id_jasa)->count();
         $items_jasa = Item::where('item_type', Constant::type_id_jasa)
                         ->skip($skip)->take($take)
-                        ->orderBy('item_name')->get();
+                        ->orderBy('item_name');
+        $not_configured_items = [];
+        if(request()->notconfiguredyet=='1') {
+            $not_configured_items = JasaConfiguration::get(['item_id_jasa'])->pluck('item_id_jasa')->toArray();
+            $items_jasa = $items_jasa->whereNotIn('item_id', $not_configured_items);
+        }
+        $counter = Item::where('item_type', Constant::type_id_jasa)->whereNotIn('item_id', $not_configured_items)->count();
         if($items_jasa->count())
             return view('item.items-jasa', [
-                'items_jasa' => $items_jasa,
-                'message' => HelperService::dataCountingMessage(Item::where('item_type', Constant::type_id_jasa)->count(), $skip+1, $skip+$items_jasa->count(), $page),
+                'items_jasa' => $items_jasa->get(),
+                'message' => HelperService::dataCountingMessage($counter, $skip+1, $skip+$items_jasa->count(), $page),
+                'total_page' => ceil($total/$take),
+                'role_user' => UserService::getRoleByUser()
+            ]);
+
+        abort(404);
+    }
+
+    function getItemsPaket($page=1)
+    {
+        $take = 20;
+        $skip = ($page - 1) * $take;
+        $total = Item::where('item_type', Constant::type_id_paket)->count();
+        $items_paket = Item::where('item_type', Constant::type_id_paket)
+                        ->skip($skip)->take($take)
+                        ->orderBy('item_name');
+
+        $not_configured_items = [];
+        if(request()->notconfiguredyet=='1') {
+            $not_configured_items = PaketConfiguration::get(['item_id_paket'])->pluck('item_id_paket')->toArray();
+            $items_paket = $items_paket->whereNotIn('item_id', $not_configured_items);
+        }
+        $counter = Item::where('item_type', Constant::type_id_paket)->whereNotIn('item_id', $not_configured_items)->count();
+        if($items_paket->count())
+            return view('item.items-paket', [
+                'items_paket' => $items_paket->get(),
+                'message' => HelperService::dataCountingMessage($counter, $skip+1, $skip+$items_paket->count(), $page),
                 'total_page' => ceil($total/$take),
                 'role_user' => UserService::getRoleByUser()
             ]);
@@ -236,8 +301,7 @@ class ItemController extends Controller
 
     function getJasaConfiguration($item_id)
     {
-        $item_jasa = Item::where('item_id', $item_id)->first()
-                            ->where('item_type', Constant::type_id_jasa)->first();
+        $item_jasa = Item::where('item_id', $item_id)->where('item_type', Constant::type_id_jasa)->first();
         if($item_jasa) {
             $jasa_configurations = JasaConfiguration::where('item_id_jasa', $item_id)
                             ->with(['produk'])->orderBy('created_at', 'desc')->get();
@@ -296,7 +360,69 @@ class ItemController extends Controller
             'no_reset_form' => true,
             'message' => 'Konfigurasi berhasil diupdate!'
         ]);
+    }
 
+    function deletePaketConfiguration($id_encrypted)
+    {
+        $config_id = Crypt::decryptString($id_encrypted);
+        $config = PaketConfiguration::find($config_id);
+
+        $back_to = route('configure.item.paket',[
+            'item_id' => $config->item_id_paket
+        ]);
+
+        $config->delete();
+
+        return redirect($back_to);
+    }
+
+    function updatePaketConfiguration(Request $request, $id_encrypted)
+    {
+        $inputs = $request->all();
+
+        $id_decrypted = Crypt::decryptString($id_encrypted);
+
+        $inputs['configured_by'] = Sentinel::getUser()->id;
+        unset($inputs['_token']);
+        if(strpos($id_decrypted, 'add_new_configuration') !== false) {
+            $split = explode('.', $id_decrypted);
+            // dd($split);
+            $inputs['item_id_paket'] = $split[1];
+            $inputs['item_id_jasa'] = Crypt::decryptString($inputs['item_jasa']);
+            unset($inputs['item_jasa']);
+            // dd($inputs);
+            $add_config = PaketConfiguration::create($inputs);
+            return response()->json([
+                'status' => 'success',
+                'need_reload' => true,
+                'message' => 'Konfigurasi berhasil ditambahkan!'
+            ]);
+        }
+
+        $config = PaketConfiguration::find($id_decrypted)->update($inputs);
+        return response()->json([
+            'status' => 'success',
+            'no_reset_form' => true,
+            'message' => 'Konfigurasi berhasil diupdate!'
+        ]);
+    }
+
+    function getPaketConfiguration($item_id)
+    {
+        $item_paket = Item::where('item_id', $item_id)->where('item_type', Constant::type_id_paket)->first();
+        if($item_paket) {
+            $paket_configurations = PaketConfiguration::where('item_id_paket', $item_id)
+                            ->with(['jasa'])->orderBy('created_at', 'desc')->get();
+            $jasa_exists = $paket_configurations->pluck('item_id_jasa')->toArray();
+            // dd($paket_configurations);
+            return view('item.configure-paket', [
+                'item_paket' => $item_paket,
+                'paket_configurations' => $paket_configurations,
+                'items_paket' => Item::where('item_type', Constant::type_id_jasa)
+                                        ->whereNotIn('item_id', $jasa_exists)->get()
+            ]);
+        }
+        abort(404);
     }
 
     function inputStock()
@@ -306,31 +432,34 @@ class ItemController extends Controller
         if($item==null || $item->item_type==Constant::type_id_jasa){
             abort(404);
         }
-
+        if($item->itemStock) {
+            return view('item.input-stock',[
+                'item' => $item,
+                'stock' => $item->itemStock->stock,
+                'modal_per_pcs' => $item->itemStock->modal_per_pcs
+            ]);
+        }
         return view('item.input-stock',[
             'item' => $item,
-            'stock' => $item->itemStock == null ? 0 : $item->itemStock->stock
+            'stock' => 0,
+            'modal_per_pcs' => 0
         ]);
     }
 
 
     function inputStockDo(Request $request)
     {
-        $stock = Stock::where('item_id', request()->item_id)->first();
         $inputs = $request->all();
-        if($stock==null) {
-            $stock = new Stock();
-            $stock->item_id = request()->item_id;
-            $stock->stock = 0;
+        $inputs['item_id'] = request()->item_id;
+        DB::beginTransaction();
+        if(StockService::inputStockPusat($inputs) == '') {
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Stok item di pusat berhasil diupdate',
+                'need_reload' => true
+            ]);
         }
-        $stock->stock = $stock->stock + intval($inputs['add_stock']);
-        $stock->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Stok item di pusat berhasil diupdate',
-            'need_reload' => true
-        ]);
     }
 
     function supplyBranch()
@@ -386,10 +515,15 @@ class ItemController extends Controller
 
         $transfer_inputs['sender'] = Sentinel::getUser()->id;
         $transfer_inputs['sender_note'] = $inputs['note'];
+        $transfer_inputs['modal_pusat'] = $item->itemStock->modal_per_pcs;
+        $transfer_inputs['modal_cabang'] = $item->branch_price;
+        // dd($transfer_inputs);
+
+        DB::beginTransaction();
         $transfer_stock = TransferStock::create($transfer_inputs);
         $item->itemStock->stock = $item->itemStock->stock-$transfer_inputs['stock'];
         $item->itemStock->save();
-
+        DB::commit();
         return response()->json([
             'status' => 'success',
             'message' => 'Stok item di cabang akan bertambah setelah dikonfirmasi oleh Manager.<br/>Stok dipusat akan berkurang selama konfirmasi Pending dan dapat bertambah kembali jika Rejected, namun akan tetap berkurang jika sudah Accepted.',
@@ -399,7 +533,7 @@ class ItemController extends Controller
 
     function getApprovedConfirmations()
     {
-        $approved_confirmations = ItemService::getApprovedStockConfirmation();
+        $approved_confirmations = StockService::getApprovedStockConfirmation();
 
         return view('item.approved-stock-confirmation',[
             'approved_confirmations' => $approved_confirmations
@@ -408,7 +542,7 @@ class ItemController extends Controller
 
     function getRejectedConfirmations()
     {
-        $rejected_confirmations = ItemService::getRejectedStockConfirmation();
+        $rejected_confirmations = StockService::getRejectedStockConfirmation(request()->unseen);
 
         return view('item.rejected-stock-confirmation',[
             'rejected_confirmations' => $rejected_confirmations
@@ -418,7 +552,7 @@ class ItemController extends Controller
 
     function getPendingConfirmations()
     {
-        $pending_confirmations = ItemService::getPendingStockConfirmation();
+        $pending_confirmations = StockService::getPendingStockConfirmation();
 
         return view('item.pending-stock-confirmation',[
             'pending_confirmations' => $pending_confirmations
@@ -438,26 +572,129 @@ class ItemController extends Controller
                     $pending_confirmation->approval_status = $inputs['confirmation_type'];
                     $pending_confirmation->approval = Sentinel::getUser()->id;
                     $pending_confirmation->approval_note = trim($inputs['note']);
+                    $pending_confirmation->approval_date = Carbon::now();
+
+                    // $message = [];
+                    if($pending_confirmation->approval_status == Constant::status_rejected) {
+                        $pending_confirmation->approved_stock = 0;
+                        // $message['subject'] = 'Konfirmasi Rejected';
+                    }
+                    else {
+                        $pending_confirmation->approved_stock = intval($inputs['approved_stock']);
+                        // $message['subject'] = 'Konfirmasi Approved';
+                        if($pending_confirmation->approved_stock <= 0) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message_box' => '<b>WARNING</b> Stok approved minimum 1'
+                            ]);
+                        }
+                    }
+                    if($pending_confirmation->approved_stock > $pending_confirmation->stock) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message_box' => '<b>WARNING</b> Stok approved maksimum '. $pending_confirmation->stock
+                        ]);
+                    }
+                    DB::beginTransaction();
+
+                    $item = Item::where('item_id',$pending_confirmation->item_id)->first();
+                    $branch = Branch::where('id', $pending_confirmation->branch_id)->first();
                     if($pending_confirmation->save()) {
                         if($pending_confirmation->approval_status == Constant::status_rejected) {
-                            //balikin stok pusat
-                            $stock_pusat = Stock::where('item_id', $pending_confirmation->item_id)->first();
-                            $stock_pusat->stock = $stock_pusat->stock + $pending_confirmation->stock;
-                            $stock_pusat->save();
+                            // $message['subject'] .= ' #'.$item->item_id.' '.$item->item_name.' Cabang: '.$branch->branch_name;
+                            $param = [];
+                            $param['item_id'] = $pending_confirmation->item_id;
+                            $param['add_stock'] = $pending_confirmation->stock;
+                            $param['modal_per_pcs'] = HelperService::maskMoney(intval($pending_confirmation->modal_pusat));
+                            $param['branch'] = Branch::find($pending_confirmation->branch_id);
+                            if(StockService::inputStockPusat($param, 2) == '') {
+                                DB::commit();
+                            }
                         }
                         else {
+                            $pembukuan_pusat = $log = $branch_modal_log = [];
+                            $pembukuan_pusat['branch_buyer'] = $log['branch_id'] = $pending_confirmation->branch_id;
+                            $pembukuan_pusat['item_id'] = $log['item_id'] = $pending_confirmation->item_id;
                             //kalo approved tambahin branch stock
-                            $branch_stock = BranchStock::where('item_id', request()->item_id)
+                            $branch_stock = BranchStock::where('item_id', $pending_confirmation->item_id)
                                                     ->where('branch_id', $pending_confirmation->branch_id)->first();
                             if($branch_stock==null) {
                                 $branch_stock = new BranchStock();
                                 $branch_stock->item_id = $pending_confirmation->item_id;
                                 $branch_stock->branch_id = $pending_confirmation->branch_id;
-                                $branch_stock->stock = 0;
+                                $branch_stock->modal_per_pcs = $branch_stock->stock = 0;
                             }
-                            $branch_stock->stock = $branch_stock->stock + $pending_confirmation->stock;
+                            $log['modal_per_pcs_before'] = $branch_stock->modal_per_pcs;
+                            $log['stock_before'] = $branch_stock->stock;
+                            $total_modal_before = $branch_stock->modal_per_pcs * $branch_stock->stock;
+
+                            $log['stock_new_input'] = $stock_new_input = $pending_confirmation->approved_stock;
+                            $log['modal_new_input'] = $modal_new_input = $pending_confirmation->modal_cabang;
+                            $branch_modal_log['modal_value'] = $total_modal_new_input = $stock_new_input*$modal_new_input;
+
+                            $log['stock_after'] = $branch_stock->stock = $branch_stock->stock + $pending_confirmation->approved_stock;
+                            $total_modal_after = $total_modal_before + $total_modal_new_input;
+                            $log['modal_per_pcs_after'] = $branch_stock->modal_per_pcs = $total_modal_after / $branch_stock->stock;
+
                             $branch_stock->save();
+
+                            $log['supplied_by'] = $pending_confirmation->sender;
+                            $log['approved_by'] = $pending_confirmation->approval;
+
+                            $log_data = BranchStockLog::create($log);
+
+                            $branch_modal_log['branch_id'] = $branch_stock->branch_id;
+                            $branch_modal_log['information'] = 'Penambahan stok #'.$item->item_id.' '.$item->item_name.' sebanyak '.$stock_new_input.' @'. HelperService::maskMoney($modal_new_input);
+                            $branch_modal_log['information'] .= ' | No. BSL: '.$log_data->id;
+                            $branch_modal_log['modal_type'] = 1;
+                            $bml = BranchModalLog::create($branch_modal_log);
+                            if($item->item_type == Constant::type_id_sewa) {
+                                $pb = [];
+                                $pb['branch_id'] = $branch_stock->branch_id;
+                                $pb['item_id']=$item->item_id;
+                                $pb['qty_item'] = $stock_new_input;
+                                $pb['modal_per_qty_item'] = $modal_new_input;
+                                $pb['modal_total'] = $total_modal_new_input;
+                                $pb['profit'] = 0 - $pb['modal_total'];
+                                $pb['description'] = 'Pengadaan barang sewa';
+                                //Pengadaan barang sewa
+                                PembukuanBranch::create($pb);
+                            }
+                            $rejected = 0;
+                            //kalo gak approved semua
+                            if($pending_confirmation->approved_stock < $pending_confirmation->stock) {
+                                $rejected = $pending_confirmation->stock-$pending_confirmation->approved_stock;
+                            }
+
+                            if($rejected > 0) {
+                                // $message['subject'] .= ' '.$pending_confirmation->approved_stock.' dari '.$pending_confirmation->stock;
+                                //balikin stok pusat
+                                $param = [];
+                                $param['item_id'] = $pending_confirmation->item_id;
+                                $param['add_stock'] = $rejected;
+                                $param['modal_per_pcs'] = HelperService::maskMoney(intval($pending_confirmation->modal_pusat));
+                                $param['branch'] = Branch::find($pending_confirmation->branch_id);
+                                StockService::inputStockPusat($param, 2);
+                            }
+                            else {
+                                // $message['subject'] .= ' Semua';
+                            }
+
+                            $pembukuan_pusat['modal']= $pending_confirmation->modal_pusat * $pending_confirmation->approved_stock;
+                            $pembukuan_pusat['turnover'] = $pending_confirmation->modal_cabang * $pending_confirmation->approved_stock;
+                            $pembukuan_pusat['description'] = 'Penjualan #'.$item->item_id.' '.$item->item_name.' sebanyak '.$pending_confirmation->approved_stock.' No. TS: '.$pending_confirmation->id;
+                            PembukuanPusat::create($pembukuan_pusat);
+                            // dd($pembukuan_pusat);
+
+                            // $message['subject'] .= ' #'.$item->item_id.' '.$item->item_name.' Cabang: '.$branch->branch_name;
+                            // $pic_pusat = User::find($pending_confirmation->sender);
+                            // $pic_cabang = User::find($pending_confirmation->approval);
+                            // $message['content'] = 'Pic Pusat: '.$pic_pusat.'<br/>';
+                            // $message['content'] = ''
+                            // dd($message);
+                            DB::commit();
                         }
+
 
                         return response()->json([
                             'status' => 'success',

@@ -43,6 +43,10 @@ Route::get('/item-jasa/{item_id}', 'ItemController@getItemJasaById')->name('deta
 Route::get('/configure-jasa/{item_id}', 'ItemController@getJasaConfiguration')->name('configure.item.jasa');
 Route::get('/items-sewa/{page?}', 'ItemController@getItemsSewa')->name('get.items.sewa');
 Route::get('/item-sewa/{item_id}', 'ItemController@getItemSewaById')->name('detail.item.sewa');
+Route::get('/items-paket/{page?}', 'ItemController@getItemsPaket')->name('get.items.paket');
+Route::get('/item-paket/{item_id}', 'ItemController@getItemPaketById')->name('detail.item.paket');
+Route::get('/configure-paket/{item_id}', 'ItemController@getPaketConfiguration')->name('configure.item.paket');
+// Route::get('/item-sewa/{item_id}', 'ItemController@getItemSewaById')->name('detail.item.sewa');
 
 Route::get('/input-stock-pusat/{item_id}','ItemController@inputStock')->name('input.stock.item');
 Route::post('/input-stock-pusat/{item_id}.do','ItemController@inputStockDo')->name('input.stock.item.do');
@@ -53,14 +57,19 @@ Route::get('/approved-confirmation', 'ItemController@getApprovedConfirmations')-
 Route::get('/rejected-confirmation', 'ItemController@getRejectedConfirmations')->name('get.item.rejected.confirmations');
 Route::post('/confirmation.do', 'ItemController@doConfirmPendingConfirmation')->name('confirm.pending.confirmation');
 
-Route::get('/delete-configuration/{configuration_id}', 'ItemController@deleteJasaConfiguration')->name('delete.configuration.item.jasa');
-Route::post('/update-configuration/{configuration_id}', 'ItemController@updateJasaConfiguration')->name('update.configuration.item.jasa');
+Route::get('/delete-configuration-jasa/{configuration_id}', 'ItemController@deleteJasaConfiguration')->name('delete.configuration.item.jasa');
+Route::post('/update-configuration-jasa/{configuration_id}', 'ItemController@updateJasaConfiguration')->name('update.configuration.item.jasa');
+Route::get('/delete-configuration-paket/{configuration_id}', 'ItemController@deletePaketConfiguration')->name('delete.configuration.item.paket');
+Route::post('/update-configuration-paket/{configuration_id}', 'ItemController@updatePaketConfiguration')->name('update.configuration.item.paket');
 
+Route::get('/employees/unset-incentives', 'EmployeeController@unsetIncetives')->name('unset.incentives.employees');
+Route::post('/employees/set-incentive.do', 'EmployeeController@doSetIncetives')->name('set.incentives.employee.do');
 Route::get('/employees/{page}', 'EmployeeController@getEmployees')->name('get.employees');
 Route::get('/employee/{employee_id}.{user_id}', 'EmployeeController@getEmployeeAndUser')->name('get.employee.user');
 Route::post('/employee/change-role/{employee_id}.{user_id}', 'EmployeeController@changeRole')->name('role.employee.user');
 Route::post('/employee/give-new-password/{employee_id?}.{user_id?}', 'EmployeeController@giveNewPassword')->name('password.employee.user');
 Route::post('/employee/new_salary/{employee_id}.{user_id}', 'EmployeeController@setNewSalary')->name('salary.employee.user');
+
 Route::get('/delete-employee-salary/{employee_salary_id}', 'EmployeeController@deleteSalary')->name('delete.salary');
 Route::get('create-first-user', 'UserController@createFirstUser')->name('create.first.user');
 
@@ -70,8 +79,8 @@ Route::get('/dashboard', 'UserController@dashboard')->name('dashboard');
 
 
 Route::get('/cashier', 'TransactionController@getCashier')->name('get.cashier');
-Route::get('/cashier-pelunasan', 'TransactionController@getCashierPelunasan')->name('get.cashier.pleunasan');
-Route::post('/cashier-pelunasan.do/{invoice_id}', 'TransactionController@doPelunasan')->name('do.cashier.pleunasan');
+Route::get('/cashier-next-payment', 'TransactionController@getCashierPelunasan')->name('get.cashier.next-payment');
+Route::post('/cashier-next-payment.do/{invoice_id}', 'TransactionController@doPelunasan')->name('do.cashier.next-payment');
 Route::get('/items/{branch}', 'TransactionController@getItems')->name('get.items.cashier');
 Route::get('/pic', 'TransactionController@getPic')->name('get.pic.cashier');
 Route::get('/members', 'TransactionController@getMembers')->name('get.members.cashier');
@@ -95,9 +104,20 @@ Route::post('/transaction.do', 'TransactionController@doTransaction')->name('do.
 //     return redirect('/cashier');
 // });
 
+Route::get('/add-discount-vouchers', 'VoucherController@addVoucher')->name('add.discount.vouchers');
+Route::get('/discount-vouchers/{page?}', 'VoucherController@getDiscountVouchers')->name('get.discount.vouchers');
+Route::post('/add-discount-vouchers.do', 'VoucherController@addVoucherDo')->name('add.voucher.do');
+Route::get('/validates-voucher', 'VoucherController@validateVoucher')->name('validate.voucher');
+
 Route::get('logout', 'UserController@logout')->name('logout');
 
+Route::get('/pb', 'ReportController@pembukuanBranch')->name('pb.report');
+Route::get('/pb/modal-note/{id}', 'ReportController@pembukuanBranchById')->name('pb.modal.note');
+Route::get('/sales-report-pusat/{period}/{spesific?}/{branch?}', 'ReportController@getSalesReportPusat')->name('get.sales.report.pusat');
 Route::get('/sales-report/{period}/{spesific?}/{branch?}', 'ReportController@getSalesReport')->name('get.sales.report');
-Route::get('/search-invoices', 'ReportController@searchInvoice')->name('search.invoice.report');
+Route::get('/search-invoices', 'TransactionController@searchInvoice')->name('search.invoice.cashier');
+Route::get('/invoice','TransactionController@getInvoice')->name('get.invoice.cashier');
 
-Route::get('/renting-datas/{header_id}', 'RentingController@rentingDatas')->name('renting-data.report');
+Route::get('/renting-datas/{header_id}', 'RentingController@rentingDatas')->name('renting.by.invoice.casier');
+Route::get('/renting-datas-timeline', 'RentingController@rentingDatasByTime')->name('renting.by.time.casier');
+Route::get('/renting-datas/{action}/{reting_data_id}', 'RentingController@changeStatusRentingData')->name('change.status.renting');

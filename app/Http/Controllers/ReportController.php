@@ -10,7 +10,9 @@ use DB;
 use Carbon\Carbon;
 use HelperService;
 use App\Branch;
-
+use App\NextPayment;
+use App\PembukuanPusat;
+use App\PembukuanBranch;
 
 class ReportController extends Controller
 {
@@ -44,8 +46,7 @@ class ReportController extends Controller
         );
 
         $selects_pelunasan_hutang = array(
-            'sum(total_paid2) AS sum_total_paid2',
-            'sum(transaction_headers.change2) AS sum_change2',
+            'sum(paid_value) AS sum_total_paid2',
         );
         $header_sum = $headers = $header_pelunasan_hutang = null;
         if($period == Constant::daily_period) {
@@ -68,7 +69,7 @@ class ReportController extends Controller
             $report['period'] = HelperService::inaDate($spesific);
             $header_sum =  TransactionHeader::whereDate('created_at', $spesific);
             $headers =  TransactionHeader::whereDate('created_at', $spesific);
-            $header_pelunasan_hutang = TransactionHeader::whereDate('payment2_date', $spesific)
+            $header_pelunasan_hutang = NextPayment::whereDate('created_at', $spesific)
                         ->selectRaw(implode(',', $selects_pelunasan_hutang));
         }
         else if($period == Constant::monthly_period) {
@@ -90,7 +91,7 @@ class ReportController extends Controller
                         ->whereYear('created_at', '=', $report['year']);
             $headers =  TransactionHeader::whereMonth('created_at', '=', $report['month'])
                         ->whereYear('created_at', '=', $report['year']);
-            $header_pelunasan_hutang = TransactionHeader::whereMonth('created_at', '=', $report['month'])
+            $header_pelunasan_hutang = NextPayment::whereMonth('created_at', '=', $report['month'])
                         ->whereYear('created_at', '=', $report['year']);
         }
 
@@ -118,12 +119,12 @@ class ReportController extends Controller
                 ->selectRaw(implode(',', $selects_details))->get();
 
         $report['omset'] = $header_sum[0]['sum_total_paid']-$header_sum[0]['sum_change']
-                            +$header_pelunasan_hutang[0]['sum_total_paid2']-$header_pelunasan_hutang[0]['sum_change2'];
+                            +$header_pelunasan_hutang[0]['sum_total_paid2'];
         $report['potongan'] = $header_sum[0]['sum_item_discount']+$header_sum[0]['sum_discount_total'];
         $report['others'] = $header_sum[0]['sum_others'];
         $report['total_jual'] = $header_sum[0]['sum_total_item_price'] - $report['potongan'] + $header_sum[0]['sum_others'];
         $report['tunai'] = $header_sum[0]['sum_total_paid']-$header_sum[0]['sum_change'];
-        $report['tunai_piutang'] = $header_pelunasan_hutang[0]['sum_total_paid2']-$header_pelunasan_hutang[0]['sum_change2'];
+        $report['tunai_piutang'] = $header_pelunasan_hutang[0]['sum_total_paid2'];
         $report['non_tunai'] = $header_sum[0]['sum_debt'] == null ? 0 :  $header_sum[0]['sum_debt'];
         // dd($details);
         return view('report.sales-report',[
@@ -135,19 +136,86 @@ class ReportController extends Controller
         dd($report);
     }
 
-    function searchInvoice()
+    function getSalesReportPusat($period, $spesific='0', $branch= '0')
     {
-        $headers = null;
-        if(request()->invoice)
-        {
-            $headers = TransactionHeader::with(['rentingDatas'])->where('invoice_id', 'like', '%'.trim(request()->invoice).'%')->get();
+        $penjualan = null;
+        $report = [];
+        $report['branch'] = $branch;
+        if($report['branch'] != 0) {
+            $report['obj_branch'] = Branch::find($branch);
+            if($report['obj_branch'] == null) abort(404);
         }
-        // dd($headers);
-        // dd($headers->count());
+        if($period == Constant::daily_period) {
+            if($spesific=='0') {
+                $spesific = Carbon::today()->toDateString();
+                $spesifics = Carbon::today();
+                $report['date_period'] = sprintf("%02d", $spesifics->day).'-'.sprintf("%02d", $spesifics->month).'-'.$spesifics->year;
+            }
+            else {
+                $spesifics = explode('-', $spesific);
+                // dd($spesifics);
+                if(count($spesifics) != 3) {
+                    abort(404);
+                }
+                else {
+                    $report['date_period'] = $spesifics[2].'-'.$spesifics[1].'-'.$spesifics[0];
+                }
+                // dd($report);
+            }
+            $report['period'] = HelperService::inaDate($spesific);
+            $penjualan = PembukuanPusat::whereDate('created_at', $spesific);
+        }
+        else if($period == Constant::monthly_period) {
+            $report['year'] = date('Y');
+            $report['month'] = date('m');
+            if($spesific!='0') {
+                $spesifics = explode('-', $spesific);
+                if(count($spesifics) != 2) {
+                    abort(404);
+                }
+                else {
+                    $report['year'] = intval($spesifics[0]);
+                    $report['month'] = intval($spesifics[1]);
+                }
+            }
 
-        return view('report.search-invoice',[
-            'headers' => $headers,
-            'keyword' => trim(request()->invoice)
+            $report['period'] = HelperService::monthName($report['month']).' '.$report['year'];
+            $penjualan = PembukuanPusat::whereMonth('created_at', '=', $report['month'])
+                        ->whereYear('created_at', '=', $report['year']);
+        }
+
+        if($branch != '0') {
+            $penjualan = $penjualan->where('branch_buyer', intval($branch));
+        }
+        $penjualan = $penjualan->get();
+        return view('report.sales-report-pusat',[
+            'report' => $report,
+            'penjualan' => $penjualan,
+            'branches' => Branch::get()
         ]);
+        dd($penjualan);
+    }
+
+    function pembukuanBranch()
+    {
+        $pb_ = PembukuanBranch::get();
+        return view('report.pembukuan-branch',[
+            'pb_' => $pb_
+        ]);
+        dd($pb_);
+    }
+
+    function pembukuanBranchById($id)
+    {
+        $pb=PembukuanBranch::find($id);
+
+        $descs = explode(",",$pb->description);
+        $reutrn = "";
+        foreach ($descs as $key => $desc) {
+            if(!empty(trim($desc))) {
+                $reutrn .= trim($desc)."<br/>";
+            }
+        }
+        return $reutrn;
     }
 }

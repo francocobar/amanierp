@@ -6,7 +6,6 @@
 
 @section('optional_js')
 <script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
-<script src="../js/jquery.maskMoney.min.js" type="text/javascript"></script>
 <script src="../js/add-item.js" type="text/javascript"></script>
 @endsection
 
@@ -36,16 +35,18 @@
                                     <input type="hidden" name="item" value="{{Crypt::encryptString($item->item_id)}}" />
                             </div>
                         </div>
+                        @if($item->item_type == Constant::type_id_produk || $item->item_type == Constant::type_id_sewa)
                         <div class="form-group">
                             <label class="control-label col-md-3">Harga Cabang
-                                <span class="required">  </span>
+                                <span class="required"> * </span>
                             </label>
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" value="{{HelperService::maskMoney($item->branch_price)}}" class="form-control mask-money" name="branch_price" /> </div>
+                                    <input type="text" value="{{$item->branch_price >0 ? HelperService::maskMoney($item->branch_price) : ''}}" class="form-control mask-money" name="branch_price" /> </div>
                             </div>
                         </div>
+                        @endif
                         <div class="form-group">
                             <label class="control-label col-md-3">Harga Member
                                 <span class="required"> * </span>
@@ -74,10 +75,10 @@
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" value="{{HelperService::itemTypeById($item->item_type)}}" class="form-control" disabled/> </div>
+                                    <input type="text" name="item_type" value="{{HelperService::itemTypeById($item->item_type)}}" class="form-control" disabled/> </div>
                             </div>
                         </div>
-                        @if($item->item_type == Constant::type_id_jasa)
+                        @if($item->item_type == Constant::type_id_jasa || $item->item_type == Constant::type_id_paket)
                         <div class="form-group" id="input_incentive">
                             <label class="control-label col-md-3">Insentif
                                 <span class="required"> * </span>
