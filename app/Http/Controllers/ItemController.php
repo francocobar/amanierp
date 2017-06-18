@@ -229,6 +229,7 @@ class ItemController extends Controller
             $items_jasa = $items_jasa->whereNotIn('item_id', $not_configured_items);
         }
         $counter = Item::where('item_type', Constant::type_id_jasa)->whereNotIn('item_id', $not_configured_items)->count();
+         $items_jasa =  $items_jasa->get();
         if($items_jasa->count())
             return view('item.items-jasa', [
                 'items_jasa' => $items_jasa->get(),
