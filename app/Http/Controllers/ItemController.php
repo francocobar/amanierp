@@ -256,9 +256,10 @@ class ItemController extends Controller
             $items_paket = $items_paket->whereNotIn('item_id', $not_configured_items);
         }
         $counter = Item::where('item_type', Constant::type_id_paket)->whereNotIn('item_id', $not_configured_items)->count();
+        $items_paket = $items_paket->get();
         if($items_paket->count())
             return view('item.items-paket', [
-                'items_paket' => $items_paket->get(),
+                'items_paket' => $items_paket,
                 'message' => HelperService::dataCountingMessage($counter, $skip+1, $skip+$items_paket->count(), $page),
                 'total_page' => ceil($total/$take),
                 'role_user' => UserService::getRoleByUser()
