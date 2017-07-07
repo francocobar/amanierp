@@ -173,6 +173,7 @@ class ItemController extends Controller
         if(intval($inputs['item_type']) != 1 || isset($inputs['for_sale'])) {
             $inputs['m_price'] = str_replace('.', '', $inputs['m_price']);
             $inputs['nm_price'] = str_replace('.', '', $inputs['nm_price']);
+            $inputs['for_sale'] = true;
         }
         else {
             $inputs['for_sale'] = false;
