@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Closure;
 use Illuminate\Http\Request;
 use App\Item;
 use Illuminate\Support\Facades\Crypt;
@@ -28,12 +29,73 @@ use App\PembukuanBranch;
 use App\PaketConfiguration;
 use App\EmployeeIncentive;
 
+use Session;
 class TransactionController extends Controller
 {
     public function __construct()
     {
         $this->middleware('authv2');
         $this->middleware('checkrole_cashier_sa_manager');
+    }
+
+    function getCustomCashier()
+    {
+        $custom_details = session()->get('custom_details',[]);
+        if(request()->remove) {
+            if(isset($custom_details[intval(request()->remove-2)])) {
+                unset($custom_details[intval(request()->remove-2)]);
+                session()->put('custom_details', $custom_details);
+                return redirect()->route('get.custom.cashier');
+            }
+            else if(request()->remove=='all') {
+                session()->put('custom_details', []);
+                return redirect()->route('get.custom.cashier');
+            }
+            else{
+                abort(404);
+            }
+        }
+
+        return view('cashier.custom',[
+            'custom_details' => $custom_details,
+            'no' => 1,
+            'employee_data' => EmployeeService::getEmployeeByUser()
+        ]);
+    }
+
+    function getCustomCashierFinishing()
+    {
+        $custom_details = session()->get('custom_details',[]);
+        if(count($custom_details)>0) {
+            $grand_total = 0;
+            foreach($custom_details as $custom_detail)
+            {
+                $grand_total += $custom_detail['item_price'] * $custom_detail['item_qty'] -
+                                $custom_detail['item_discount_fixed_value'];
+            }
+            return view('cashier.custom2',[
+                'grand_total' => $grand_total,
+                'employee_data' => EmployeeService::getEmployeeByUser()
+            ]);
+        }
+        abort(404);
+    }
+
+    function customCashierAddDetail(Request $request)
+    {
+        $inputs = $request->all();
+        $custom_details = session()->get('custom_details',[]);
+        $custom_details[] = [
+            'custom_name' => $inputs['custom_name'],
+            'item_price' => HelperService::unmaskMoney($inputs['item_price']),
+            'item_qty' => $inputs['item_qty'],
+            'item_discount_fixed_value' => HelperService::unmaskMoney($inputs['item_discount_fixed_value']),
+        ];
+        session()->put('custom_details', $custom_details);
+        return response()->json([
+            'status' => 'success',
+            'redirect_to' => route('get.custom.cashier')
+        ]);
     }
 
     function getCashierPelunasan()
@@ -80,6 +142,13 @@ class TransactionController extends Controller
         $header = TransactionHeader::with(['member','cashier','branch'])->where('invoice_id',
                     request()->param)->first();
         if($header) {
+            if(request()->detail_klaim=='1') {
+                return view('cashier.get-invoice2',[
+                    'header' => $header,
+                    'today' => Carbon::now(),
+                    'details' => TransactionDetail::with(['itemInfo'])->where('header_id', $header->id)->get()
+                ]);
+            }
             return view('cashier.get-invoice',[
                 'header' => $header,
                 'today' => Carbon::now(),
@@ -175,6 +244,92 @@ class TransactionController extends Controller
         return view('cashier.apps',[
             'employee_data' => $employee_data,
             'branch' => $branch
+        ]);
+    }
+
+    function doTransactionCustom(Request $request)
+    {
+        $custom_details = session()->get('custom_details',[]);
+        if(count($custom_details)>0) {
+            $inputs = $request->all();
+            // dd($inputs);
+            $header = [];
+
+            $headers['branch_id'] = 0;
+            if(isset($inputs['cashier_branch_temp'])) {
+                $headers['branch_id'] =  intval(Crypt::decryptString($inputs['cashier_branch_temp']));
+            }
+            else {
+                $employee_data = EmployeeService::getEmployeeByUser();
+                $headers['branch_id'] = $employee_data != null ? $employee_data->branch_id : 0;
+                // dd($employee_data);
+            }
+            if($headers['branch_id']==0) {
+                return "error Cabang";
+            }
+            $prefix_invoice = HelperService::getPrefixInvoice($headers['branch_id']);
+            $number_id = 1;
+
+            $last_invoice = TransactionHeader::where('branch_id', $headers['branch_id'])
+                                        ->where('invoice_id','like',$prefix_invoice.'%')
+                                        ->orderBy('created_at', 'desc')
+                                        ->first();
+
+            if($last_invoice != null) {
+                $last_number_id = str_replace($prefix_invoice,'',$last_invoice->invoice_id);
+                $number_id = $last_number_id+1;
+            }
+
+            $headers['invoice_id'] = $prefix_invoice.sprintf("%05d", $number_id);
+            $headers['cashier_user_id'] = Sentinel::getUser()->id;
+            $headers['is_custom'] = true;
+            $headers['customer_name'] = trim($inputs['customer_name']);
+            $headers['customer_phone'] = trim($inputs['phone']);
+            $headers['others'] =  HelperService::unmaskMoney($inputs['others']);
+
+            $headers['grand_total_item_price'] = $headers['total_item_discount'] = 0;
+            $details = [];
+            foreach ($custom_details as $custom_detail) {
+                $detail = $custom_detail;
+                $detail['item_total_price'] = $detail['item_price'] * $detail['item_qty'];
+                if($detail['item_discount_fixed_value'] != "") {
+                    $detail['item_discount_input'] = $detail['item_discount_fixed_value'];
+                    $detail['item_discount_type'] = 2;
+                }
+                else {
+                    $detail['item_discount_fixed_value'] = 0;
+                }
+                $details[] = $detail;
+                $headers['grand_total_item_price'] += $detail['item_total_price'];
+                $headers['total_item_discount'] += $detail['item_discount_fixed_value'];
+            }
+
+            $total_fix = $headers['grand_total_item_price']+$headers['others']-$headers['total_item_discount'];
+            $headers['payment_type'] = HelperService::unmaskMoney($inputs['payment_type']);
+            $headers['paid_value'] = HelperService::unmaskMoney($inputs['paid_value_temp']);
+            $headers['total_paid'] = HelperService::unmaskMoney($inputs['total_paid']);
+            $headers['is_debt'] = $headers['paid_value']<$total_fix;
+            if($headers['is_debt']) {
+                $headers['debt'] = $total_fix-$headers['paid_value'];
+            }
+            $headers['change'] = $headers['total_paid']-$headers['paid_value'];
+
+            DB::beginTransaction();
+            $transaction_headers = TransactionHeader::create($headers);
+            // dd($details);
+            foreach ($details as $detail) {
+                $detail['item_id'] = 'c';
+                $detail['header_id'] = $transaction_headers->id;
+                TransactionDetail::create($detail);
+            }
+            DB::commit();
+            session()->put('custom_details',[]);
+            return "oke";
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Anda belum menambahkan item, tambahkan terlebih dahulu!',
+            'redirect_to' => route('get.custom.cashier')
         ]);
     }
 
@@ -292,7 +447,7 @@ class TransactionController extends Controller
         $flag_total_item_price = $flag_total_item_discount = 0;
         foreach ($inputs['list_inputs'] as $key => $list_input) {
             $new_detail = explode('|', $list_input);
-            if(count($new_detail) != 9) {
+            if(count($new_detail) != 10) {
                 DB::rollBack();
                 return response()->json([
                     'status' => 'error',
@@ -311,12 +466,14 @@ class TransactionController extends Controller
                 // 6 id pic
                 // 7 date jika sewa | nullable
                 // 8 branch id tempat ambil jika sewa nullable
+                //9 status 1: lgsg diklaim , 2: blm diklaim
             // $input_item = explode('|', $list_input);
             // dd($input_item);
             $details = [];
             $details['header_id'] = $transaction_header->id;
             $details['item_id'] = $new_detail[0];
             $details['item_price'] = intval($new_detail[1]);
+            $details['claim_status'] = intval($new_detail[9]);
             $item = Item::with(['jasaIncentive' => function ($query) {
                         $query->orderBy('created_at','desc')
                                 ->where('created_at','<',Carbon::now())->first();
@@ -471,36 +628,46 @@ class TransactionController extends Controller
             $pb['branch_id'] = $transaction_header->branch_id;
             $pb['description'] = '';
             $pb['modal_total'] = 0;
-            if($item->item_type == Constant::type_id_produk) {
-                $pb['modal_per_qty_item'] = $param_pembukuan['modal_per_produk'];
-                $pb['qty_item'] = $param_pembukuan['qty_produk'];
-                $pb['modal_total'] = $pb['modal_per_qty_item'] * $pb['qty_item'];
-            }
-            else if($item->item_type == Constant::type_id_jasa) {
-                $modal_jasa = $param_pembukuan['modal_jasa'];
-                $pb['modal_per_qty_item'] = $modal_jasa['modal_total_per_item'] / $param_pembukuan['qty_jasa'];
-                $pb['qty_item'] = $param_pembukuan['qty_jasa'];
-                foreach($modal_jasa['modal_per_produk'] as $key => $value) {
-                    $pb['description'] .= ', '.$key.'/ Qty: '.$modal_jasa['qty_produk'][$key].'/ Modal: '. HelperService::maskMoney(intval($modal_jasa['modal_total'][$key]));
+            if(trim($new_detail[9]) == '1') {
+                if($item->item_type == Constant::type_id_produk) {
+                    $pb['modal_per_qty_item'] = $param_pembukuan['modal_per_produk'];
+                    $pb['qty_item'] = $param_pembukuan['qty_produk'];
+                    $pb['modal_total'] = $pb['modal_per_qty_item'] * $pb['qty_item'];
                 }
-                $pb['modal_total'] =  $modal_jasa['modal_total_per_item'] + $transaction_detail->pic_incentive;
-                $pb['description'] .= ', Insentif Karyawan: '. HelperService::maskMoney(intval($transaction_detail->pic_incentive));
-            }
-            else if($item->item_type == Constant::type_id_paket) {
-                foreach ($param_pembukuan['modal_jasa'] as $key => $modal_jasa) {
-                    // dd($modal_jasa);
-                    $pb['modal_per_qty_item'] = $modal_jasa['modal_total_per_item'] / $param_pembukuan['qty_paket'];
-                    $pb['modal_total'] +=  $modal_jasa['modal_total_per_item'];
-                    $pb['qty_item'] = $param_pembukuan['qty_paket'];
+                else if($item->item_type == Constant::type_id_jasa) {
+                    $modal_jasa = $param_pembukuan['modal_jasa'];
+                    $pb['modal_per_qty_item'] = $modal_jasa['modal_total_per_item'] / $param_pembukuan['qty_jasa'];
+                    $pb['qty_item'] = $param_pembukuan['qty_jasa'];
                     foreach($modal_jasa['modal_per_produk'] as $key => $value) {
                         $pb['description'] .= ', '.$key.'/ Qty: '.$modal_jasa['qty_produk'][$key].'/ Modal: '. HelperService::maskMoney(intval($modal_jasa['modal_total'][$key]));
                     }
+                    $pb['modal_total'] =  $modal_jasa['modal_total_per_item'];
+                    if(!empty(trim($new_detail[6]))) {
+                        $pb['modal_total'] = $pb['modal_total'] + $transaction_detail->pic_incentive;
+                        $pb['description'] .= ', Insentif Karyawan: '. HelperService::maskMoney(intval($transaction_detail->pic_incentive));
+                    }
                 }
-                $pb['modal_total'] += + $transaction_detail->pic_incentive;
-                $pb['description'] .= ', Insentif Karyawan: '. HelperService::maskMoney(intval($transaction_detail->pic_incentive));
+                else if($item->item_type == Constant::type_id_paket) {
+                    foreach ($param_pembukuan['modal_jasa'] as $key => $modal_jasa) {
+                        // dd($modal_jasa);
+                        $pb['modal_per_qty_item'] = $modal_jasa['modal_total_per_item'] / $param_pembukuan['qty_paket'];
+                        $pb['modal_total'] +=  $modal_jasa['modal_total_per_item'];
+                        $pb['qty_item'] = $param_pembukuan['qty_paket'];
+                        foreach($modal_jasa['modal_per_produk'] as $key => $value) {
+                            $pb['description'] .= ', '.$key.'/ Qty: '.$modal_jasa['qty_produk'][$key].'/ Modal: '. HelperService::maskMoney(intval($modal_jasa['modal_total'][$key]));
+                        }
+                    }
+                    if(!empty(trim($new_detail[6]))) {
+                        $pb['modal_total'] += + $transaction_detail->pic_incentive;
+                        $pb['description'] .= ', Insentif Karyawan: '. HelperService::maskMoney(intval($transaction_detail->pic_incentive));
+                    }
+                }
+                else if($item->item_type == Constant::type_id_sewa) {
+                    $pb['qty_item'] = $param_pembukuan['qty_sewa'];
+                }
             }
-            else if($item->item_type == Constant::type_id_sewa) {
-                $pb['qty_item'] = $param_pembukuan['qty_sewa'];
+            else {
+                $pb['qty_item'] = $details['item_qty'];
             }
             $pb['turnover'] = $transaction_detail->itemTurnover();
             $pb['profit'] = $pb['turnover']-$pb['modal_total'];
@@ -618,6 +785,129 @@ class TransactionController extends Controller
 
             return response()->json($branch);
         }
+    }
 
+    function doClaim()
+    {
+        $detail_id = intval(Crypt::decryptString(request()->x));
+        $detail = TransactionDetail::find($detail_id);
+
+        $employee_data = EmployeeService::getEmployeeByUser();
+
+        $branch_id = $employee_data != null ? $employee_data->branch_id : 0;
+        // $branch_id=2;
+        if($branch_id == 0) {
+            return "Anda bukan kasir!";
+        }
+        $branch = Branch::find($branch_id);
+
+        if($detail->claim_status==2) {
+            //belum diklaim
+            $detail->claim_status=1;
+            $already_paid = $detail->header->paidValue();
+            $already_claim = TransactionDetail::where('header_id', $detail->header_id)
+                                            ->where('claim_status', 1);
+            $already_claimed = $already_claim->sum('item_total_price') -  $already_claim->sum('item_discount_fixed_value');
+            $sisa = $already_paid - $already_claimed;
+            // dd($already_paid);
+            if($sisa >= $detail->itemTurnover()) {
+                // $detail->save();
+                DB::beginTransaction();
+                $item = Item::where('item_id', $detail->item_id)->first();
+                $pb = [];
+                $pb['item_id'] = $item->item_id;
+                $pb['header_id'] = $detail->header_id;
+                $pb['detail_id'] = $detail->id;
+                $pb['branch_id'] = $branch->id;
+                $pb['turnover'] = 0;
+                if($item->item_type == Constant::type_id_produk) {
+                    $branch_stock = BranchStock::where('branch_id', $branch->id)
+                                                    ->where('item_id', $item->item_id)->first();
+                    if($branch_stock) {
+                        $branch_stock->stock = $branch_stock->stock-$detail->item_qty;
+                        if($branch_stock->stock < 0) {
+                            DB::rollBack();
+                            return 'Error1. Klaim Gagal. Stok tidak cukup di cabang ini!';
+                        }
+                        else {
+                            $branch_stock->save();
+
+                            $pb['modal_per_qty_item'] = $branch_stock->modal_per_pcs;;
+                            $pb['qty_item'] = $detail->item_qty;
+                            $pb['modal_total'] = $pb['modal_per_qty_item'] * $pb['qty_item'];
+                        }
+                    }
+                    else {
+                        DB::rollBack();
+                        return 'Error2. Klaim Gagal. Stok tidak cukup di cabang ini!';
+                    }
+                }
+                else if($item->item_type == Constant::type_id_jasa) {
+                    $param = [];
+                    $param['item_id_jasa'] = $item->item_id;
+                    $param['branch_id'] = $branch->id;
+                    $param['qty'] = $detail->item_qty;
+                    $update_branch_stock = StockService::updateBranchStockByJasa($param, true);
+
+                    // dd($update_branch_stock);
+                    if($update_branch_stock['error_message'] != '') {
+                        DB::rollBack();
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Transaksi Gagal!. Item '.$item->item_name.' akan menyebakan '.$update_branch_stock['error_message'],
+                            'need_reload' => true
+                        ]);
+                    }
+                    else {
+                        // dd($update_branch_stock);
+                        $param_pembukuan['modal_jasa'] = $update_branch_stock;
+                    }
+
+                    $modal_jasa = $param_pembukuan['modal_jasa'];
+                    $pb['modal_per_qty_item'] = $modal_jasa['modal_total_per_item'] / $detail->item_qty;
+                    $pb['qty_item'] = $detail->item_qty;
+                    $pb['description'] = '';
+                    foreach($modal_jasa['modal_per_produk'] as $key => $value) {
+                        $pb['description'] .= ', '.$key.'/ Qty: '.$modal_jasa['qty_produk'][$key].'/ Modal: '. HelperService::maskMoney(intval($modal_jasa['modal_total'][$key]));
+                    }
+                    $pb['modal_total'] =  $modal_jasa['modal_total_per_item'];
+                    if($detail->item_pic) {
+                        $pb['modal_total'] =  $pb['modal_total'] + $detail->pic_incentive;
+                        $pb['description'] .= ', Insentif Karyawan: '. HelperService::maskMoney(intval($transaction_detail->pic_incentive));
+                    }
+                }
+                else if($item->item_type == Constant::type_id_paket) {
+                    foreach ($param_pembukuan['modal_jasa'] as $key => $modal_jasa) {
+                        // dd($modal_jasa);
+                        $pb['modal_per_qty_item'] = $modal_jasa['modal_total_per_item'] / $param_pembukuan['qty_paket'];
+                        $pb['modal_total'] +=  $modal_jasa['modal_total_per_item'];
+                        $pb['qty_item'] = $param_pembukuan['qty_paket'];
+                        foreach($modal_jasa['modal_per_produk'] as $key => $value) {
+                            $pb['description'] .= ', '.$key.'/ Qty: '.$modal_jasa['qty_produk'][$key].'/ Modal: '. HelperService::maskMoney(intval($modal_jasa['modal_total'][$key]));
+                        }
+                    }
+                    if(!empty(trim($new_detail[6]))) {
+                        $pb['modal_total'] += + $transaction_detail->pic_incentive;
+                        $pb['description'] .= ', Insentif Karyawan: '. HelperService::maskMoney(intval($transaction_detail->pic_incentive));
+                    }
+                }
+                else if($item->item_type == Constant::type_id_sewa) {
+                    $pb['qty_item'] = $param_pembukuan['qty_sewa'];
+                }
+
+                $pb['profit'] = $pb['turnover']-$pb['modal_total'];
+                PembukuanBranch::create($pb);
+                $detail->save();
+                DB::commit();
+                return "oke";
+                return redirect()->route('get.invoice.cashier',['param'=>request()->back, 'detail_klaim'=>1]);
+            }
+            else {
+                return "klaim gagal karena pembayaran belum lunas. <a href='".route('get.invoice.cashier',['param'=>request()->back, 'detail_klaim'=>1])."'>Kembali</a>";
+            }
+            return "oke";
+        }
+        //kalo udah notfound
+        abort(404);
     }
 }

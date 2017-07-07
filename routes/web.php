@@ -10,7 +10,6 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 Route::get('/testing', 'UserController@testing');
 Route::get('/', function () {
     return redirect('/login');
@@ -86,6 +85,13 @@ Route::get('/pic', 'TransactionController@getPic')->name('get.pic.cashier');
 Route::get('/members', 'TransactionController@getMembers')->name('get.members.cashier');
 Route::get('/branches-sewa/{item_id?}.{date_to_rent?}', 'TransactionController@getBranches')->name('get.branches.cashier');
 Route::post('/transaction.do', 'TransactionController@doTransaction')->name('do.transaction');
+
+
+Route::get('/custom-cashier', 'TransactionController@getCustomCashier')->name('get.custom.cashier');
+Route::get('/custom-cashier-2', 'TransactionController@getCustomCashierFinishing')->name('get.custom.cashier.finishing');
+Route::post('/custom-cashier.do', 'TransactionController@doTransactionCustom')->name('do.custom.cashier');
+Route::post('/custom-cashier-add-detail', 'TransactionController@customCashierAddDetail')->name('custom.cashier.add.detail');
+
 // Route::get('/cashier',function(){
 //     // return request();
 //     $ipAddress = '';
@@ -117,7 +123,7 @@ Route::get('/sales-report-pusat/{period}/{spesific?}/{branch?}', 'ReportControll
 Route::get('/sales-report/{period}/{spesific?}/{branch?}', 'ReportController@getSalesReport')->name('get.sales.report');
 Route::get('/search-invoices', 'TransactionController@searchInvoice')->name('search.invoice.cashier');
 Route::get('/invoice','TransactionController@getInvoice')->name('get.invoice.cashier');
-
+Route::get('claim.do','TransactionController@doClaim')->name('do.claim');
 Route::get('/renting-datas/{header_id}', 'RentingController@rentingDatas')->name('renting.by.invoice.casier');
 Route::get('/renting-datas-timeline', 'RentingController@rentingDatasByTime')->name('renting.by.time.casier');
 Route::get('/renting-datas/{action}/{reting_data_id}', 'RentingController@changeStatusRentingData')->name('change.status.renting');

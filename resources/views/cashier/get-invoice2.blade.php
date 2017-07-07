@@ -61,39 +61,49 @@
                             <tr>
                                 <th class="uppercase" scope="col">Item</th>
                                 <th class="uppercase" scope="col">Qty</th>
+                                <th class="uppercase" scope="col">Status Klaim</th>
                                 <th class="uppercase" scope="col">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($details as $detail)
                                 <tr>
-                                    @if($detail->item_id!='c')
+                                    @if($detail->item_id != 'c')
                                     <td>{{'#'. $detail->item_id.' '.$detail->itemInfo->item_name}} | {{'@'.HelperService::maskMoney($detail->item_price)}}</td>
                                     @else
                                     <td>{{$detail->custom_name}} | {{'@'.HelperService::maskMoney($detail->item_price)}}</td>
                                     @endif
                                     <td>{{$detail->item_qty}}</td>
+                                    @if($detail->claim_status==1)
+                                    <td>Sudah diklaim</td>
+                                    @elseif($detail->claim_status==2)
+                                    <td>Belum diklaim |<br/>
+                                        <a href="{{route('do.claim',['x'=>Crypt::encryptString($detail->id),'back'=>request()->param])}}">Klaim sekarang</a>
+                                    </td>
+                                    @elseif($detail->claim_status==3)
+                                    <td>Batal</td>
+                                    @endif
                                     <td class="text-right">{{HelperService::maskMoney($detail->item_total_price)}}</td>
                                 </tr>
                             @endforeach
                             <tr>
-                                <td class="bold text-right uppercase" colspan="2">Sub Total [+]</td>
+                                <td class="bold text-right uppercase" colspan="3">Sub Total [+]</td>
                                 <td class="text-right">{{HelperService::maskMoney($header->grand_total_item_price)}}</td>
                             </tr>
                             @if($header->total_item_discount>0)
                             <tr>
-                                <td class="bold text-right uppercase" colspan="2">Diskon [-]</td>
+                                <td class="bold text-right uppercase" colspan="3">Diskon [-]</td>
                                 <td class="text-right">{{HelperService::maskMoney($header->total_item_discount)}}</td>
                             </tr>
                             @endif
                             @if($header->others>0)
                             <tr>
-                                <td class="bold text-right uppercase" colspan="2">Lain-lain [+]</td>
+                                <td class="bold text-right uppercase" colspan="3">Lain-lain [+]</td>
                                 <td class="text-right">{{HelperService::maskMoney($header->others)}}</td>
                             </tr>
                             @endif
                             <tr>
-                                <td class="bold text-right uppercase" colspan="2">Grand Total</td>
+                                <td class="bold text-right uppercase" colspan="3">Grand Total</td>
                                 <td class="text-right">{{HelperService::maskMoney($header->grandTotal())}}</td>
                             </tr>
                         </tbody>

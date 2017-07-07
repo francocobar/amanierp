@@ -178,6 +178,16 @@ $(document).ready(function() {
         validateForm($form);
     });
 
+    $('#btn_search_items').click(function(e){
+        e.preventDefault();
+        // if($.trim($('#items_keyword').val()) == '') {
+        //     alert('Masukkan Nama Item');
+        //     return;
+        // }
+        var search_url = $(this).attr('href').replace('-keyword-', $.trim($('#items_keyword').val()));
+        window.location.replace(search_url);
+    });
+
     $('.bootbox-confirmation').click(function(e){
         var current_link = $(this);
         e.preventDefault();

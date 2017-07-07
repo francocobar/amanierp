@@ -29,6 +29,12 @@
                 </div>
             </div>
             <div class="portlet-body">
+                <div class="form-inline" role="form" style="margin: 10px;">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="items_keyword" placeholder="Masukkan Nama Item" value="{{request()->name}}">
+                    </div>
+                    <a href="{{route('get.items.paket',['page'=>1,'name'=>'-keyword-'])}}" id='btn_search_items' class="btn btn-success">Cari</a>
+                </div>
                 <div class="alert alert-info">
                     {{ $message }}
                     {!! HelperService::generatePaging(request()->page, $total_page) !!}

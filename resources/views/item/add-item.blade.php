@@ -50,7 +50,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" id="input_branch_price" style="display: none;">
+                        <div class="form-group" id="input_branch_price">
                             <label class="control-label col-md-3">Harga Cabang
                                 <span class="required"> * </span>
                             </label>
@@ -60,7 +60,17 @@
                                     <input type="text" value="" class="form-control mask-money" name="branch_price" /> </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="for_sale" style="display: none;">
+                            <div class="col-md-offset-3 col-md-4">
+                                <div class="mt-checkbox-list" data-error-container="#form_2_services_error">
+                                    <label class="mt-checkbox">
+                                        <input id="cb_fs" type="checkbox" value="1" name="for_sale" checked> Produk dijual oleh Cabang
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="input_m_price">
                             <label class="control-label col-md-3">Harga Member
                                 <span class="required"> * </span>
                             </label>
@@ -70,7 +80,7 @@
                                     <input type="text" value="" class="form-control mask-money" name="m_price" /> </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="input_nm_price">
                             <label class="control-label col-md-3">Harga Umum
                                 <span class="required"> * </span>
                             </label>

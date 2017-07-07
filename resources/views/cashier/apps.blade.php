@@ -85,7 +85,8 @@
                                         <div id="item_price_total" style="text-align: right">0</div>
                                         <!-- <div id="discount_total" style="text-align: right">0</div> -->
                                         <div class="general-error"></div>
-                                        <a id="btn_add" class="btn purple-rev">Tambah</a>
+                                        <a id="btn_add" data-flag='1' class="btn_add btn purple-rev">Tambah (Langsung)</a>
+                                        <a id="btn_add_2" data-flag='2'class="btn_add btn purple-rev">Tambah</a>
                                         <a id="btn_reset" class="btn default">Reset</a>
                                     </div>
                                     <div class="form-action text-right" style="margin-top: 5px;">

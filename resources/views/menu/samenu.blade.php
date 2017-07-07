@@ -119,7 +119,13 @@
         <ul class="sub-menu">
             <li class="nav-item ">
                 <a href="{{route('get.cashier')}}" target="_blank" class="nav-link ">
-                    <span class="title">Aplikasi Kasir</span>
+                    <span class="title">Aplikasi Cashier</span>
+                    <!--  -->
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="{{route('get.custom.cashier')}}" target="_blank" class="nav-link ">
+                    <span class="title">Aplikasi Custom Cashier</span>
                     <!--  -->
                 </a>
             </li>

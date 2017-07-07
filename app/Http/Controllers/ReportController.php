@@ -198,9 +198,31 @@ class ReportController extends Controller
 
     function pembukuanBranch()
     {
-        $pb_ = PembukuanBranch::get();
+        $pb_ = PembukuanBranch::orderBy('id','desc');
+        // // dd($pb_->sum('modal_total'));
+        // // dd($pb_->sum('turnover'));
+        // dd($pb_->sum('profit'));
+        $branch_name = 'Semua Cabang';
+
+        if(request()->branch) {
+            $branch = Branch::find(intval(request()->branch));
+            if($branch) {
+                $branch_name = 'Cabang '.$branch->branch_name." <a href='".route('pb.report')."'>[x]</a>";
+                $pb_ = $pb_->where('branch_id', $branch->id);
+            }
+        }
+        else if(request()->header) {
+            $pb_ = $pb_->where('header_id', request()->header);
+            $branch_name .= ' Header Id '.request()->header." <a href='".route('pb.report')."'>[x]</a>";
+        }
+        else if(request()->detail) {
+            $pb_ = $pb_->where('detail_id', request()->detail);
+            $branch_name .= ' Detail Id '.request()->detail." <a href='".route('pb.report')."'>[x]</a>";
+        }
         return view('report.pembukuan-branch',[
-            'pb_' => $pb_
+            'pb_' => $pb_->get(),
+            'branch_name' => $branch_name
+
         ]);
         dd($pb_);
     }

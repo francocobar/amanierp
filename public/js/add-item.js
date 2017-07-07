@@ -4,11 +4,27 @@ var FormValidation = function () {
         $("select[name='item_type']").change(function(){
             $('#input_incentive').hide();
             $('#input_branch_price').hide();
+            $('#for_sale').hide();
+            $('#cb_fs').prop('checked', true);
             if($.trim($(this).find("option:selected").text()) == 'Produk' || $.trim($(this).find("option:selected").text()) == 'Sewa') {
                 $('#input_branch_price').show();
+                if($.trim($(this).find("option:selected").text()) == 'Produk') {
+                    $('#for_sale').show();
+                }
             }
             else if($.trim($(this).find("option:selected").text()) == 'Jasa' || $.trim($(this).find("option:selected").text()) == 'Paket') {
                 $('#input_incentive').show();
+            }
+        });
+
+        $("#cb_fs").click(function(){
+            if($(this).is(':checked')) {
+                $('#input_nm_price').show();
+                $('#input_m_price').show();
+            }
+            else {
+                $('#input_nm_price').hide();
+                $('#input_m_price').hide();
             }
         });
     }
@@ -45,7 +61,9 @@ var FormValidation = function () {
                         required: true
                     },
                     m_price: {
-                        required: true
+                        required: function(elemment) {
+                            return $.trim($('select[name="item_type"').find("option:selected").text()) != "Produk" || $('#cb_fs').is(':checked');
+                        }
                     },
                     branch_price: {
                         required: function(elemment) {
@@ -54,7 +72,9 @@ var FormValidation = function () {
                         }
                     },
                     nm_price: {
-                        required: true
+                        required: function(elemment) {
+                            return $.trim($('select[name="item_type"').find("option:selected").text()) != "Produk" || $('#cb_fs').is(':checked');
+                        }
                     },
                     item_type: {
                         required: true,

@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use App\TransactionDetail;
 use App\EmployeeIncentive;
 use Illuminate\Support\Facades\DB;
+use App\PembukuanBranch;
 
 class EmployeeController extends Controller
 {
@@ -392,7 +393,7 @@ class EmployeeController extends Controller
                                                 ->whereDate('created_at', '<=', Carbon::now()->endOfMonth()->toDateString())
                                                 ->selectRaw(implode(',', $selects))->get();
             // dd($sum_incentive[0]['sum_incentive']);
-            // dd($salary_now);
+            // dd($employee_data->employee_id);
             return view('employee.my-salary',[
                 'employee_salaries' => $employee_salaries,
                 'salary_now' => $salary_now,
@@ -427,6 +428,10 @@ class EmployeeController extends Controller
                                 ->where('id', $detail_id)
                                 ->first();
         if($detail) {
+            $pb_incentive = [];
+            $pb_incentive['item_id'] = $detail->item_id;
+            $pb_incentive['qty_item'] = $detail->item_qty;
+            // $pb_discount['modal_total'] = $pb_discount['turnover'] = 0 - $potongan_total;
             $already = $detail->employeeIncentives->sum('incentive');
             if($already < $detail->pic_incentive) {
                 $employee = Employee::where('employee_id', trim($inputs['employee_id']))->first();
@@ -440,6 +445,14 @@ class EmployeeController extends Controller
                     // dd($already+$incentive_input['incentive']);
                     DB::beginTransaction();
                     $incentive = EmployeeIncentive::create($incentive_input);
+                    $pb_incentive['header_id'] = $detail->header_id;
+                    $pb_incentive['detail_id'] = $detail->id;
+                    $pb_incentive['modal_total'] = $incentive_input['incentive'];
+                    $pb_incentive['branch_id'] = $employee->branch_id;
+                    $pb_incentive['description'] = 'Insetif Karyawan: '.HelperService::maskMoney(intval($incentive_input['incentive']));
+                    $pb_incentive['turnover'] = 0;
+                    $pb_incentive['profit'] = $pb_incentive['turnover']-$pb_incentive['modal_total'];
+                    PembukuanBranch::create($pb_incentive);
                     if($already+$incentive_input['incentive'] >= $detail->pic_incentive) {
                          $detail->item_pic = 'ok';
                          $detail->save();

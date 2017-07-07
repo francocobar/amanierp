@@ -10,7 +10,7 @@
 @section('content')
 <div class="row">
     <div class="col-md-12">
-        <div class="portlet light portlet-fit portlet-form ">
+        <div class="portlet light">
             <div class="portlet-title">
                 <div class="caption">
                     <i class="fa fa-list-ol font-purple-rev"></i>
@@ -18,6 +18,12 @@
                 </div>
             </div>
             <div class="portlet-body">
+                <div class="form-inline" role="form" style="margin: 10px;">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="items_keyword" placeholder="Masukkan Nama Item" value="{{request()->name}}">
+                    </div>
+                    <a href="{{route('get.items.produk',['page'=>1,'name'=>'-keyword-'])}}" id='btn_search_items' class="btn btn-success">Cari</a>
+                </div>
                 <div class="alert alert-info">
                     {{ $message }}
                     {!! HelperService::generatePaging(request()->page, $total_page) !!}
@@ -43,8 +49,13 @@
                                         {{ $item_produk->item_name }}
                                     </td>
                                     <td>{{ HelperService::maskMoney($item_produk->branch_price) }}</td>
+                                    @if($item_produk->for_sale)
                                     <td>{{ HelperService::maskMoney($item_produk->m_price) }}</td>
-                                    <td>{{ HelperService::maskMoney($item_produk->nm_price) }} </td>
+                                    <td>{{ HelperService::maskMoney($item_produk->nm_price) }}</td>
+                                    @else
+                                    <td>NFS</td>
+                                    <td>NFS</td>
+                                    @endif
                                     <td align="center">
                                         <a target="_blank" href="{{route('detail.item.produk',[
                                                 'item_id' => $item_produk->item_id
@@ -80,8 +91,13 @@
                                         {{ $item_produk->item_name }}
                                     </td>
                                     <td>{{ $item_produk->branchStock == null ? '0' : HelperService::maskMoney($item_produk->branchStock->modal_per_pcs)}}</td>
+                                    @if($item_produk->for_sale)
                                     <td>{{ HelperService::maskMoney($item_produk->m_price) }}</td>
-                                    <td>{{ HelperService::maskMoney($item_produk->nm_price) }} </td>
+                                    <td>{{ HelperService::maskMoney($item_produk->nm_price) }}</td>
+                                    @else
+                                    <td>NFS</td>
+                                    <td>NFS</td>
+                                    @endif
                                     <td>{{ $item_produk->branchStock == null ? '0' : intval($item_produk->branchStock->stock)}}</td>
                             @endforeach
                         </tbody>

@@ -42,7 +42,6 @@ class ItemController extends Controller
 
     function addItem()
     {
-        // return HelperService::itemTypeById(1);
         $item_types = [
             Crypt::encryptString(Constant::type_id_produk) => 'Produk',
             Crypt::encryptString(Constant::type_id_jasa) => 'Jasa',
@@ -158,6 +157,7 @@ class ItemController extends Controller
     function addItemDo(Request $request)
     {
         $inputs = $request->all();
+        // dd();
         $inputs['item_type'] = Crypt::decryptString($inputs['item_type']);
         unset($inputs['_token']);
         if(intval($inputs['item_type']) == 1 || intval($inputs['item_type']) == 3) {
@@ -170,9 +170,15 @@ class ItemController extends Controller
         else {
 
         }
-
-        $inputs['m_price'] = str_replace('.', '', $inputs['m_price']);
-        $inputs['nm_price'] = str_replace('.', '', $inputs['nm_price']);
+        if(isset($inputs['for_sale'])) {
+            $inputs['m_price'] = str_replace('.', '', $inputs['m_price']);
+            $inputs['nm_price'] = str_replace('.', '', $inputs['nm_price']);
+        }
+        else {
+            $inputs['for_sale'] = false;
+            unset($inputs['m_price']);
+            unset($inputs['nm_price']);
+        }
         $add_item = ItemService::addItem($inputs);
 
         return response()->json([
@@ -185,11 +191,15 @@ class ItemController extends Controller
     {
         $take = 20;
         $skip = ($page - 1) * $take;
-        $total = Item::where('item_type', Constant::type_id_produk)->count();
-
-        $role_user = UserService::getRoleByUser();
+        $total = Item::where('item_type', Constant::type_id_produk);
         $items_produk= Item::where('item_type', Constant::type_id_produk)
                         ->skip($skip)->take($take)->orderBy('item_name');
+        if(request()->name) {
+            $total = $total->where('item_name','like','%'.trim(request()->name).'%');
+            $items_produk = $items_produk->where('item_name','like','%'.trim(request()->name).'%');
+        }
+        $total = $total->count();
+        $role_user = UserService::getRoleByUser();
 
         if(strtolower($role_user->slug) == 'superadmin') {
             $items_produk = $items_produk->get();
@@ -219,17 +229,22 @@ class ItemController extends Controller
     {
         $take = 20;
         $skip = ($page - 1) * $take;
-        $total = Item::where('item_type', Constant::type_id_jasa)->count();
+        $total = Item::where('item_type', Constant::type_id_jasa);
         $items_jasa = Item::where('item_type', Constant::type_id_jasa)
                         ->skip($skip)->take($take)
                         ->orderBy('item_name');
+        if(request()->name) {
+            $total = $total->where('item_name','like','%'.trim(request()->name).'%');
+            $items_jasa = $items_jasa->where('item_name','like','%'.trim(request()->name).'%');
+        }
+        $total = $total->count();
         $not_configured_items = [];
         if(request()->notconfiguredyet=='1') {
             $not_configured_items = JasaConfiguration::get(['item_id_jasa'])->pluck('item_id_jasa')->toArray();
             $items_jasa = $items_jasa->whereNotIn('item_id', $not_configured_items);
         }
         $counter = Item::where('item_type', Constant::type_id_jasa)->whereNotIn('item_id', $not_configured_items)->count();
-         $items_jasa =  $items_jasa->get();
+        // $items_jasa =  $items_jasa->get();
         if($items_jasa->count())
             return view('item.items-jasa', [
                 'items_jasa' => $items_jasa->get(),
@@ -245,11 +260,16 @@ class ItemController extends Controller
     {
         $take = 20;
         $skip = ($page - 1) * $take;
-        $total = Item::where('item_type', Constant::type_id_paket)->count();
+        $total = Item::where('item_type', Constant::type_id_paket);
         $items_paket = Item::where('item_type', Constant::type_id_paket)
                         ->skip($skip)->take($take)
                         ->orderBy('item_name');
 
+        if(request()->name) {
+            $total = $total->where('item_name','like','%'.trim(request()->name).'%');
+            $items_paket = $items_paket->where('item_name','like','%'.trim(request()->name).'%');
+        }
+        $total = $total->count();
         $not_configured_items = [];
         if(request()->notconfiguredyet=='1') {
             $not_configured_items = PaketConfiguration::get(['item_id_paket'])->pluck('item_id_paket')->toArray();
@@ -272,12 +292,16 @@ class ItemController extends Controller
     {
         $take = 20;
         $skip = ($page - 1) * $take;
-        $total = Item::where('item_type', Constant::type_id_sewa)->count();
+        $total = Item::where('item_type', Constant::type_id_sewa);
         $role_user = UserService::getRoleByUser();
         $items_sewa = Item::where('item_type', Constant::type_id_sewa)
                         ->skip($skip)->take($take)
                         ->orderBy('item_name');
-
+        if(request()->name) {
+            $total = $total->where('item_name','like','%'.trim(request()->name).'%');
+            $items_sewa = $items_sewa->where('item_name','like','%'.trim(request()->name).'%');
+        }
+        $total = $total->count();
         if(strtolower($role_user->slug) == 'superadmin') {
             $items_sewa = $items_sewa->get();
         }

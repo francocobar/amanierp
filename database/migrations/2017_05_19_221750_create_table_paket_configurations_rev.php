@@ -30,6 +30,6 @@ class CreateTablePaketConfigurationsRev extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('paket_configutations');
+        Schema::dropIfExists('paket_configurations');
     }
 }

@@ -60,8 +60,11 @@
         <div class="flex-center position-ref full-height">
             <div class="content">
                 <div class="title m-b-md">
-                    NOT FOUND
+                    Tidak Ditemukan
                 </div>
+                @if(request()->headers->get('referer'))
+                <a href="{{request()->headers->get('referer')}}" style="font-weight:bold;">< Kembali</a>
+                @endif
             </div>
         </div>
     </body>

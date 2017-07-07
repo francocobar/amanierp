@@ -341,7 +341,7 @@ $(document).ready(function() {
         $('#item_price_total').html(number_format(item_price_total, 0, ',', '.'));
     });
 
-    $('#btn_add').click(function(){
+    $('.btn_add').click(function(){
         $('#form_add_item').find('.general-error').html('');
         if(isInputEmpty('#items') || isInputEmpty('#item_qty')) {
             $('#form_add_item').find('.general-error').html('Lengkapi data wajib [yg terdapat tanda *]');
@@ -417,8 +417,7 @@ $(document).ready(function() {
         new_detail = new_detail+
                         $('#pic_selected').val() + "|" +
                         $('#date_to_rent').val() + "|" +
-                        $('#branch_to_rent_selected').val();
-
+                        $('#branch_to_rent_selected').val()+ "|" + $(this).attr('data-flag');
         var temp_input = $('#temp_input').clone(true);
         temp_input.removeAttr('id');
         temp_input.addClass(container);

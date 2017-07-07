@@ -8,6 +8,7 @@ use Sentinel;
 use UserService;
 use Carbon\Carbon;
 use HelperService;
+use EmployeeService;
 class UserController extends Controller
 {
     public function __construct()
@@ -55,6 +56,22 @@ class UserController extends Controller
 
         $login = UserService::login($credentials);
         if($login == '') {
+            $user_login = [];
+            if(UserService::isSuperadmin()) {
+                $user_login['branch'] = 'Semua Cabang';
+            }
+            $employee_data = EmployeeService::getEmployeeByUser();
+            if($employee_data) {
+                $user_login['full_name'] = $employee_data->full_name;
+                if(!isset($user_login['branch'])) {
+                    $user_login['branch'] = $employee_data->branch->branch_name;
+                }
+            }
+            else {
+                $user = Sentinel::getUser();
+                $user_login['full_name'] = $user->first_name.($user->first_name==$user->last_name ? '': ' '.$user->last_name);
+            }
+            session()->put('user_login',$user_login);
             if(session('redirect')) {
                 $redirect = session('redirect');
                 session()->forget('redirect');

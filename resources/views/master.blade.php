@@ -109,6 +109,16 @@
                                 @endif
                             </li>
                             @endif
+
+                            @if(session('user_login'))
+                            <?php $user_login = session('user_login') ?>
+                            <li class="dropdown dropdown-user">
+                                <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                    <span class="username username-hide-on-mobile" style="padding-right: 13px;">
+                                    <span class="fa fa-user"></span>{{$user_login['full_name'].' ('.$user_login['branch'].')'}}</span>
+                                </a>
+                            </li>
+                            @endif
                             <!-- END NOTIFICATION DROPDOWN -->
                             <!-- BEGIN QUICK SIDEBAR TOGGLER -->
                             <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->

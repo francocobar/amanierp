@@ -192,7 +192,7 @@ class HelperServiceProvider extends ServiceProvider
 
         for ($i=1; $i <= $total_page ; $i++) {
             $paging .= "<li class='".($i==$page?'active':'')."'>
-                <a href='".$i."'>".$i."</a>
+                <a href='".$i."?name=".request()->name."'>".$i."</a>
             </li>";
         }
 
@@ -218,9 +218,11 @@ class HelperServiceProvider extends ServiceProvider
         </div>";
     }
 
-    static function maskMoney($money)
+    static function maskMoney($money, $float=false)
     {
-        // return intval($money);
+        if($float) {
+            return number_format($money, 2, ',', '.');
+        }
         return number_format(intval($money),0,",",".");
     }
 

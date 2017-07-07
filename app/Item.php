@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class Item extends Model
 {
-    protected $fillable = ['item_id', 'item_name', 'item_type', 'description', 'branch_price', 'm_price', 'nm_price', 'created_by'];
+    protected $guarded = [];
 
     function branch()
     {

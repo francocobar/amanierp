@@ -86,6 +86,7 @@
                             @foreach($headers as $header)
                             <tr>
                                 <td><a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id])}}">{{ $header->invoice_id }}</a> |
+                                    <a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id, 'detail_klaim'=>1])}}">Detail Klaim</a> |
                                     <a href="{{env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=2'}}">Print Struk</a>
                                     @if($header->rentingDatas->count())
                                      |
