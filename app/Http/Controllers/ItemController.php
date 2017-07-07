@@ -248,7 +248,7 @@ class ItemController extends Controller
         $items_jasa =  $items_jasa->get();
         if($items_jasa->count())
             return view('item.items-jasa', [
-                'items_jasa' => $items_jasa->get(),
+                'items_jasa' => $items_jasa,
                 'message' => HelperService::dataCountingMessage($counter, $skip+1, $skip+$items_jasa->count(), $page),
                 'total_page' => ceil($total/$take),
                 'role_user' => UserService::getRoleByUser()
