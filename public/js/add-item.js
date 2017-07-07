@@ -6,6 +6,8 @@ var FormValidation = function () {
             $('#input_branch_price').hide();
             $('#for_sale').hide();
             $('#cb_fs').prop('checked', true);
+            $('#input_nm_price').show();
+            $('#input_m_price').show();
             if($.trim($(this).find("option:selected").text()) == 'Produk' || $.trim($(this).find("option:selected").text()) == 'Sewa') {
                 $('#input_branch_price').show();
                 if($.trim($(this).find("option:selected").text()) == 'Produk') {
