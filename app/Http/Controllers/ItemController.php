@@ -302,7 +302,7 @@ class ItemController extends Controller
             $total = $total->where('item_name','like','%'.trim(request()->name).'%');
             $items_sewa = $items_sewa->where('item_name','like','%'.trim(request()->name).'%');
         }
-        $total = $total->groupBy('item_id')->count();
+        $total = $total->get()->count();
         if(strtolower($role_user->slug) == 'superadmin') {
             $items_sewa = $items_sewa->get();
         }
