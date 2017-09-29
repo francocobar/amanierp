@@ -704,10 +704,10 @@ class TransactionController extends Controller
         // return $inputs['discount_total_temp'];
         DB::commit();
         $redirect_to = env('PRINT_URL').str_replace('/','-',$transaction_header->invoice_id).'?redirect_back=1';
-        return response()->json([
-            'status' => 'success',
-            'redirect_to' => '/cashier'
-        ]);
+        // return response()->json([
+        //     'status' => 'success',
+        //     'redirect_to' => '/cashier'
+        // ]);
         $redirect_to = env('PRINT_URL').str_replace('/','-',$transaction_header->invoice_id).'?redirect_back=1';
         return response()->json([
             'status' => 'success',
