@@ -85,7 +85,7 @@ class StockServiceProvider extends ServiceProvider
             else if($type==3) {
 
             }
-
+            // dd($modal_log['information']);
             $modal_log['modal_type'] = $type;
             ModalLog::create($modal_log);
             return '';
