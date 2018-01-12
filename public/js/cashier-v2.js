@@ -301,7 +301,7 @@ var Payment = $(function(){
             else {
                 $paid_value = $.trim($('#paid_value ').val());
                 if($paid_value!='') {
-                    $change = unmaskMoney($total_paid) - parseInt($paid_value)
+                    $change = unmaskMoney($total_paid) - unmaskMoney($paid_value);
                 }
             }
             $('#change').text(maskMoney($change));

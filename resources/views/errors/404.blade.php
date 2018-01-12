@@ -63,7 +63,6 @@
                     Tidak Ditemukan
                 </div>
                 @if(request()->headers->get('referer'))
-                dd(request()->headers);
                 <a href="{{request()->headers->get('referer')}}" style="font-weight:bold;">< Kembali</a>
                 @endif
             </div>

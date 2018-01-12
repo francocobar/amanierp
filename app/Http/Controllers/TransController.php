@@ -62,7 +62,33 @@ class TransController extends Controller
             return redirect()->route('get.cashier.v2');
         }
 
-        // if($header->
+        $total_paid = HelperService::unmaskMoney($inputs['total_paid']);
+        $total_trans = $header->totalTransaction();
+        if(isset($inputs['lunas']))
+        {
+            if($total_paid<$total_trans)
+            {
+                return "Pembayaran tidak cukup";
+            }
+            $header->change = $total_paid-$total_trans;
+        }
+        else {
+            $header->debt = $total_trans-$total_paid;
+            $header->is_debt = true;
+        }
+        $header->total_paid = $total_paid;
+        $header->payment_type = $inputs['payment_type'];
+        $header->status = 2;
+        $header->save();
+        $qs = [];
+        $to = '';
+        if(UserService::isSuperadmin())
+        {
+            $to = '&b='.$header->branch_id;
+        }
+        $redirect_to = env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=1'.$to;
+        return redirect($redirect_to);
+        return redirect()->route('get.cashier.v2',$qs);
     }
     function doNextStep(Request $request)
     {
