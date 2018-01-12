@@ -13,7 +13,7 @@
 Route::get('/info', function(){
     return phpinfo();
 });
-Route::get('/testing', 'UserController@testing');
+Route::get('/testing', 'UserController@printTest2');
 Route::get('/', function () {
     return redirect('/login');
 });
