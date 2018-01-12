@@ -223,8 +223,38 @@ class TransactionController extends Controller
         ]);
     }
 
+    function getCashier2()
+    {
+        $employee_data = EmployeeService::getEmployeeByUser();
+
+        // $branch_id = 1;
+        $branch_id = $employee_data != null ? $employee_data->branch_id : session()->put('branch_selected');
+        if($branch_id == 0 || $branch_id==null) {
+            if(empty(request()->branch)) {
+                return view('cashier.choose_branch',[
+                    'branches' => Branch::all(),
+                ]);
+            }
+            else {
+                $branch_id = intval(request()->branch);
+            }
+        }
+        // dd($branch_id);
+        $branch = Branch::find($branch_id);
+        $transaction_ongoing = TransactionHeader::where('branch_id',$branch_id)->where('status',1)->get();
+
+        // dd($branch);
+
+        return view('cashier.v2.apps-v2',[
+            'employee_data' => $employee_data,
+            'branch' => $branch,
+            'transaction_ongoing' => $transaction_ongoing
+        ]);
+    }
+
     function getCashier()
     {
+        // abort(404);
         $employee_data = EmployeeService::getEmployeeByUser();
 
         $branch_id = $employee_data != null ? $employee_data->branch_id : 0;
@@ -719,8 +749,11 @@ class TransactionController extends Controller
     {
         $branch_id = intval(Crypt::decryptString($branch));
         // return $branch_id;
-        $return = Item::where('item_name', 'like', '%'.request()->term.'%')
-                        ->orWhere('item_id', 'like', '%'.request()->term.'%')
+        $return = Item::where('for_sale', 1)
+                        ->where(function($q){
+                            $q->where('item_name', 'like', '%'.request()->term.'%')
+                                ->orWhere('item_id', 'like', '%'.request()->term.'%');
+                        })
                         ->orderBy('item_name')
                         ->with(['branchStock' => function ($query) use ($branch_id) {
                             $query->where('branch_id', $branch_id);
@@ -746,7 +779,7 @@ class TransactionController extends Controller
     {
         $members = Member::where('full_name', 'like', '%'.request()->term.'%')
                         ->orWhere('member_id', 'like', '%'.request()->term.'%')
-                        ->get(['member_id', 'full_name'])->toArray();
+                        ->get(['member_id', 'full_name','phone', 'address'])->toArray();
 
         return response()->json($members);
     }

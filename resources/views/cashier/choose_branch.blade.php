@@ -14,7 +14,7 @@ $(document).ready(function() {
             alert('Pilih Cabang!');
             return;
         }
-        location.href = '/cashier?branch=' + $.trim($('#branch_id').val());
+        location.href = '/cashier-v2?branch=' + $.trim($('#branch_id').val());
     });
 });
 </script>

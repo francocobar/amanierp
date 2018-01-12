@@ -79,6 +79,13 @@ Route::get('/login', 'UserController@login')->name('login');
 Route::post('/login.do', 'UserController@loginDo')->name('login.do');
 Route::get('/dashboard', 'UserController@dashboard')->name('dashboard');
 
+Route::get('/cashier-v2', 'TransactionController@getCashier2')->name('get.cashier.v2');
+Route::post('/add-trans', 'TransController@addTrans')->name('do.cashier.add-transaction');
+Route::get('/ongoing-trans/{trans_id}', 'TransController@ongoingTrans')->name('get.cashier.ongoing');
+Route::post('/ongoing-trans-next-step', 'TransController@doNextStep')->name('do.cashier.next-step');
+Route::post('/ongoing-trans-last-step', 'TransController@doLastStep')->name('do.cashier.last-step');
+Route::post('/add-item-ongoing-trans', 'TransController@addItemTrans')->name('do.cashier.ongoing-add-item');
+Route::post('/update-item-ongoing-trans', 'TransController@updateItemTrans')->name('do.cashier.ongoing-update-item');
 
 Route::get('/cashier', 'TransactionController@getCashier')->name('get.cashier');
 Route::get('/cashier-next-payment', 'TransactionController@getCashierPelunasan')->name('get.cashier.next-payment');
