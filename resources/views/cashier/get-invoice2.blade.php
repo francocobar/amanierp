@@ -68,7 +68,7 @@
                         <tbody>
                             @foreach($details as $detail)
                                 <tr>
-                                    @if($detail->item_id != 'c')
+                                    @if(empty($detail->custom_name))
                                     <td>{{'#'. $detail->item_id.' '.$detail->itemInfo->item_name}} | {{'@'.HelperService::maskMoney($detail->item_price)}}</td>
                                     @else
                                     <td>{{$detail->custom_name}} | {{'@'.HelperService::maskMoney($detail->item_price)}}</td>

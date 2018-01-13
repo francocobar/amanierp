@@ -99,6 +99,16 @@ class TransController extends Controller
         {
             abort(404);
         }
+        if($inputs['trans_set_to'] == '3') {
+            $header->status = 3;
+            $header->save();
+            $qs = [];
+            if(UserService::isSuperadmin()) {
+                $qs = ['branch' => $header->branch_id];
+            }
+            TransactionDetail::where('header_id',$header->id)->update(['claim_status'=>3]);
+            return redirect()->route('get.cashier.v2',$qs);
+        }
         $branch_id = $header->branch_id;
         $cashier= Sentinel::getUser();
         // dd($cashier_first_name->first_name);

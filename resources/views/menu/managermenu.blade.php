@@ -95,7 +95,7 @@
             </li>
         </ul>
     </li>
-
+    <?php /*
     <li class="nav-item {{strpos(Route::currentRouteName(),'.sales') !== false ? 'active open' : ''}}">
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="icon-briefcase"></i>
@@ -118,7 +118,7 @@
             </li>
         </ul>
     </li>
-
+    */ ?>
     <li class="nav-item {{strpos(Route::currentRouteName(),'.salary') !== false ? 'active open' : ''}}">
         <a href="{{route('my.salary')}}">
             <i class="fa fa-credit-card"></i>

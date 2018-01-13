@@ -139,7 +139,7 @@
             */ ?>
         </ul>
     </li>
-
+    <?php /*
     <li class="nav-item {{strpos(Route::currentRouteName(),'.sales') !== false ? 'active open' : ''}}">
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="icon-briefcase"></i>
@@ -195,7 +195,7 @@
             </li>
         </ul>
     </li>
-
+    */ ?>
     <li class="nav-item ">
         <a href="{{route('logout')}}">
             <i class="fa fa-sign-out"></i>

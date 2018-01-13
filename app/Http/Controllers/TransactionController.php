@@ -28,8 +28,8 @@ use App\EmployeeTurnover;
 use App\PembukuanBranch;
 use App\PaketConfiguration;
 use App\EmployeeIncentive;
-
 use Session;
+use UserService;
 class TransactionController extends Controller
 {
     public function __construct()
@@ -226,9 +226,7 @@ class TransactionController extends Controller
     function getCashier2()
     {
         $employee_data = EmployeeService::getEmployeeByUser();
-        // $branch_id = 1;
-        $branch_id = $employee_data != null ? $employee_data->branch_id : session()->put('branch_selected');
-        if($branch_id == 0 || $branch_id==null) {
+        if(UserService::isSuperadmin()) {
             if(empty(request()->branch)) {
                 return view('cashier.choose_branch',[
                     'branches' => Branch::all(),
@@ -237,6 +235,9 @@ class TransactionController extends Controller
             else {
                 $branch_id = intval(request()->branch);
             }
+        }
+        else {
+            $branch_id = $employee_data != null ? $employee_data->branch_id : null;
         }
         // dd($branch_id);
         $branch = Branch::find($branch_id);

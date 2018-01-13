@@ -8,14 +8,15 @@
         <tr>
             <td style="text-align: right; font-weight: bold;">
                 <input type="hidden" id="trans_set_to" value="" name="trans_set_to" />
-                <a href="{{route('get.cashier.v2',$query_string)}}" class="btn">Kembali</a>
+                <a href="{{route('get.cashier.v2',$query_string)}}" class="btn btn-default">< Kembali</a>
+                <input data-trans-set-to = "3" type="submit" value="Batalkan Transaksi" class="next_step btn btn-danger" />
                 <input data-trans-set-to = "2" type="submit" value="Transaksi Selesai" class="next_step btn btn-success" />
             </td>
         </tr>
     </thead>
 </table>
 {!! Form::close() !!}
-
+<div style="border: 3px black solid; margin-bottom: 5px;">
 {!! Form::open(['id' => 'form_update_item', 'route' => 'do.cashier.ongoing-update-item']) !!}
 <table class="table table-bordered">
     <thead>
@@ -98,7 +99,9 @@
     </tbody>
 </table>
 {!! Form::close() !!}
+</div>
 
+<div style="border: 3px black solid; margin-bottom: 5px;">
 {!! Form::open(['id' => 'form_add_item', 'route' => 'do.cashier.ongoing-add-item']) !!}
 <table class="table table-bordered">
     <thead>
@@ -130,7 +133,9 @@
     </tbody>
 </table>
 {!! Form::close() !!}
+</div>
 
+<div style="border: 3px black solid; margin-bottom: 5px;">
 {!! Form::open(['id' => 'form_add_costumize_item', 'route' => 'do.cashier.ongoing-add-item']) !!}
 <table class="table table-bordered">
     <thead>
@@ -160,7 +165,7 @@
     </tbody>
 </table>
 {!! Form::close() !!}
-
+</div>
 @if($header->member_id)
 <input id="member_trans" type="hidden" value="{{$header->member_id}}" name="ongoing_trans_id" />
 @endif

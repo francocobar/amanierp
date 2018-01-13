@@ -16,7 +16,7 @@
     @endif
 </div>
 <div class="col-md-6">
-    <h2 id="add_trans" style="text-align: center;"><a>Buat Transaksi</a></h2>
+    <h2 id="add_trans" style="text-align: center;"><a class="btn purple-rev" style="font-size: 110%;">Buat Transaksi</a></h2>
 </div>
 {!! Form::open(['id' => 'form_add_trans', 'route' => 'do.cashier.add-transaction']) !!}
     <input type="hidden" name="add_trans_type" id="add_trans_type" value=""/>

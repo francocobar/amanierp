@@ -259,15 +259,39 @@ var AddItemTrans = $(function() {
 
         $('.next_step').click(function(e){
             e.preventDefault();
-            if($('.delete_row').length)
+            $next_status = parseInt($(this).data('trans-set-to'));
+            $('#trans_set_to').val($next_status);
+            if($next_status == 2)
             {
-                $next_status = $(this).data('trans-set-to');
-                $('#trans_set_to').val($next_status);
-                $('#form_next_step').submit();
+                if($('.delete_row').length)
+                {
+                    $('#form_next_step').submit();
+                }
+                else
+                {
+                    alert('Pastikan transaksi ini memiliki minimal satu item.')
+                }
             }
-            else
+            else if($next_status == 3)
             {
-                alert('Pastikan transaksi ini memiliki minimal satu item.')
+                bootbox.confirm({
+                    message: "Anda yakin ingin membatalkan transaksi ini?",
+                    buttons: {
+                        confirm: {
+                            label: 'Iya, Batalkan',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'Tidak',
+                            className: 'btn-default'
+                        }
+                    },
+                    callback: function (result) {
+                        if(result) {
+                            $('#form_next_step').submit();
+                        }
+                    }
+                });
             }
 
         });
@@ -412,6 +436,15 @@ jQuery(document).ready(function() {
         bootbox.prompt({
             title: "Transaksi untuk?",
             inputType: 'select',
+            buttons: {
+               confirm: {
+                   label: 'Lanjut',
+                   className: 'btn purple-rev'
+               },
+               cancel: {
+                   label: 'Batal'
+               }
+            },
             inputOptions: [
                 {
                     text: 'Member',

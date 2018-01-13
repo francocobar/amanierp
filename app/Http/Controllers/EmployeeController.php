@@ -350,7 +350,7 @@ class EmployeeController extends Controller
         }
 
 
-        $user = User::find($user_id);
+        $user = Sentinel::getUserRepository()->findById($user_id);
         $inputs = $request->all();
 
         $credentials = [
