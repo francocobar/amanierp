@@ -82,7 +82,7 @@
         </a>
         <ul class="sub-menu">
             <li class="nav-item ">
-                <a href="{{route('get.cashier')}}" target="_blank" class="nav-link ">
+                <a href="{{route('get.cashier.v2')}}" target="_blank" class="nav-link ">
                     <span class="title">Aplikasi Kasir</span>
                     <!--  -->
                 </a>

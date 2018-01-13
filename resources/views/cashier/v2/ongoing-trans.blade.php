@@ -64,7 +64,7 @@
         @foreach($details as $detail)
         <tr>
             <td>
-                <span><a class="delete_row">[x]</a> {{$detail->itemInfo->item_name}}</span>
+                <span><a class="delete_row">[x]</a> {{$detail->custom_name ? $detail->custom_name : $detail->itemInfo->item_name}}</span>
                 <input id="{{$detail->item_id}}" type="hidden" name="item_id[]" value="{{$detail->item_id}}" />
             </td>
             <td>
@@ -98,6 +98,7 @@
     </tbody>
 </table>
 {!! Form::close() !!}
+
 {!! Form::open(['id' => 'form_add_item', 'route' => 'do.cashier.ongoing-add-item']) !!}
 <table class="table table-bordered">
     <thead>
@@ -129,6 +130,37 @@
     </tbody>
 </table>
 {!! Form::close() !!}
+
+{!! Form::open(['id' => 'form_add_costumize_item', 'route' => 'do.cashier.ongoing-add-item']) !!}
+<table class="table table-bordered">
+    <thead>
+        <tr style="font-weight:bold;">
+            <td style="width: 50%;">Costumize Item</td>
+            <td style="width: 10%;">Qty</td>
+            <td style="width: 20%;">Harga/Qty</td>
+            <td style="width: 20%;">Sub Total</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <input id="add_detail_costumize_item" type="text" class="form-control" name="add_detail_costumize_item" value="" />
+
+            </td>
+            <td style="text-align: right;"><input id="add_detail_qty_cos" type="text" class="item_qty3 number_only form-control" value="1" name="add_detail_qty" /></td>
+            <td style="text-align: right;"><input id="add_detail_price_cos" type="text" class="mask-money form-control" value="" name="add_detail_price" /></td>
+            <td style="text-align: right;"><span id="add_detail_sub_total_price_cos">0</span></td>
+        </tr>
+        <tr>
+            <td colspan="4" style="text-align: right;">
+                <input type="hidden" value="{{$header->id}}" name="ongoing_trans_id" />
+                <input id="btn_add_costumize_item" type="submit" value="Tambah Costumize Item" class="btn btn-success" />
+            </td>
+        </tr>
+    </tbody>
+</table>
+{!! Form::close() !!}
+
 @if($header->member_id)
 <input id="member_trans" type="hidden" value="{{$header->member_id}}" name="ongoing_trans_id" />
 @endif

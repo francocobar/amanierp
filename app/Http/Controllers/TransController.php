@@ -186,33 +186,55 @@ class TransController extends Controller
                 abort(404);
             }
 
-            $item = Item::where('item_id', trim($inputs['add_detail_item_id']))->first();
             DB::beginTransaction();
-            $new_detail = TransactionDetail::where('header_id',$trans_id)
-                            ->where('item_id', $item->item_id)
-                            ->first();
-            if($new_detail==null)
-            {
+            if(isset($inputs['add_detail_item_id'])) {
+                $item = Item::where('item_id', trim($inputs['add_detail_item_id']))->first();
+
+                $new_detail = TransactionDetail::where('header_id',$trans_id)
+                                ->where('item_id', $item->item_id)
+                                ->first();
+
+                if($new_detail==null)
+                {
+                    $new_detail = new TransactionDetail();
+                    $new_detail->item_qty = $inputs['add_detail_qty'];
+                }
+                else {
+                    $new_detail->item_qty += $inputs['add_detail_qty'];
+                }
+
+                $new_detail->header_id = $trans_id;
+                $new_detail->item_id = $item->item_id;
+                if($header->member_id)
+                {
+                    $new_detail->item_price = $item->m_price;
+                }
+                else
+                {
+                    $new_detail->item_price = $item->nm_price;
+                }
+                $new_detail->item_total_price = $new_detail->item_price*$new_detail->item_qty;
+                $new_detail->save();
+            }
+            else if(isset($inputs['add_detail_costumize_item'])) {
                 $new_detail = new TransactionDetail();
+                $new_detail->custom_name = trim($inputs['add_detail_costumize_item']);
                 $new_detail->item_qty = $inputs['add_detail_qty'];
-            }
-            else {
-                $new_detail->item_qty += $inputs['add_detail_qty'];
-            }
-
-            $new_detail->header_id = $trans_id;
-            $new_detail->item_id = $item->item_id;
-            if($header->member_id)
-            {
-                $new_detail->item_price = $item->m_price;
-            }
-            else
-            {
-                $new_detail->item_price = $item->nm_price;
+                $new_detail->item_id = '-';
+                $new_detail->header_id = $trans_id;
+                $new_detail->item_price = HelperService::unmaskMoney($inputs['add_detail_price']);
+                $new_detail->item_total_price = $new_detail->item_price*$new_detail->item_qty;
+                $new_detail->save();
+                $new_detail->item_id = $new_detail->id;
+                $new_detail->save();
             }
 
-            $new_detail->item_total_price = $new_detail->item_price*$new_detail->item_qty;
-            $new_detail->save();
+
+
+
+
+
+
             $details = TransactionDetail::where('header_id', $header->id)->get();
             $total = 0;
             foreach ($details as $key => $detail) {

@@ -118,14 +118,8 @@
         </a>
         <ul class="sub-menu">
             <li class="nav-item ">
-                <a href="{{route('get.cashier')}}" target="_blank" class="nav-link ">
+                <a href="{{route('get.cashier.v2')}}" target="_blank" class="nav-link ">
                     <span class="title">Aplikasi Cashier</span>
-                    <!--  -->
-                </a>
-            </li>
-            <li class="nav-item ">
-                <a href="{{route('get.custom.cashier')}}" target="_blank" class="nav-link ">
-                    <span class="title">Aplikasi Custom Cashier</span>
                     <!--  -->
                 </a>
             </li>
@@ -135,12 +129,14 @@
                     <!--  -->
                 </a>
             </li>
+            <?php /*
             <li class="nav-item ">
                 <a href="{{route('renting.by.time.casier',['s'=>1])}}" class="nav-link ">
                     <span class="title">Data Sewa</span>
                     <!--  -->
                 </a>
             </li>
+            */ ?>
         </ul>
     </li>
 

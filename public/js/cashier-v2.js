@@ -168,6 +168,22 @@ var AddItemTrans = $(function() {
 
         });
 
+        $('#btn_add_costumize_item').click(function(e){
+            e.preventDefault();
+            if($.trim($('#add_detail_costumize_item').val())) {
+                if($.trim($('#add_detail_price_cos').val())) {
+                    $(this).closest('form').submit();
+                }
+                else {
+                    alert('Isi harga item');
+                    return;
+                }
+            }
+            else {
+                alert('Isi nama item!');
+                return;
+            }
+        });
         $('#btn_update_item').click(function(e){
             e.preventDefault();
             //validate discount
@@ -207,6 +223,33 @@ var AddItemTrans = $(function() {
             $new_sub_total = $price * $item_qty;
             $('#add_detail_sub_total_price').text(maskMoney($new_sub_total));
         });
+
+        $('.item_qty3').change(function(){
+            $item_qty = parseInt($(this).val());
+
+            if($item_qty<1 || $.trim($(this).val()) == '')
+            {
+                $(this).val(1);
+                $(this).trigger('change');
+                return;
+            }
+            calculateCostumizeItem();
+        });
+
+        $('#add_detail_price_cos').change(function(){
+            calculateCostumizeItem();
+        });
+
+        function calculateCostumizeItem()
+        {
+            $item_qty = parseInt($('.item_qty3').val());
+            $price = 0;
+            if($('#add_detail_price_cos').val()) {
+                $price = unmaskMoney($('#add_detail_price_cos').val());
+            }
+            $new_sub_total = $price * $item_qty;
+            $('#add_detail_sub_total_price_cos').text(maskMoney($new_sub_total));
+        }
 
         $('.delete_row').click(function(e){
             e.preventDefault();

@@ -226,7 +226,6 @@ class TransactionController extends Controller
     function getCashier2()
     {
         $employee_data = EmployeeService::getEmployeeByUser();
-
         // $branch_id = 1;
         $branch_id = $employee_data != null ? $employee_data->branch_id : session()->put('branch_selected');
         if($branch_id == 0 || $branch_id==null) {
@@ -241,7 +240,10 @@ class TransactionController extends Controller
         }
         // dd($branch_id);
         $branch = Branch::find($branch_id);
-        $transaction_ongoing = TransactionHeader::where('branch_id',$branch_id)->where('status',1)->get();
+        $cashier = Sentinel::getUser();
+        $transaction_ongoing = TransactionHeader::where('branch_id',$branch_id)
+                            ->where('cashier_user_id',$cashier->id)
+                            ->where('status',1)->get();
 
         // dd($branch);
 
@@ -254,7 +256,7 @@ class TransactionController extends Controller
 
     function getCashier()
     {
-        // abort(404);
+        return redirect()->route('get.cashier.v2');
         $employee_data = EmployeeService::getEmployeeByUser();
 
         $branch_id = $employee_data != null ? $employee_data->branch_id : 0;
