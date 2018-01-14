@@ -1,7 +1,7 @@
 @extends('cashier.v2.master')
 
 @section('content')
-<h2>Tambah Transaksi Member</h2>
+<h2>Tambah Transaksi Member | <a class="btn btn-default" href="{{route('get.cashier.v2',['branch'=>$branch->id])}}">< Kembali</a></h2>
 <div class="ui-widget">
     <input id="member" type="text" class="form-control" placeholder="* Nama / Id Member"/>
     <div id="panel_confirmation" class="panel panel-default" style="margin-top: 10px; display: none;">
