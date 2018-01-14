@@ -170,6 +170,11 @@ class TransController extends Controller
                         $header->discount_total_fixed_value = $discount;
                     }
                 }
+                else {
+                    $header->discount_total_input = null;
+                    $header->discount_total_type=null;
+                    $header->discount_total_fixed_value = 0;
+                }
             }
             else
             {

@@ -24,6 +24,8 @@ class UserController extends Controller
 
     function printTest2()
     {
+        $inputs['zzz'] = '';
+        dd(intval($inputs['zzz']));
         $connector = null;
         $connector = new WindowsPrintConnector('EPSONPOS');
 
