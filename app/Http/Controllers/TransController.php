@@ -70,14 +70,15 @@ class TransController extends Controller
             {
                 return "Pembayaran tidak cukup";
             }
+            $header->paid_value = $total_trans;
             $header->change = $total_paid-$total_trans;
         }
         else {
             $header->debt = $total_trans-$total_paid;
             $header->is_debt = true;
+            $header->paid_value = HelperService::unmaskMoney($inputs['paid_value']);
         }
 
-        $header->paid_value = HelperService::unmaskMoney($inputs['paid_value']);
         $header->total_paid = $total_paid;
         $header->payment_type = $inputs['payment_type'];
         $header->status = 2;
