@@ -126,7 +126,9 @@ class TransactionController extends Controller
         $headers = null;
         if(request()->invoice)
         {
-            $headers = TransactionHeader::with(['rentingDatas'])->where('invoice_id', 'like', '%'.trim(request()->invoice).'%')->get();
+            $headers = TransactionHeader::with(['rentingDatas'])->
+                        ->where('status','!=',3)
+                        ->where('invoice_id', 'like', '%'.trim(request()->invoice).'%')->get();
         }
         // dd($headers);
         // dd($headers->count());
