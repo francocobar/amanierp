@@ -76,6 +76,8 @@ class TransController extends Controller
             $header->debt = $total_trans-$total_paid;
             $header->is_debt = true;
         }
+
+        $header->paid_value = HelperService::unmaskMoney($inputs['paid_value']);
         $header->total_paid = $total_paid;
         $header->payment_type = $inputs['payment_type'];
         $header->status = 2;
@@ -161,6 +163,11 @@ class TransController extends Controller
                         $header->discount_total_input = $discount;
                         $header->discount_total_type=1;
                         $header->discount_total_fixed_value = $discount/100*$total;
+                    }
+                    else {
+                        $header->discount_total_input = $discount;
+                        $header->discount_total_type=2;
+                        $header->discount_total_fixed_value = $discount;
                     }
                 }
             }
