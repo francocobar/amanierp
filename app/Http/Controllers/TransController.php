@@ -74,9 +74,11 @@ class TransController extends Controller
             $header->change = $total_paid-$total_trans;
         }
         else {
-            $header->debt = $total_trans-$total_paid;
-            $header->is_debt = true;
+
             $header->paid_value = HelperService::unmaskMoney($inputs['paid_value']);
+            $header->debt = $total_trans-$header->paid_value;
+            $header->is_debt = true;
+            $header->change = $total_paid-$header->paid_value;
         }
 
         $header->total_paid = $total_paid;

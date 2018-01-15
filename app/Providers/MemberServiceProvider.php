@@ -53,13 +53,13 @@ class MemberServiceProvider extends ServiceProvider
             $inputs['member_id'] = $prefix_member_id.sprintf("%05d", $number_id);
         }
         else {
-            $inputs['member_id'] = trim($inputs['member_id']);
+            $inputs['member_id'] = trim(strtoupper($inputs['member_id']));
             $flag = Member::where('member_id', $inputs['member_id'])->first();
             if($flag) {
                 return ['error' => 'Member ID sudah pernah didaftarkan!'];
             }
         }
-
+        $inputs['full_name'] = ucwords($inputs['full_name']);
         return Member::create($inputs);
     }
 }
