@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
          'App\Console\Commands\CreateFirstUsers',
-          'App\Console\Commands\SetStaffRolesDefatult'
+          'App\Console\Commands\SetStaffRolesDefatult',
+           'App\Console\Commands\UpdateMemberData'
     ];
 
     /**

@@ -54,6 +54,9 @@ class MemberServiceProvider extends ServiceProvider
         }
         else {
             $inputs['member_id'] = trim(strtoupper($inputs['member_id']));
+            if(strpos($inputs['member_id'], ' ') == false) {
+                return ['error' => 'Member ID lama harus mengandung spasi! Contoh <b>A 1234</b>!'];
+            }
             $flag = Member::where('member_id', $inputs['member_id'])->first();
             if($flag) {
                 return ['error' => 'Member ID sudah pernah didaftarkan!'];
