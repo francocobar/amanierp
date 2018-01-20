@@ -127,7 +127,7 @@ class TransController extends Controller
     function updateItemTrans(Request $request)
     {
         $inputs = $request->all();
-        $cashier = Sentinel::getUser();
+        // $cashier = Sentinel::getUser();
         if(isset($inputs['ongoing_trans_id']) && !empty(trim($inputs['ongoing_trans_id'])))
         {
             $trans_id = trim($inputs['ongoing_trans_id']);
@@ -141,22 +141,78 @@ class TransController extends Controller
             $still_exist = [];
             DB::beginTransaction();
             $total = 0;
+            $grand_total_item_price = 0;
+            $total_item_discount = 0;
             if(isset($inputs['item_id'])) {
                 foreach ($inputs['item_id'] as $key => $item_id) {
-                    $still_exist[] = trim($item_id);
                     $new_detail = TransactionDetail::where('header_id',$trans_id)
                                     ->where('item_id', trim($item_id))
                                     ->first();
-                    if($new_detail!=null)
+                    if($new_detail==null)
                     {
-                        $new_detail->item_qty = $inputs['item_qty'][$key];
-                        $new_detail->item_total_price = $new_detail->item_price*$new_detail->item_qty;
-                        $total = $total + $new_detail->item_total_price;
-                        $new_detail->save();
+                        $new_detail = new TransactionDetail();
+                        $new_detail->header_id = $trans_id;
+                        $item = $item = Item::where('item_id', trim($item_id))->first();
+                        if($item) {
+                            $new_detail->item_id = $item->item_id;
+                            if($header->member_id) {
+                                $new_detail->item_price = $item->m_price;
+                            }
+                            else {
+                                $new_detail->item_price = $item->nm_price;
+                            }
+                        }
+                        else {
+                            $new_detail->item_id = $item_id;
+                            $idx_name = 'item_name_'.trim($item_id);
+                            $flag_name = isset($inputs[$idx_name]) && !empty(trim($inputs[$idx_name]));
+                            $idx_price = 'item_price_'.trim($item_id);
+                            $flag_price = isset($inputs[$idx_price]) && !empty(trim($inputs[$idx_price]));
+                            if($flag_name && $flag_price)
+                            {
+                                $new_detail->custom_name = trim($inputs[$idx_name]);
+                                $new_detail->item_price = trim($inputs[$idx_price]);
+                            }
+                            else {
+                                DB::rollBack();
+                                return response()->json([
+                                    'status' => 'error',
+                                    'need_reload' => true,
+                                    'message' => 'Terjadi kesalahan!'
+                                ]);
+                            }
+                        }
                     }
-                }
+                    $new_detail->item_qty = $inputs['item_qty'][$key];
+                    $new_detail->item_total_price = $new_detail->item_price*$new_detail->item_qty;
+                    $new_detail->item_discount_input = null;
+                    $new_detail->item_discount_type = null;
+                    $new_detail->item_discount_fixed_value = 0;
+                    $idx_input = 'discount_'.$new_detail->item_id;
+                    if(isset($inputs[$idx_input]) && intval(trim($inputs[$idx_input])) > 0) {
+                        $inputs[$idx_input] = HelperService::unmaskMoney($inputs[$idx_input]);
+                        $idx_type = 'discount_type_'.$new_detail->item_id;
+                        if(isset($inputs[$idx_type]) && trim($inputs[$idx_type]) == '%') {
+                            $percentage = intval(trim($inputs[$idx_input]));
+                            $new_detail->item_discount_input = $percentage;
+                            $new_detail->item_discount_type = 1;
+                            $new_detail->item_discount_fixed_value = $percentage/100 * $new_detail->item_total_price;
+                        }
+                        else {
+                            $new_detail->item_discount_input = intval(trim($inputs[$idx_input]));
+                            $new_detail->item_discount_fixed_value = intval(trim($inputs[$idx_input]));
+                            $new_detail->item_discount_type = 2;
+                        }
+                    }
+                    $new_detail->save();
+                    $still_exist[] = $new_detail->item_id;
+                    $total_item_discount = $total_item_discount + $new_detail->item_discount_fixed_value;
+                    $grand_total_item_price = $grand_total_item_price + $new_detail->item_total_price;
 
-                $header->grand_total_item_price = $total;
+                }
+                $header->total_item_discount = $total_item_discount > 0 ? $total_item_discount : null;
+                $header->grand_total_item_price = $grand_total_item_price;
+                $total = $grand_total_item_price - $total_item_discount;
                 $discount = intval(trim($inputs['discount']));
 
                 if($discount>0)
@@ -185,6 +241,8 @@ class TransController extends Controller
                 $header->discount_total_input = null;
                 $header->discount_total_type=null;
                 $header->discount_total_fixed_value = 0;
+                $header->total_item_discount = null;
+                $header->others = 0;
             }
             $header->save();
 
@@ -193,94 +251,25 @@ class TransController extends Controller
                            ->delete();
 
             DB::commit();
-            return redirect()->route('get.cashier.ongoing',['trans_id'=>$trans_id]);
+            return response()->json([
+                'status' => 'success',
+                'cashier' => true,
+                'no_reset_form' => true
+            ]);
         }
+
+        return isset($inputs['ongoing_trans_id']) ? $inputs['ongoing_trans_id'] : "gak ada";
     }
 
     function addItemTrans(Request $request)
     {
         $inputs = $request->all();
-        $cashier = Sentinel::getUser();
         if(isset($inputs['ongoing_trans_id']) && !empty(trim($inputs['ongoing_trans_id'])))
         {
             $trans_id = trim($inputs['ongoing_trans_id']);
-            $header = TransactionHeader::find($trans_id);
-            $cashier = Sentinel::getUser();
-            if($header->status != 1 || $header->cashier_user_id != $cashier->id)
-            {
-                abort(404);
-            }
-
-            DB::beginTransaction();
-            if(isset($inputs['add_detail_item_id'])) {
-                $item = Item::where('item_id', trim($inputs['add_detail_item_id']))->first();
-
-                $new_detail = TransactionDetail::where('header_id',$trans_id)
-                                ->where('item_id', $item->item_id)
-                                ->first();
-
-                if($new_detail==null)
-                {
-                    $new_detail = new TransactionDetail();
-                    $new_detail->item_qty = $inputs['add_detail_qty'];
-                }
-                else {
-                    $new_detail->item_qty += $inputs['add_detail_qty'];
-                }
-
-                $new_detail->header_id = $trans_id;
-                $new_detail->item_id = $item->item_id;
-                if($header->member_id)
-                {
-                    $new_detail->item_price = $item->m_price;
-                }
-                else
-                {
-                    $new_detail->item_price = $item->nm_price;
-                }
-                $new_detail->item_total_price = $new_detail->item_price*$new_detail->item_qty;
-                $new_detail->save();
-            }
-            else if(isset($inputs['add_detail_costumize_item'])) {
-                $new_detail = new TransactionDetail();
-                $new_detail->custom_name = trim($inputs['add_detail_costumize_item']);
-                $new_detail->item_qty = $inputs['add_detail_qty'];
-                $new_detail->item_id = '-';
-                $new_detail->header_id = $trans_id;
-                $new_detail->item_price = HelperService::unmaskMoney($inputs['add_detail_price']);
-                $new_detail->item_total_price = $new_detail->item_price*$new_detail->item_qty;
-                $new_detail->save();
-                $new_detail->item_id = $new_detail->id;
-                $new_detail->save();
-            }
-
-
-
-
-
-
-
-            $details = TransactionDetail::where('header_id', $header->id)->get();
-            $total = 0;
-            foreach ($details as $key => $detail) {
-                $total = $total + $detail->item_total_price;
-            }
-            $header->grand_total_item_price = $total;
-            if($header->discount_total_input!=null && $header->discount_total_input>0) {
-                $discount = $header->discount_total_input;
-                if($header->discount_total_type==1) {
-                    $header->discount_total_fixed_value = $discount/100*$total;
-                }
-                else {
-                    $header->discount_total_fixed_value  = $discount;
-                }
-
-            }
-            $header->save();
-            DB::commit();
-            // dd($header->grand_total_item_price);
             return redirect()->route('get.cashier.ongoing',['trans_id'=>$trans_id]);
         }
+        abort(404);
     }
 
     function addTrans(Request $request)

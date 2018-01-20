@@ -75,3 +75,6 @@
         margin: 9px;
     }
 }
+table.table.table-striped.table-bordered.table-hover th {
+    text-align: center;
+}

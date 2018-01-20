@@ -17,6 +17,7 @@
 </div>
 <div class="col-md-6">
     <h2 id="add_trans" style="text-align: center;"><a class="btn purple-rev" style="font-size: 110%;">Buat Transaksi</a></h2>
+    <h2 style="text-align: center;"><a href="{{route('search.invoice.cashier',['today'=>Crypt::encryptString($branch->id)])}}" target="_blank" class="btn btn-success" style="font-size: 110%;">Transaksi Hari Ini</a></h2>
 </div>
 {!! Form::open(['id' => 'form_add_trans', 'route' => 'do.cashier.add-transaction']) !!}
     <input type="hidden" name="add_trans_type" id="add_trans_type" value=""/>

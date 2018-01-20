@@ -76,7 +76,7 @@ function maskMoney(number)
     return number_format(number, 0, ',', '.');
 }
 var MaskMoney = function() {
-    var maskMoney = function(){
+    var maskMoney2 = function(){
         $(".mask-money").maskMoney({
             thousands:'.',
             allowZero: false,
@@ -87,7 +87,7 @@ var MaskMoney = function() {
     return {
         //main function to initiate the module
         init: function () {
-            maskMoney();
+            maskMoney2();
         }
 
     };
@@ -315,6 +315,9 @@ function validateForm($form, $function){
                     }
                     else
                         window.location.replace(data.redirect_to);
+                }
+                else if(data.cashier) {
+                    bootbox.hideAll();
                 }
 				else {
 					bootbox.dialog({

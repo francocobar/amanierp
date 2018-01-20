@@ -127,10 +127,12 @@ Route::get('/validates-voucher', 'VoucherController@validateVoucher')->name('val
 
 Route::get('logout', 'UserController@logout')->name('logout');
 
+Route::get('/trans-report/{period}/{spesific?}/{branch?}', 'Report2Controller@getSalesReport')->name('get.sales.report');
+
 Route::get('/pb', 'ReportController@pembukuanBranch')->name('pb.report');
 Route::get('/pb/modal-note/{id}', 'ReportController@pembukuanBranchById')->name('pb.modal.note');
 Route::get('/sales-report-pusat/{period}/{spesific?}/{branch?}', 'ReportController@getSalesReportPusat')->name('get.sales.report.pusat');
-Route::get('/sales-report/{period}/{spesific?}/{branch?}', 'ReportController@getSalesReport')->name('get.sales.report');
+
 Route::get('/search-invoices', 'TransactionController@searchInvoice')->name('search.invoice.cashier');
 Route::get('/invoice','TransactionController@getInvoice')->name('get.invoice.cashier');
 Route::get('claim.do','TransactionController@doClaim')->name('do.claim');

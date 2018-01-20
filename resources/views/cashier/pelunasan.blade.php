@@ -181,6 +181,21 @@ jQuery(document).ready(function() {
                                 </select>
                             </div>
                         </div>
+                        @if(count($branches))
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Cabang
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <select class="form-control required_val" name="branch">
+                                    <option value="">Pilih Cabang</option>
+                                    @foreach($branches as $branch)
+                                        <option value="{{Crypt::encryptString($branch->id)}}">{{$branch->branch_name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     <div class="form-actions">
                         <div class="row">

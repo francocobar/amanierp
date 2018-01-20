@@ -115,7 +115,8 @@ class TransactionController extends Controller
             }
 
             return view('cashier.pelunasan',[
-                'header' => TransactionHeader::where('invoice_id',$invoice_id)->first()
+                'header' => TransactionHeader::where('invoice_id',$invoice_id)->first(),
+                'branches' => UserService::isSuperadmin() ? Branch::all() : array()
             ]);
         }
         abort(404);
@@ -124,19 +125,35 @@ class TransactionController extends Controller
     function searchInvoice()
     {
         $headers = null;
+        $keyword = '';
+        $headers = TransactionHeader::with(['rentingDatas'])
+                    ->where('status',2);
         if(request()->invoice)
         {
-            $headers = TransactionHeader::with(['rentingDatas'])
-                        ->where('status','!=',3)
-                        ->where('invoice_id', 'like', '%'.trim(request()->invoice).'%')->get();
+            $headers = $headers->where('invoice_id', 'like', '%'.trim(request()->invoice).'%')->get();
+            $keyword = trim(request()->invoice);
         }
-        // dd($headers);
-        // dd($headers->count());
+        else if(request()->today)
+        {
+            $branch_id = Crypt::decryptString(request()->today);
+            if(session()->has('branch_id') && session('branch_id') != intval($branch_id)) {
+                abort(404);
+            }
+            $branch = Branch::find($branch_id);
+            $prefix_branch = strtoupper($branch->prefix);
+            $date = '/'.str_replace('-','',Carbon::today()->toDateString()).'/';
+            $contain = 'INV/'.$prefix_branch.$date;
+            $headers = $headers->where('invoice_id', 'like', '%'.$contain.'%')->get();
+            $keyword = 'Transaksi hari ini Cabang '.$branch->branch_name;
+
+        }
 
         return view('cashier.search-invoice',[
             'headers' => $headers,
-            'keyword' => trim(request()->invoice)
+            'keyword' => $keyword
         ]);
+
+
     }
 
     function getInvoice()
@@ -191,8 +208,20 @@ class TransactionController extends Controller
                 $new_next_payment->payment_type = $inputs['payment_type'];
 
                 //cashier
-                $cashier_employee = EmployeeService::getEmployeeByUser();
-                $new_next_payment->branch_id = 1;
+
+                if(UserService::isSuperadmin()) {
+                    $flag = isset($inputs['branch']) && !empty(trim($inputs['branch']));
+                    if($flag) {
+                        $new_next_payment->branch_id = intval(Crypt::decryptString($inputs['branch']));
+                    }
+                }
+                else {
+                    $cashier_employee = EmployeeService::getEmployeeByUser();
+                    if($cashier_employee) {
+                        $new_next_payment->branch_id = $cashier_employee->branch_id;
+                    }
+                }
+
                 $new_next_payment->cashier_user_id = Sentinel::getUser()->id;
                 $new_next_payment->save();
                 if($new_next_payment->debt_after == 0) {

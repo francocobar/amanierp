@@ -13,4 +13,14 @@ class NextPayment extends Model
     {
         return $for_view ? HelperService::maskMoney($this->paid_value) : $this->paid_value;
     }
+
+    function header()
+    {
+        return $this->hasOne('App\TransactionHeader', 'id', 'header_id');
+    }
+
+    function branch()
+    {
+        return $this->hasOne('App\Branch', 'id', 'branch_id');
+    }
 }

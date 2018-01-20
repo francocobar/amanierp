@@ -86,7 +86,7 @@
         <input type="hidden" id="branch_id" value="{{session('branch_id')}}" />
         @endif
         <div class="col-md-1">
-            <a id="btn_change_period"  class="btn purple-rev">Ganti</a>
+            <a id="btn_change_period"  class="btn purple-rev">Lihat Laporan</a>
         </div>
         <div class="page-toolbar">
             <a href="{{env('PRINT_URL').'print-sales-report/'.request()->period.'/'.request()->spesific.'/'.request()->branch}}" id="btn_change_period" class="fa fa-print btn purple-rev" style="padding: 9px;"> Print</a>

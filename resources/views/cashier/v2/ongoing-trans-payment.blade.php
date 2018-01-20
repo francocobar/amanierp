@@ -36,5 +36,7 @@
     <input id="btn_finish" type="button" value="Selesai" class="btn btn-success" />
 </div>
 {!! Form::close() !!}
+
+
 <input type="hidden" id="total_fix" value="{{$header->totalTransaction()}}" />
 @endsection

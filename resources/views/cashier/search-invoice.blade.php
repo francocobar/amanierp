@@ -98,7 +98,7 @@
                                     */ ?>
                                 </td>
                                 <td>{{ $header->branch->branch_name}} </td>
-                                <td>{!! $header->isDebt() ? 'Belum Lunas <a href="'.route('get.cashier.next-payment',['invoice'=>str_replace('/','-', $header->invoice_id)]).'">Set Lunas</a>' : 'Lunas' !!}</td>
+                                <td>{!! $header->isDebt() ? 'Belum Lunas <a href="'.route('get.cashier.next-payment',['invoice'=>str_replace('/','-', $header->invoice_id)]).'">Pembayaran Berikutnya</a>' : 'Lunas' !!}</td>
                                 <td>{{ $header->isDebt() ? $header->debtValue(true) : 0 }}</td>
                             </tr>
                             @endforeach
