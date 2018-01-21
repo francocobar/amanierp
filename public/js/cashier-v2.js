@@ -357,6 +357,9 @@ var AddItemTrans = $(function() {
         $(document).on('click', '.delete_row', function(e){
             e.preventDefault();
             $(this).closest('tr').remove();
+            if($('#items_body').find('tr').length==0) {
+                $('#discount').val(0);
+            }
             calculateTotal();
         });
 

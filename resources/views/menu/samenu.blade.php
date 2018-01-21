@@ -140,7 +140,7 @@
             */ ?>
         </ul>
     </li>
-    <li class="nav-item {{strpos(Route::currentRouteName(),'.trans-report') !== false ? 'active open' : ''}}">
+    <li class="nav-item {{strpos(Route::currentRouteName(),'.report') !== false ? 'active open' : ''}}">
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="icon-briefcase"></i>
             <span class="title">Laporan</span>
