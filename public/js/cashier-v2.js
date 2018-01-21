@@ -505,12 +505,13 @@ var Payment = $(function(){
             $lunas = $('input[name="lunas"]').is(':checked');
             if(!$lunas) {
                 $paid_value = $.trim($('#paid_value').val());
-                if($total_fix > 0 &&$paid_value==''){
+                if($paid_value==''){
                     alert('Masukkan Total yang ingin dibayarkan!');
                     return;
                 }
             }
-            if($total_paid=='') {
+            //asasa
+            if($total_fix > 0 && $total_paid=='') {
                 alert('Masukkan Total yang dibayarkan!');
                 return;
             }
