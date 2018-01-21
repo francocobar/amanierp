@@ -38,66 +38,6 @@ class TransactionController extends Controller
         $this->middleware('checkrole_cashier_sa_manager');
     }
 
-    function getCustomCashier()
-    {
-        $custom_details = session()->get('custom_details',[]);
-        if(request()->remove) {
-            if(isset($custom_details[intval(request()->remove-2)])) {
-                unset($custom_details[intval(request()->remove-2)]);
-                session()->put('custom_details', $custom_details);
-                return redirect()->route('get.custom.cashier');
-            }
-            else if(request()->remove=='all') {
-                session()->put('custom_details', []);
-                return redirect()->route('get.custom.cashier');
-            }
-            else{
-                abort(404);
-            }
-        }
-
-        return view('cashier.custom',[
-            'custom_details' => $custom_details,
-            'no' => 1,
-            'employee_data' => EmployeeService::getEmployeeByUser()
-        ]);
-    }
-
-    function getCustomCashierFinishing()
-    {
-        $custom_details = session()->get('custom_details',[]);
-        if(count($custom_details)>0) {
-            $grand_total = 0;
-            foreach($custom_details as $custom_detail)
-            {
-                $grand_total += $custom_detail['item_price'] * $custom_detail['item_qty'] -
-                                $custom_detail['item_discount_fixed_value'];
-            }
-            return view('cashier.custom2',[
-                'grand_total' => $grand_total,
-                'employee_data' => EmployeeService::getEmployeeByUser()
-            ]);
-        }
-        abort(404);
-    }
-
-    function customCashierAddDetail(Request $request)
-    {
-        $inputs = $request->all();
-        $custom_details = session()->get('custom_details',[]);
-        $custom_details[] = [
-            'custom_name' => $inputs['custom_name'],
-            'item_price' => HelperService::unmaskMoney($inputs['item_price']),
-            'item_qty' => $inputs['item_qty'],
-            'item_discount_fixed_value' => HelperService::unmaskMoney($inputs['item_discount_fixed_value']),
-        ];
-        session()->put('custom_details', $custom_details);
-        return response()->json([
-            'status' => 'success',
-            'redirect_to' => route('get.custom.cashier')
-        ]);
-    }
-
     function getCashierPelunasan()
     {
         $invoice_id = str_replace('-','/',trim(request()->invoice));
@@ -282,7 +222,8 @@ class TransactionController extends Controller
         return view('cashier.v2.apps-v2',[
             'employee_data' => $employee_data,
             'branch' => $branch,
-            'transaction_ongoing' => $transaction_ongoing
+            'transaction_ongoing' => $transaction_ongoing,
+            'title' => 'Cashier Apps'
         ]);
     }
 

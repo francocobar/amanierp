@@ -27,7 +27,7 @@ class TransactionHeader extends Model
     function paidValue($for_view=false)
     {
         $first_payment = $this->firstPayment();
-        $next_payment = NextPayment::where('header_id', $this->id)->orderBy('created_at','desc')
+        $next_payment = NextPayment::where('header_id', $this->id)
                         ->groupBy('header_id')->sum('paid_value');
         $return = $first_payment+$next_payment;
         return $for_view ? HelperService::maskMoney($return) : $return;

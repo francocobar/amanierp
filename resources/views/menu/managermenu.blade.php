@@ -95,8 +95,7 @@
             </li>
         </ul>
     </li>
-    <?php /*
-    <li class="nav-item {{strpos(Route::currentRouteName(),'.sales') !== false ? 'active open' : ''}}">
+    <li class="nav-item {{strpos(Route::currentRouteName(),'.trans-report') !== false ? 'active open' : ''}}">
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="icon-briefcase"></i>
             <span class="title">Laporan</span>
@@ -106,19 +105,18 @@
         <ul class="sub-menu">
             <li class="nav-item ">
                 <a href="{{route('get.sales.report',['period'=>'1','spesific'=>'0', 'branch' => session('branch_id')])}}" class="nav-link ">
-                    <span class="title">Lap. Penjualan Harian</span>
+                    <span class="title">Lap. Harian</span>
                     <!--  -->
                 </a>
             </li>
             <li class="nav-item ">
                 <a href="{{route('get.sales.report',['period'=>'2','spesific'=>'0', 'branch' => session('branch_id')])}}" class="nav-link ">
-                    <span class="title">Lap. Penjualan Bulanan</span>
+                    <span class="title">Lap. Bulanan</span>
                     <!--  -->
                 </a>
             </li>
         </ul>
     </li>
-    */ ?>
     <li class="nav-item {{strpos(Route::currentRouteName(),'.salary') !== false ? 'active open' : ''}}">
         <a href="{{route('my.salary')}}">
             <i class="fa fa-credit-card"></i>

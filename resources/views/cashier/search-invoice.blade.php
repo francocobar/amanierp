@@ -86,9 +86,11 @@
                             @foreach($headers as $header)
                             <tr>
                                 <td><a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id])}}">{{ $header->invoice_id }}</a> |
-                                    <a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id, 'detail_klaim'=>1])}}">Detail Klaim</a> |
                                     <a href="{{env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=2'}}">Print Struk</a>
                                     <?php /*
+                                    <a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id, 'detail_klaim'=>1])}}">Detail Klaim</a> |
+
+
                                     @if($header->rentingDatas->count())
                                      |
                                      <a href="{{route('renting.by.invoice.casier',[
@@ -106,7 +108,11 @@
                     </table>
                 </div>
                 @else
+                    @if(request()->today)
+                    Belum ada <i class="bold">{{$keyword}}</i>.
+                    @else
                     Tidak ada invoice yang invoice id nya (mengandung) <i class="bold">{{$keyword}}</i>.
+                    @endif
                 @endif
             </div>
         </div>

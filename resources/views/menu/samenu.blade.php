@@ -80,12 +80,13 @@
                     <span class="title">Daftar Karyawan</span>
                 </a>
             </li>
+            <?php /*
             <li class="nav-item">
                 <a href="{{route('unset.incentives.employees')}}"  class="nav-link ">
                     <span class="title">Insetif Karyawan UNSET</span>
                 </a>
             </li>
-
+            */?>
         </ul>
     </li>
 
@@ -139,42 +140,29 @@
             */ ?>
         </ul>
     </li>
-    <?php /*
-    <li class="nav-item {{strpos(Route::currentRouteName(),'.sales') !== false ? 'active open' : ''}}">
+    <li class="nav-item {{strpos(Route::currentRouteName(),'.trans-report') !== false ? 'active open' : ''}}">
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="icon-briefcase"></i>
             <span class="title">Laporan</span>
-
             <span class="arrow"></span>
         </a>
 
         <ul class="sub-menu">
-            <li class="nav-item">
-                <a href="{{route('get.sales.report.pusat',['period'=>'1','spesific'=>'0'])}}" class="nav-link ">
-                    <span class="title">Lap. Penjualan Pusat</span>
+            <li class="nav-item ">
+                <a href="{{route('get.sales.report',['period'=>'1','spesific'=>'0', 'branch' => session('branch_id')])}}" class="nav-link ">
+                    <span class="title">Lap. Harian</span>
                     <!--  -->
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{route('pb.report')}}" class="nav-link ">
-                    <span class="title">Pembukuan Cabang</span>
-                    <!--  -->
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{route('get.sales.report',['period'=>'1','spesific'=>'0'])}}" class="nav-link ">
-                    <span class="title">Lap. Penjualan Harian</span>
-                    <!--  -->
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{route('get.sales.report',['period'=>'2','spesific'=>'0'])}}" class="nav-link ">
-                    <span class="title">Lap. Penjualan Bulanan</span>
+            <li class="nav-item ">
+                <a href="{{route('get.sales.report',['period'=>'2','spesific'=>'0', 'branch' => session('branch_id')])}}" class="nav-link ">
+                    <span class="title">Lap. Bulanan</span>
                     <!--  -->
                 </a>
             </li>
         </ul>
     </li>
+    <?php /*
 
     <li class="nav-item {{strpos(Route::currentRouteName(),'.voucher') !== false ? 'active open' : ''}}">
         <a href="javascript:;" class="nav-link nav-toggle">

@@ -97,10 +97,6 @@ Route::get('/branches-sewa/{item_id?}.{date_to_rent?}', 'TransactionController@g
 Route::post('/transaction.do', 'TransactionController@doTransaction')->name('do.transaction');
 
 
-Route::get('/custom-cashier', 'TransactionController@getCustomCashier')->name('get.custom.cashier');
-Route::get('/custom-cashier-2', 'TransactionController@getCustomCashierFinishing')->name('get.custom.cashier.finishing');
-Route::post('/custom-cashier.do', 'TransactionController@doTransactionCustom')->name('do.custom.cashier');
-Route::post('/custom-cashier-add-detail', 'TransactionController@customCashierAddDetail')->name('custom.cashier.add.detail');
 
 // Route::get('/cashier',function(){
 //     // return request();
