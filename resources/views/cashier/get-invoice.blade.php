@@ -80,10 +80,10 @@
                                 <td class="bold text-right uppercase" colspan="2">Sub Total [+]</td>
                                 <td class="text-right">{{HelperService::maskMoney($header->grand_total_item_price)}}</td>
                             </tr>
-                            @if($header->total_item_discount>0)
+                            @if($header->total_item_discount+$header->discount_total_fixed_value>0)
                             <tr>
                                 <td class="bold text-right uppercase" colspan="2">Diskon [-]</td>
-                                <td class="text-right">{{HelperService::maskMoney($header->total_item_discount)}}</td>
+                                <td class="text-right">{{HelperService::maskMoney($header->total_item_discount+$header->discount_total_fixed_value)}}</td>
                             </tr>
                             @endif
                             @if($header->others>0)
@@ -94,7 +94,7 @@
                             @endif
                             <tr>
                                 <td class="bold text-right uppercase" colspan="2">Grand Total</td>
-                                <td class="text-right">{{HelperService::maskMoney($header->grandTotal())}}</td>
+                                <td class="text-right">{{HelperService::maskMoney($header->totalTransaction())}}</td>
                             </tr>
                         </tbody>
                     </table>
