@@ -61,7 +61,9 @@ class TransController extends Controller
         {
             return redirect()->route('get.cashier.v2');
         }
-
+        if(!isset($inputs['total_paid']) || empty(trim($inputs['total_paid']))) {
+            $inputs['total_paid'] = 0;
+        }
         $total_paid = HelperService::unmaskMoney($inputs['total_paid']);
         $total_trans = $header->totalTransaction();
         if(isset($inputs['lunas']))
