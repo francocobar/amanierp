@@ -57,6 +57,20 @@ class MemberServiceProvider extends ServiceProvider
             if(strpos($inputs['member_id'], ' ') == false) {
                 return ['error' => 'Member ID lama harus mengandung spasi! Contoh <b>A 1234</b>!'];
             }
+            if(strpos($inputs['member_id'], '  ') == true) {
+                return ['error' => 'Member ID lama hanya mengandung satu spasi! Contoh <b>B 1234</b>'];
+            }
+            $member_id_check = explode(' ', $inputs['member_id']);
+            if(count($member_id_check)!=2) {
+                return ['error' => 'Format ID lama salah, Contoh yang benar C 1234, A 0004'];
+            }
+            if(!ctype_alpha($member_id_check[0]) || !is_numeric($member_id_check[1]) || strlen($member_id_check[0]) != 1) {
+                return ['error' => 'Format ID lama salah, Contoh yang benar C 1234, A 0004'];
+            }
+            if(strlen($member_id_check[1]) != 4) {
+                return ['error' => 'Format ID lama salah, setelah huruf wajib 4 digit Angka'];
+            }
+            
             $flag = Member::where('member_id', $inputs['member_id'])->first();
             if($flag) {
                 return ['error' => 'Member ID sudah pernah didaftarkan!'];

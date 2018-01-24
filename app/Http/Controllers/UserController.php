@@ -4,17 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use App\TransactionHeader;
 use Sentinel;
 use UserService;
 use Carbon\Carbon;
 use HelperService;
 use EmployeeService;
 
-use Mike42\Escpos\PrintConnectors\CupsPrintConnector;
-use Mike42\Escpos\PrintConnectors\FilePrintConnector;
-use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
-use Mike42\Escpos\EscposImage;
-use Mike42\Escpos\Printer;
+
 class UserController extends Controller
 {
     public function __construct()
@@ -24,29 +21,29 @@ class UserController extends Controller
 
     function printTest2()
     {
-        $inputs['zzz'] = '';
-        dd(intval($inputs['zzz']));
-        $connector = null;
-        $connector = new WindowsPrintConnector('EPSONPOS');
-
-        $printer = new Printer($connector);
-        $printer -> setEmphasis(true);
-        $printer -> setUnderline(1);
-        $printer -> setJustification(Printer::JUSTIFY_CENTER);
-
-        // $img = EscposImage::load("tux.png");
-        // $printer -> graphics($img);
-        $printer -> selectPrintMode(Printer::MODE_EMPHASIZED);
-        $printer -> text('RUMAH CANTIQUE AMANIE'."\n".'SALON & SPA MUSLIMAH'."\n");$printer -> selectPrintMode(169);
-        $printer -> text("\n*** TERIMA KASIH ***\n");
-        $printer -> cut();
-        $printer -> pulse();
-        $printer -> close();
+        $header=TransactionHeader::where('id',100)->first();
+        return view('welcome')->withHeader('$header');
     }
     function testing()
     {
-        return HelperService::round_up(2.0, 1);
-        return Carbon::today()->firstOfMonth()->addMonth(1)->toDateString();
+        $inputs['member_id'] = 'A 1212asss';
+        if(strpos($inputs['member_id'], '  ') == true) {
+            return ['error' => 'Member ID lama hanya mengandung satu spasi! Contoh <b>B 1234</b>'];
+        }
+        else {
+            $member_id_check = explode(' ', $inputs['member_id']);
+            if(count($member_id_check)!=2) {
+                return ['error' => 'Format ID lama salah, Contoh yang benar C 1234, A 0004'];
+            }
+            else {
+                if(!ctype_alpha($member_id_check[0]) || !is_numeric($member_id_check[1]) || strlen($member_id_check[0]) != 1) {
+                    return ['error' => 'Format ID lama salah, Contoh yang benar C 1234, A 0004'];
+                }
+                if(strlen($member_id_check[1]) != 4) {
+                    return ['error' => 'Format ID lama salah, setelah huruf wajib 4 digit Angka'];
+                }
+            }
+        }
     }
     function createFirstUser()
     {
