@@ -39,6 +39,8 @@ Route::post('/update-item', 'ItemController@updateItem')->name('update.item');
 // Route::get('/edit-item/{item_id_encrypted}/{url_ref}', 'ItemController@editItem')->name('edit.item');
 // Route::post('/update-item/{item_id_encrypted}', 'ItemController@updateItem')->name('update.item');
 Route::post('/add-item.do', 'ItemController@addItemDo')->name('add.item.do');
+Route::post('/items', 'ItemController@getItemsByAjax')->name('get.items.by.ajax');
+
 Route::get('/items-produk/{page?}', 'ItemController@getItemsProduk')->name('get.items.produk');
 Route::get('/item-produk/{item_id}', 'ItemController@getItemProdukById')->name('detail.item.produk');
 Route::get('/items-jasa/{page?}', 'ItemController@getItemsJasa')->name('get.items.jasa');
@@ -125,7 +127,8 @@ Route::get('/validates-voucher', 'VoucherController@validateVoucher')->name('val
 Route::get('logout', 'UserController@logout')->name('logout');
 
 Route::get('/trans-report/{period}/{spesific?}/{branch?}', 'Report2Controller@getSalesReport')->name('get.sales.report');
-Route::get('/top-members/{spesific?}/{branch?}', 'Report2Controller@topMembers')->name('top.members.report');
+Route::get('/top-members/{spesific?}/{branch?}', 'Report2Controller@topMembers')->name('topmembers.report');
+Route::get('/top-items/{branch?}/{from}/{to}', 'Report2Controller@topItems')->name('topitems.report');
 
 Route::get('/pb', 'ReportController@pembukuanBranch')->name('pb.report');
 Route::get('/pb/modal-note/{id}', 'ReportController@pembukuanBranchById')->name('pb.modal.note');

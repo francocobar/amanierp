@@ -152,7 +152,7 @@ class HelperServiceProvider extends ServiceProvider
     {
         if($type==1) {//date only
             $exploded = explode('-', $db_date);
-
+            
             return $exploded[2].' '.HelperService::monthName($exploded[1]).' '.$exploded[0];
         }
 

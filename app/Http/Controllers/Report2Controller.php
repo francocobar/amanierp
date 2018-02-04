@@ -138,7 +138,7 @@ class Report2Controller extends Controller
             }
         }
 
-        $data['title'] = 'Top 30 Member berdasarkan Transaksi '.$branch_selected.' bulan '.HelperService::monthName($month).' '.$year;
+        $data['title'] = 'Top 30 Members berdasarkan Transaksi '.$branch_selected.' bulan '.HelperService::monthName($month).' '.$year;
         $data['year'] = $year;
         $data['month'] =  $month;
 
@@ -160,8 +160,68 @@ class Report2Controller extends Controller
         ) as a
         group by member_id order by total_trans desc
         LIMIT 30');
-
-
         return view('report2.top-members-report', $data);
+    }
+
+    function topItems($branch='0', $from='0', $to= '0')
+    {
+        $data = [];
+        if($from=='0' || $to=='0') {
+            abort(404);
+        }
+
+        $froms = explode('-', $from);
+        // dd($spesifics);
+        if(count($froms) != 3) {
+            abort(404);
+        }
+        else {
+            $data['from'] = $froms[2].'-'.$froms[1].'-'.$froms[0];
+        }
+        $tos = explode('-', $to);
+        // dd($spesifics);
+        if(count($tos) != 3) {
+            abort(404);
+        }
+        else {
+            $data['to'] = $tos[2].'-'.$tos[1].'-'.$tos[0];
+        }
+        if(!session()->has('branch_id')) {
+            $data['branches'] = Branch::all();
+        }
+        else if(session()->has('branch_id') && session('branch_id') != intval($branch)) {
+            abort(404);
+        }
+        $data['branch_id'] = $branch;
+        if($branch=='0') {
+            $branch_selected = 'Semua Cabang';
+        }
+        else {
+            $obj_branch = Branch::find(intval($branch));
+            if($obj_branch) {
+                $branch_selected = 'Cabang '.$obj_branch->branch_name;
+            }
+            else {
+                abort(404);
+            }
+        }
+        $data['title'] = 'Top 30 Items berdasarkan Qty Transaksi '.$branch_selected.' Tanggal '. HelperService::inaDate($from);
+        if($from != $to) {
+            $data['title']  .= ' - '. HelperService::inaDate($to);
+        }
+        $item_ids = '';
+        if(intval($branch) != 0) {
+            $item_ids = " and id in (select id from transaction_headers
+            where branch_id=".intval($branch)." and DATE(created_at) >= '".$from."'
+            and DATE(created_at) <= '".$to."')";
+        }
+        $data['top_items'] = DB::select("select item_id, sum(item_qty) as qty from transaction_details
+            where item_id like 'I%'
+            and DATE(created_at) >= '".$from."'
+            and DATE(created_at) <= '".$to."'
+            ".$item_ids."
+            group by item_id
+            order by qty desc LIMIT 30");
+        return view('report2.top-items-report', $data);
     }
 }

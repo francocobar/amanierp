@@ -116,8 +116,14 @@
                 </a>
             </li>
             <li class="nav-item ">
-                <a href="{{route('top.members.report',['spesific'=>'0', 'branch' => session('branch_id')])}}" class="nav-link ">
+                <a href="{{route('topmembers.report',['spesific'=>'0', 'branch' => session('branch_id')])}}" class="nav-link ">
                     <span class="title">Top 30 Members</span>
+                    <!--  -->
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="{{route('topitems.report',['to'=>\Carbon\Carbon::today()->addDay(-1)->toDateString(), 'from'=>\Carbon\Carbon::today()->addDay(-1)->toDateString(), 'branch' => session('branch_id') == null ? 0 : session('branch_id')])}}" class="nav-link ">
+                    <span class="title">Top 30 Items</span>
                     <!--  -->
                 </a>
             </li>

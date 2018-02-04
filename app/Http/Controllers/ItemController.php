@@ -741,4 +741,11 @@ class ItemController extends Controller
 
         dd($pending_confirmation);
     }
+
+    function getItemsByAjax(Request $request)
+    {
+        $items = Item::whereIn('item_id', $request->input('item_id'))
+                    ->get(['item_id','item_name']);
+        return array('data' => $items);
+    }
 }
