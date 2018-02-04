@@ -76,6 +76,7 @@
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
+                                <th scope="col">Waktu Transaksi</th>
                                 <th scope="col">Invoice Id</th>
                                 <th scope="col">Cabang</th>
                                 <th scope="col">Status Pembayaran</th>
@@ -85,6 +86,7 @@
                         <tbody>
                             @foreach($headers as $header)
                             <tr>
+                                <td>{{ HelperService::inaDate($header->created_at, 2)}} </td>
                                 <td><a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id])}}">{{ $header->invoice_id }}</a> |
                                     <a href="{{env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=2'}}">Print Struk</a>
                                     <?php /*

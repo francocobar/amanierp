@@ -115,6 +115,12 @@
                     <!--  -->
                 </a>
             </li>
+            <li class="nav-item ">
+                <a href="{{route('top.members.report',['spesific'=>'0', 'branch' => session('branch_id')])}}" class="nav-link ">
+                    <span class="title">Top 30 Members</span>
+                    <!--  -->
+                </a>
+            </li>
         </ul>
     </li>
     <li class="nav-item {{strpos(Route::currentRouteName(),'.salary') !== false ? 'active open' : ''}}">

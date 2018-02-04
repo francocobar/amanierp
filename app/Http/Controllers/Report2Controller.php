@@ -9,6 +9,7 @@ use App\TransactionHeader;
 use App\NextPayment;
 use App\Branch;
 use HelperService;
+use DB;
 
 class Report2Controller extends Controller
 {
@@ -98,5 +99,69 @@ class Report2Controller extends Controller
         $data['transaction_turnover'] = $headers->sum('paid_value')+$installments->sum('paid_value');
         $data['transaction_debt'] = $headers->sum('debt');
         return view('report2.trans-report', $data);
+    }
+
+    function topMembers($spesific='0', $branch= '0')
+    {
+        $data = [];
+        if(!session()->has('branch_id')) {
+            $data['branches'] = Branch::all();
+        }
+        else if(session()->has('branch_id') && session('branch_id') != intval($branch)) {
+            abort(404);
+        }
+        $data['branch_id'] = $branch;
+        if($branch=='0') {
+            $branch_selected = 'Semua Cabang';
+        }
+        else {
+            $obj_branch = Branch::find(intval($branch));
+            if($obj_branch) {
+                $branch_selected = 'Cabang '.$obj_branch->branch_name;
+            }
+            else {
+                abort(404);
+            }
+        }
+        if($spesific=='0') {
+            $year = date('Y');
+            $month = date('m')-1;
+        }
+        else {
+            $spesifics = explode('-', $spesific);
+            if(count($spesifics) != 2) {
+                abort(404);
+            }
+            else {
+                $year = intval($spesifics[0]);
+                $month = intval($spesifics[1]);
+            }
+        }
+
+        $data['title'] = 'Top 30 Member berdasarkan Transaksi '.$branch_selected.' bulan '.HelperService::monthName($month).' '.$year;
+        $data['year'] = $year;
+        $data['month'] =  $month;
+
+        $where_time = ' and month(created_at)='.$month.' and year(created_at)='.$year;
+        $where_time_2 = ' and month(next_payments.created_at)='.$month.' and year(next_payments.created_at)='.$year;
+        if(intval($branch) != 0) {
+            $where_time .= ' and branch_id='.intval($branch);
+            $where_time_2 .= ' and next_payments.branch_id='.intval($branch);
+        }
+        $data['top_members'] = DB::select('select member_id, sum(paid_value) as total_trans from
+        (
+        select member_id,paid_value  from transaction_headers
+        where status=2 and member_id is not null '.$where_time.'
+        union all
+        select member_id, next_payments.paid_value from next_payments
+        left join transaction_headers
+        on transaction_headers.id = next_payments.header_id
+        where member_id is not null '.$where_time_2.'
+        ) as a
+        group by member_id order by total_trans desc
+        LIMIT 30');
+
+
+        return view('report2.top-members-report', $data);
     }
 }

@@ -32,6 +32,7 @@ Route::get('/my-salary', 'EmployeeController@mySalary')->name('my.salary');
 Route::get('/add-member', 'MemberController@addMember')->name('add.member');
 Route::post('/add-member.do', 'MemberController@addMemberDo')->name('add.member.do');
 Route::get('/members/{page}', 'MemberController@getMembers')->name('get.members');
+Route::post('/members', 'MemberController@getMembersByAjax')->name('get.members.by.ajax');
 
 Route::get('/add-item', 'ItemController@addItem')->name('add.item');
 Route::post('/update-item', 'ItemController@updateItem')->name('update.item');
@@ -124,6 +125,7 @@ Route::get('/validates-voucher', 'VoucherController@validateVoucher')->name('val
 Route::get('logout', 'UserController@logout')->name('logout');
 
 Route::get('/trans-report/{period}/{spesific?}/{branch?}', 'Report2Controller@getSalesReport')->name('get.sales.report');
+Route::get('/top-members/{spesific?}/{branch?}', 'Report2Controller@topMembers')->name('top.members.report');
 
 Route::get('/pb', 'ReportController@pembukuanBranch')->name('pb.report');
 Route::get('/pb/modal-note/{id}', 'ReportController@pembukuanBranchById')->name('pb.modal.note');
@@ -135,3 +137,5 @@ Route::get('claim.do','TransactionController@doClaim')->name('do.claim');
 Route::get('/renting-datas/{header_id}', 'RentingController@rentingDatas')->name('renting.by.invoice.casier');
 Route::get('/renting-datas-timeline', 'RentingController@rentingDatasByTime')->name('renting.by.time.casier');
 Route::get('/renting-datas/{action}/{reting_data_id}', 'RentingController@changeStatusRentingData')->name('change.status.renting');
+
+Route::get('/monitoring/trans', 'MonitoringController@trans')->name('monitoring.trans');

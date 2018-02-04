@@ -70,26 +70,46 @@ class TransactionController extends Controller
                     ->where('status',2);
         if(request()->invoice)
         {
-            $headers = $headers->where('invoice_id', 'like', '%'.trim(request()->invoice).'%')->get();
+            $headers = $headers->where('invoice_id', 'like', '%'.trim(request()->invoice).'%');
             $keyword = trim(request()->invoice);
         }
         else if(request()->today)
         {
-            $branch_id = Crypt::decryptString(request()->today);
+            $array = Crypt::decrypt(request()->today);
+            $branch_id = $array['branch_id'];
+            $type = 'hari ini';
             if(session()->has('branch_id') && session('branch_id') != intval($branch_id)) {
                 abort(404);
             }
-            $branch = Branch::find($branch_id);
-            $prefix_branch = strtoupper($branch->prefix);
-            $date = '/'.str_replace('-','',Carbon::today()->toDateString()).'/';
-            $contain = 'INV/'.$prefix_branch.$date;
-            $headers = $headers->where('invoice_id', 'like', '%'.$contain.'%')->get();
-            $keyword = 'Transaksi hari ini Cabang '.$branch->branch_name;
+            else if(UserService::isSuperadmin()){
+                if($array['still_debt']) {
+                    $type = 'belum Lunas';
+                }
+            }
+            if($branch_id != 0) {
+                $branch = Branch::find($branch_id);
+                $keyword = 'Transaksi '.$type.' Cabang '.$branch->branch_name;
+                $headers = $headers->where('branch_id', $branch->id);
+            }
+            else {
+                $keyword = 'Transaksi '.$type.' Semua Cabang';
+            }
+
+            if(!$array['still_debt']) {
+                $headers = $headers->whereDate('created_at', Carbon::today()->toDateString());
+            }
+            else {
+                $headers = $headers->whereDate('created_at', '<=', Carbon::today()->toDateString())
+                                ->where('is_debt', 1)
+                                ->where('last_payment_date', null)
+                                ->orderBy('updated_at');
+            }
+
 
         }
 
         return view('cashier.search-invoice',[
-            'headers' => $headers,
+            'headers' => $headers->get(),
             'keyword' => $keyword
         ]);
 
@@ -175,6 +195,8 @@ class TransactionController extends Controller
                         'invoice' => $invoice_id
                     ]);
                 }
+                $header->updated_at =Carbon::now();
+                $header->save();
                 DB::commit();
                 return response()->json([
                     'status' => 'success',

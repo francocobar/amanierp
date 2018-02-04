@@ -78,3 +78,33 @@
 table.table.table-striped.table-bordered.table-hover th {
     text-align: center;
 }
+
+.anic {
+  -webkit-animation: fade-in 0.27s linear infinite alternate;
+  -moz-animation: fade-in 0.27s linear infinite alternate;
+  animation: fade-in 0.27s linear infinite alternate;
+}
+@-moz-keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  65% {
+    opacity: 1;
+  }
+}
+@-webkit-keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  65% {
+    opacity: 1;
+  }
+}
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  65% {
+    opacity: 1;
+  }
+}

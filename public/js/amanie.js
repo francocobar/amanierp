@@ -287,6 +287,16 @@ $(document).ready(function() {
     });
 });
 
+function lazyLoading($form, $function){
+    $.ajax({
+		url:$form.attr('action'),
+		method:"POST",
+		dataType:'JSON',
+  	    async: false,
+		data:$form.serializeArray(),
+
+    });
+};
 function validateForm($form, $function){
     bootbox.dialog({
 		message: '<div class="text-center"><i class="fa fa-spin fa-spinner"></i> Loading...</div>',

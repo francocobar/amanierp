@@ -88,49 +88,43 @@ class MemberController extends Controller
             'message' => 'Member baru, <b>Nama:</b> '.$add_member->full_name.', berhasil ditambahkan. <b>Member Id:</b> '.$add_member->member_id,
         ]);
     }
-
+    function getMembersByAjax(Request $request)
+    {
+        $members = Member::whereIn('member_id', $request->input('member_id'))
+                    ->get(['member_id','full_name']);
+        return array('data' => $members);
+    }
     function getMembers($page)
     {
         // dd($page);
         $take = 20;
         $skip = ($page - 1) * $take;
 
-
+        $members = null;
         $role_user = UserService::getRoleByUser();
         if(strtolower($role_user->slug)=='superadmin') {
             $members = Member::get();
             $total = $members->count();
             $members = Member::skip($skip)->take($take)
-                            ->with(['branch'])->orderBy('created_at', 'desc')->get();
+                            ->with(['branch'])->orderBy('full_name');
             // dd($employees);
-            if($members->count()) {
-                return view('member.members',[
-                    'members' => $members,
-                    'role_slug' => strtolower($role_user->slug),
-                    'message' => HelperService::dataCountingMessage($total, $skip+1, $skip+$members->count(), $page),
-                    'total_page' => ceil($total/$take)
-                ]);
-            }
-            abort(404);
         }
         else if(strtolower($role_user->slug)=='manager') {
             $employee_data = EmployeeService::getEmployeeByUser();
             $members = Member::where('branch_id', $employee_data->branch_id)->get();
             $total = $members->count();
             $members = Member::where('branch_id', $employee_data->branch_id)->skip($skip)->take($take)
-                            ->with(['branch'])->orderBy('created_at', 'desc')->get();
+                            ->with(['branch'])->orderBy('full_name');
             // dd($employees);
-            if($members->count()) {
-                return view('member.members',[
-                    'members' => $members,
-                    'role_slug' => strtolower($role_user->slug),
-                    'message' => HelperService::dataCountingMessage($total, $skip+1, $skip+$members->count(), $page),
-                    'total_page' => ceil($total/$take)
-                ]);
-            }
-            abort(404);
         }
-
+        if($members!= null && $members->count()) {
+            return view('member.members',[
+                'members' => $members->get(),
+                'role_slug' => strtolower($role_user->slug),
+                'message' => HelperService::dataCountingMessage($total, $skip+1, $skip+$members->count(), $page),
+                'total_page' => ceil($total/$take)
+            ]);
+        }
         abort(404);
     }
 
