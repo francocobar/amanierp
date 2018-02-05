@@ -211,7 +211,7 @@ class Report2Controller extends Controller
         }
         $item_ids = '';
         if(intval($branch) != 0) {
-            $item_ids = " and id in (select id from transaction_headers
+            $item_ids = " and header_id in (select id from transaction_headers
             where branch_id=".intval($branch)." and DATE(created_at) >= '".$from."'
             and DATE(created_at) <= '".$to."')";
             // dd($item_ids);
