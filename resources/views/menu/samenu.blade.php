@@ -9,7 +9,7 @@
     <li class="nav-item start ">
         <a target="_blank" href="{{route('monitoring.trans')}}" class="nav-link nav-toggle">
             <i class="fa fa-desktop"></i>
-            <span class="title">Monioring Transaksi</span>
+            <span class="title">Monitoring Transaksi</span>
         </a>
     </li>
 
