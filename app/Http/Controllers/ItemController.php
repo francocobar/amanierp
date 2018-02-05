@@ -744,6 +744,7 @@ class ItemController extends Controller
 
     function getItemsByAjax(Request $request)
     {
+        dd($request->input('item_id'));
         $items = Item::whereIn('item_id', $request->input('item_id'))
                     ->get(['item_id','item_name']);
         return array('data' => $items);
