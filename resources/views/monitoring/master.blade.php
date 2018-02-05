@@ -38,8 +38,8 @@
                 <div class="portlet light" style="max-width: 90%; margin:0 auto;">
                     <div class="portlet-title">
                         <div class="caption font-red-sunglo">
-                            <i class="fa fa-user font-red-sunglo"></i>
-                            <span class="caption-subject bold uppercase">Monitoring{{isset($title) ? ' - '.$title : ''}}
+                            <i class="fa {{isset($fa_icon) ? $fa_icon : 'fa-user'}} font-red-sunglo"></i>
+                            <span class="caption-subject bold uppercase">{{isset($title) ? $title : 'Amanie'}}
                             </span>
                         </div>
                     </div>
@@ -68,6 +68,7 @@
 
         <script src="../assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
         <!-- END THEME LAYOUT SCRIPTS -->
+        @yield('optional_js')
     </body>
 
 </html>

@@ -140,5 +140,4 @@ Route::get('claim.do','TransactionController@doClaim')->name('do.claim');
 Route::get('/renting-datas/{header_id}', 'RentingController@rentingDatas')->name('renting.by.invoice.casier');
 Route::get('/renting-datas-timeline', 'RentingController@rentingDatasByTime')->name('renting.by.time.casier');
 Route::get('/renting-datas/{action}/{reting_data_id}', 'RentingController@changeStatusRentingData')->name('change.status.renting');
-
 Route::get('/monitoring/trans', 'MonitoringController@trans')->name('monitoring.trans');

@@ -20,7 +20,7 @@ class TransController extends Controller
     public function __construct()
     {
         $this->middleware('authv2');
-        $this->middleware('checkrole_cashier_sa_manager');
+        $this->middleware('superadmin');
     }
 
     function ongoingTrans($trans_id)

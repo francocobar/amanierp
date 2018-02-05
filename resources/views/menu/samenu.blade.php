@@ -6,6 +6,13 @@
         </a>
     </li>
 
+    <li class="nav-item start ">
+        <a target="_blank" href="{{route('monitoring.trans')}}" class="nav-link nav-toggle">
+            <i class="fa fa-desktop"></i>
+            <span class="title">Monioring Transaksi</span>
+        </a>
+    </li>
+
     <li class="nav-item {{strpos(Route::currentRouteName(),'.item') !== false ? 'active open' : ''}}">
         <a href="javascript:;" class="nav-link nav-toggle">
             <i class="fa fa-database"></i>

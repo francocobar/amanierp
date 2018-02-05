@@ -6,13 +6,25 @@ use Illuminate\Http\Request;
 use App\TransactionHeader;
 use App\Branch;
 use Carbon\Carbon;
+use HelperService;
 
 class MonitoringController extends Controller
 {
-    function trans()
+    public function __construct()
+    {
+        $this->middleware('authv2');
+        $this->middleware('checkrole_sa_manager');
+    }
+
+    function trans(Request $request)
     {
         $data = [];
+        if(!$request->ajax()){
 
+            $data['title'] = 'Monitoring - '.HelperService::inaDate(Carbon::today()->toDateString());
+            $data['fa_icon'] = 'fa-line-chart';
+            return view('monitoring.trans', $data);
+        }
         $status = array (
                 1 => 'Sedang berjalan',
                 2 => 'Selesai',
@@ -21,18 +33,20 @@ class MonitoringController extends Controller
         $data['count'][1] = 0;
         $data['count'][2] = 0;
         $data['count'][3] = 0;
-        $data['branch'] = [];
         $headers = TransactionHeader::whereDate('created_at',Carbon::today()->toDateString())->get();
         foreach ($headers as $key => $header) {
-            $data['count'][$header->status] = $data['count'][$header->status] + 1;
-            if(!isset($data['branch'][$header->branch_id])) {
-                $data['branch'][$header->branch_id]['name'] = Branch::find($header->branch_id)->branch_name;
-                $data['branch'][$header->branch_id]['count'][$header->status] = 1;
+            $data['count'][$header->status]++;
+            if(!isset($data['per']['branch'.$header->branch_id][$header->status])) {
+                foreach ($status as $key_st => $st) {
+                    $data['per']['branch'.$header->branch_id][$key_st] = 0;
+                }
+                $data['per']['branch'.$header->branch_id][$header->status] = 1;
+                $data['branches'][] = Branch::find($header->branch_id);
             }
             else {
-                $data['branch'][$header->branch_id]['count'][$header->status] = $data['branch'][$header->branch_id]['count'][$header->status] + 1;
+                $data['per']['branch'.$header->branch_id][$header->status]++;
             }
         }
-        dd($data);
+        return $data;
     }
 }

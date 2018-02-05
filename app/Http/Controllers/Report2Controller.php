@@ -217,6 +217,7 @@ class Report2Controller extends Controller
         }
         $data['top_items'] = DB::select("select item_id, sum(item_qty) as qty from transaction_details
             where item_id like 'I%'
+            and claim_status=1
             and DATE(created_at) >= '".$from."'
             and DATE(created_at) <= '".$to."'
             ".$item_ids."
