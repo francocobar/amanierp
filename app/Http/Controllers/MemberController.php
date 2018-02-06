@@ -106,7 +106,7 @@ class MemberController extends Controller
             $members = Member::get();
             $total = $members->count();
             $members = Member::skip($skip)->take($take)
-                            ->with(['branch'])->orderBy('full_name');
+                            ->with(['branch'])->orderBy('full_name')->get();
             // dd($employees);
         }
         else if(strtolower($role_user->slug)=='manager') {
@@ -114,12 +114,12 @@ class MemberController extends Controller
             $members = Member::where('branch_id', $employee_data->branch_id)->get();
             $total = $members->count();
             $members = Member::where('branch_id', $employee_data->branch_id)->skip($skip)->take($take)
-                            ->with(['branch'])->orderBy('full_name');
+                            ->with(['branch'])->orderBy('full_name')->get();
             // dd($employees);
         }
         if($members!= null && $members->count()) {
             return view('member.members',[
-                'members' => $members->get(),
+                'members' => $members,
                 'role_slug' => strtolower($role_user->slug),
                 'message' => HelperService::dataCountingMessage($total, $skip+1, $skip+$members->count(), $page),
                 'total_page' => ceil($total/$take)
