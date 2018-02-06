@@ -13,7 +13,7 @@ class MonitoringController extends Controller
     public function __construct()
     {
         $this->middleware('authv2');
-        $this->middleware('checkrole_sa_manager');
+        $this->middleware('superadmin');
     }
 
     function trans(Request $request)
