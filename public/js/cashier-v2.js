@@ -489,6 +489,15 @@ var Payment = $(function(){
                 if($paid_value!='') {
                     $change = unmaskMoney($total_paid) - unmaskMoney($paid_value);
                 }
+                console.log(!$lunas);
+                if(!$lunas) {
+                    $total_fix = parseInt($('#total_fix').val());
+                    if(unmaskMoney($paid_value) >= $total_fix) {
+                        alert('DP tidak bisa lebih dari sama dengan '+ maskMoney($total_fix));
+                        $('#paid_value ').val('');
+                        return;
+                    }
+                }
             }
             $('#change').text(maskMoney($change));
         }
@@ -507,6 +516,10 @@ var Payment = $(function(){
                 $paid_value = $.trim($('#paid_value').val());
                 if($paid_value==''){
                     alert('Masukkan Total yang ingin dibayarkan!');
+                    return;
+                }
+                if($paid_value >= $total_fix) {
+                    alert('DP tidak bisa lebih dari sama dengan '+ maskMoney($total_fix));
                     return;
                 }
             }

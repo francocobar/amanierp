@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use App\TransactionHeader;
+use App\Item;
 use Sentinel;
 use UserService;
 use Carbon\Carbon;
@@ -26,24 +27,8 @@ class UserController extends Controller
     }
     function testing()
     {
-        $inputs['member_id'] = 'A 1212asss';
-        if(strpos($inputs['member_id'], '  ') == true) {
-            return ['error' => 'Member ID lama hanya mengandung satu spasi! Contoh <b>B 1234</b>'];
-        }
-        else {
-            $member_id_check = explode(' ', $inputs['member_id']);
-            if(count($member_id_check)!=2) {
-                return ['error' => 'Format ID lama salah, Contoh yang benar C 1234, A 0004'];
-            }
-            else {
-                if(!ctype_alpha($member_id_check[0]) || !is_numeric($member_id_check[1]) || strlen($member_id_check[0]) != 1) {
-                    return ['error' => 'Format ID lama salah, Contoh yang benar C 1234, A 0004'];
-                }
-                if(strlen($member_id_check[1]) != 4) {
-                    return ['error' => 'Format ID lama salah, setelah huruf wajib 4 digit Angka'];
-                }
-            }
-        }
+        $item = Item::find('I00005');
+        $item->delete();
     }
     function createFirstUser()
     {

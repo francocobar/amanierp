@@ -3,12 +3,16 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
 class Item extends Model
 {
+    use SoftDeletes;
     protected $guarded = [];
-
+    public $incrementing = false;
+    protected $primaryKey = 'item_id';
+    protected $dates = ['deleted_at'];
     function branch()
     {
         return $this->hasOne('App\Branch', 'id', 'branch_id');
