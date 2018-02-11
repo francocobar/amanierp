@@ -11,7 +11,7 @@ class TransactionDetail extends Model
 
     function itemInfo()
     {
-        return $this->hasOne('App\Item', 'item_id', 'item_id');
+        return $this->hasOne('App\Item', 'item_id', 'item_id')->withTrashed();
     }
     function fixedSubTotal($for_view=false)
     {

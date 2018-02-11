@@ -68,7 +68,7 @@ class UserServiceProvider extends ServiceProvider
         if(Sentinel::authenticate($credentials)) {
             Sentinel::getUser();
             $employee_data = EmployeeService::getEmployeeByUser();
-            if($employee_data) session(['branch_id' => $employee_data->branch_id]);
+            if(!UserService::isSuperadmin() && $employee_data) session(['branch_id' => $employee_data->branch_id]);
             return "";
         }
         return "Email/Username atau Password salah!";
