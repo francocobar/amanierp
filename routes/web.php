@@ -129,6 +129,8 @@ Route::get('logout', 'UserController@logout')->name('logout');
 Route::get('/trans-report/{period}/{spesific?}/{branch?}', 'Report2Controller@getSalesReport')->name('get.sales.report');
 Route::get('/top-members/{spesific?}/{branch?}', 'Report2Controller@topMembers')->name('topmembers.report');
 Route::get('/top-items/{branch?}/{from}/{to}', 'Report2Controller@topItems')->name('topitems.report');
+Route::get('/sales-details/{branch?}/{from}/{to}', 'Report2Controller@salesDetails')->name('salesdetails.report');
+Route::post('/get-sales-details', 'Report2Controller@getSsalesdetailsByAjax')->name('get.salesdetails.by.ajax');
 
 Route::get('/pb', 'ReportController@pembukuanBranch')->name('pb.report');
 Route::get('/pb/modal-note/{id}', 'ReportController@pembukuanBranchById')->name('pb.modal.note');

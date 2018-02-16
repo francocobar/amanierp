@@ -179,6 +179,12 @@
                     <!--  -->
                 </a>
             </li>
+            <li class="nav-item ">
+                <a href="{{route('salesdetails.report',['to'=>\Carbon\Carbon::today()->addDay(-1)->toDateString(), 'from'=>\Carbon\Carbon::today()->addDay(-8)->toDateString(), 'branch' => session('branch_id') == null ? 0 : session('branch_id')])}}" class="nav-link ">
+                    <span class="title">Rincian Penjualan</span>
+                    <!--  -->
+                </a>
+            </li>
         </ul>
     </li>
     <?php /*
