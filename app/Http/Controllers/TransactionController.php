@@ -66,9 +66,8 @@ class TransactionController extends Controller
     {
         $headers = null;
         $keyword = '';
-        $status = [2, 4];
-        $headers = TransactionHeader::with(['rentingDatas'])
-                    ->whereIn('status', $status);
+        $status = [2, 3 , 4];
+        $headers = TransactionHeader::with(['rentingDatas']);
         if(request()->invoice)
         {
             $headers = $headers->where('invoice_id', 'like', '%'.trim(request()->invoice).'%');
@@ -104,6 +103,8 @@ class TransactionController extends Controller
                                 ->where('is_debt', 1)
                                 ->where('last_payment_date', null)
                                 ->orderBy('updated_at');
+
+                $status = [2];
             }
         }
 
