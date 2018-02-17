@@ -113,7 +113,6 @@
                         <thead>
                             <tr>
                                 <th scope="col">Trx Id</th>
-                                <th scope="col">Waktu Transaksi</th>
                                 <th scope="col">Invoice Id</th>
                                 <th scope="col">Cabang</th>
                                 <th scope="col">Status Pembayaran</th>
@@ -125,9 +124,8 @@
                             @foreach($headers as $header)
                             <tr>
                                 <td>{{$header->id}}</td>
-                                <td>{{ HelperService::inaDate($header->created_at, 2)}} </td>
-                                <td>
-                                    <a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id])}}">{{ $header->invoice_id }}</a>
+                                <td><a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id])}}">{{ $header->invoice_id }}</a>
+                                    <br/>{{ HelperService::inaDate($header->created_at, 2)}}
                                     @if($header->status==3)
                                         <br/>
                                         <span style="background-color: red; color: white">
