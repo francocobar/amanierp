@@ -13,9 +13,45 @@
             location.href= url.replace("-keyword-", $.trim($('#keyword').val()));
         });
 
-        $("form").submit(function(e){
+        $('#invoice_id').submit(function(e){
             e.preventDefault();
             $('#btn_search_invoice').trigger('click');
+        });
+
+        $('.change_status').click(function(e){
+            e.preventDefault();
+            $new_status = $(this).attr('data-status-to');
+            $header_id = $(this).attr('data-header-id');
+            if($(this).attr('data-status-to') == "3") {
+                $message = 'Anda yakin ingin menghapus transaksi ini? <br/><b>Konsekuensi menghapus adalah setiap pembayaran pada transaksi ini akan dianggap tidak ada (omset dari transaksi ini mejadi 0).</b>';
+            }
+            else {
+                $message = 'Anda yakin ingin membatalkan transaksi ini? <br/><b>Konsekuensi membatalkan adalah piutang pada transaksi ini akan menjadi 0. Yang sudah dibayarkan akan tetap tercatat sebagai omset.</b>';
+            }
+            bootbox.confirm({
+                message: $message,
+                buttons: {
+                    confirm: {
+                        label: 'Ya, saya yakin',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Tidak',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if(result) {
+                        $('#new_status').val($new_status);
+                        $('#header_id').val($header_id);
+                        validateForm($('#change_status'));
+                    }
+                    else {
+                        $('#new_status').val(0);
+                        $('#header_id').val(0);
+                    }
+                }
+            });
         });
     });
 </script>
@@ -76,19 +112,34 @@
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
+                                <th scope="col">Trx Id</th>
                                 <th scope="col">Waktu Transaksi</th>
                                 <th scope="col">Invoice Id</th>
                                 <th scope="col">Cabang</th>
                                 <th scope="col">Status Pembayaran</th>
                                 <th scope="col">Jumlah Pituang</th>
+                                <th scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($headers as $header)
                             <tr>
+                                <td>{{$header->id}}</td>
                                 <td>{{ HelperService::inaDate($header->created_at, 2)}} </td>
-                                <td><a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id])}}">{{ $header->invoice_id }}</a> |
-                                    <a href="{{env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=2'}}">Print Struk</a>
+                                <td>
+                                    <a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id])}}">{{ $header->invoice_id }}</a>
+                                    @if($header->status==3)
+                                        <br/>
+                                        <span style="background-color: red; color: white">
+                                        Transaksi ini dihapus oleh {{$header->statusChanger->first_name.' #'.$header->statusChanger->id}}
+                                        </span>
+                                    @endif
+                                    @if($header->status==4)
+                                        <br/>
+                                        <span style="background-color: yellow;">
+                                        Transaksi ini dibatalkan oleh {{$header->statusChanger->first_name.' #'.$header->statusChanger->id}}
+                                        </span>
+                                    @endif
                                     <?php /*
                                     <a href="{{route('get.invoice.cashier',['param'=>$header->invoice_id, 'detail_klaim'=>1])}}">Detail Klaim</a> |
 
@@ -102,13 +153,31 @@
                                     */ ?>
                                 </td>
                                 <td>{{ $header->branch->branch_name}} </td>
-                                <td>{!! $header->isDebt() ? 'Belum Lunas <a href="'.route('get.cashier.next-payment',['invoice'=>str_replace('/','-', $header->invoice_id)]).'">Pembayaran Berikutnya</a>' : 'Lunas' !!}</td>
+                                <td>{!! $header->paymentStatus(true) !!}</td>
                                 <td>{{ $header->isDebt() ? $header->debtValue(true) : 0 }}</td>
+                                <td>
+                                    @if($header->status==2)
+                                        <a href="{{env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=2'}}">Print Struk</a>
+                                        @if($header->isDebt())
+                                         | <a href="{{route('get.cashier.next-payment',['invoice'=>str_replace('/','-', $header->invoice_id)])}}">Pembayaran Berikutnya</a>
+                                        @endif
+                                        @if(UserService::isSuperadmin())
+                                         | <a data-header-id="{{$header->id}}" href="" class="change_status" data-status-to="4">Batalkan</a>
+                                         | <a data-header-id="{{$header->id}}" class="change_status" data-status-to="3">Hapus</a>
+                                    @endif
+                                    @else
+                                        ----
+                                    @endif
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+                {!! Form::open(['route' => 'do.changestatus', 'id'=>'change_status','style'=>'diplay: none;'])!!}
+                    <input type="hidden" id="new_status" name="new_status" />
+                    <input type="hidden" id="header_id" name="header_id" />
+                {!! Form::close() !!}
                 @else
                     @if(request()->today)
                     Belum ada <i class="bold">{{$keyword}}</i>.

@@ -158,7 +158,7 @@
                                 <td>{{$header->branch->branch_name}}</td>
                                 <td>{{$header->totalTransaction(true)}}</td>
                                 <td>{{HelperService::maskMoney($header->paid_value)}}</td>
-                                <td>{{HelperService::maskMoney($header->debt)}}</td>
+                                <td>{{$header->status==4 ? '0 (trx dibatalkan)' : HelperService::maskMoney($header->debt)}}</td>
                             </tr>
                             @endforeach
                             @endif

@@ -26,19 +26,29 @@ class TransactionHeader extends Model
 
     function paidValue($for_view=false)
     {
-        $first_payment = $this->firstPayment();
-        $next_payment = NextPayment::where('header_id', $this->id)
-                        ->groupBy('header_id')->sum('paid_value');
-        $return = $first_payment+$next_payment;
-        return $for_view ? HelperService::maskMoney($return) : $return;
+        $return = 0;
+        if($this->status == 2 || $this->status == 4)
+        {
+            $first_payment = $this->firstPayment();
+            $next_payment = NextPayment::where('header_id', $this->id)
+                            ->groupBy('header_id')->sum('paid_value');
+            $return = $first_payment+$next_payment;
+        }
 
+        return $for_view ? HelperService::maskMoney($return) : $return;
     }
+
     function debtValue($for_view=false)
     {
-        $last_payment = NextPayment::where('header_id', $this->id)->orderBy('created_at','desc')->first();
-        $return = $last_payment ? $last_payment->debt_after : $this->debt;
+        $return = 0;
+        if($this->status == 2)
+        {
+            $last_payment = NextPayment::where('header_id', $this->id)->orderBy('created_at','desc')->first();
+            $return = $last_payment ? $last_payment->debt_after : $this->debt;
+        }
         return $for_view ? HelperService::maskMoney($return) : $return;
     }
+
 
     function branch()
     {
@@ -53,6 +63,11 @@ class TransactionHeader extends Model
     function cashier()
     {
         return $this->hasOne('App\User', 'id', 'cashier_user_id');
+    }
+
+    function statusChanger()
+    {
+        return $this->hasOne('App\User', 'id', 'status_changed_by');
     }
 
     function rentingDatas()
@@ -72,11 +87,22 @@ class TransactionHeader extends Model
 
     function grandTotal()
     {
-        return $this->grand_total_item_price -$this->total_item_discount + $this->others;
+        return $this->grand_total_item_price-$this->total_item_discount-$this->discount_total_fixed_value + $this->others;
     }
 
-    function paymentStatus()
+    function paymentStatus($for_view=false)
     {
+        if($this->status==3) {
+            if($this->paid_value==0) {
+                return "Transaksi dihapus sebelum selesai pembayaran";
+            }
+            return "Transaksi dihapus setelah dinyatakan selesai pembayaran";
+        }
+
+        if($this->status==4) {
+            return "Transaksi dibatalkan, <br/>yang sudah dibayar: ".$this->paidValue($for_view);
+        }
+
         if(!$this->is_debt) {
             return "Lunas";
         }

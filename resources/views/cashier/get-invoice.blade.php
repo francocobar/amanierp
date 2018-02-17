@@ -45,7 +45,7 @@
                 </div>
                 <div class="col-xs-4">
                     <b>Status Pembayaran per {{HelperService::inaDate($today,2)}}</b><br/>
-                    {{$header->paymentStatus()}}
+                    {{$header->paymentStatus(true)}}
                 </div>
                 <div class="col-xs-4">
                     <b>Total Bayar</b><br/>

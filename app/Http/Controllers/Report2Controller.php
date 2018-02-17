@@ -56,7 +56,7 @@ class Report2Controller extends Controller
             }
 
             $headers =  TransactionHeader::whereDate('created_at', $spesific)
-                            ->where('status', 2);
+                            ->whereIn('status', [2, 4]);
             $installments = NextPayment::whereDate('created_at', $spesific);
             $data['title'] = 'Laporan '.$branch_selected.' tanggal '.HelperService::inaDate($spesific);
         }
@@ -78,7 +78,7 @@ class Report2Controller extends Controller
 
             $headers =  TransactionHeader::whereYear('created_at', $year)
                             ->whereMonth('created_at', $month)
-                            ->where('status', 2);
+                            ->where('status', [2, 4]);
             $installments = NextPayment::whereYear('created_at', $year)
                             ->whereMonth('created_at', $month);
             $data['title'] = 'Laporan '.$branch_selected.' bulan '.HelperService::monthName($month).' '.$year;
@@ -98,7 +98,7 @@ class Report2Controller extends Controller
                                 -$headers->sum('total_item_discount')
                                 +$headers->sum('others');
         $data['transaction_turnover'] = $headers->sum('paid_value')+$installments->sum('paid_value');
-        $data['transaction_debt'] = $headers->sum('debt');
+        $data['transaction_debt'] = $headers->where('status',2)->sum('debt');
         return view('report2.trans-report', $data);
     }
 

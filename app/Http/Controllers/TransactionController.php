@@ -66,8 +66,9 @@ class TransactionController extends Controller
     {
         $headers = null;
         $keyword = '';
+        $status = [2, 3, 4];
         $headers = TransactionHeader::with(['rentingDatas'])
-                    ->where('status',2);
+                    ->whereIn('status', $status);
         if(request()->invoice)
         {
             $headers = $headers->where('invoice_id', 'like', '%'.trim(request()->invoice).'%');

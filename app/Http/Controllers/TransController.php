@@ -20,7 +20,8 @@ class TransController extends Controller
     public function __construct()
     {
         $this->middleware('authv2');
-        $this->middleware('checkrole_sa_manager');
+        $this->middleware('checkrole_sa_manager')->except(['changeStatus']);
+        $this->middleware('superadmin')->only(['changeStatus']);
     }
 
     function ongoingTrans($trans_id)
@@ -97,6 +98,44 @@ class TransController extends Controller
         return redirect($redirect_to);
         return redirect()->route('get.cashier.v2',$qs);
     }
+    function changeStatus(Request $request)
+    {
+        $inputs = $request->all();
+        $header = TransactionHeader::find($inputs['header_id']);
+        if($header)
+        {
+            $message = 'Transaksi berhasil di';
+            if($inputs['new_status'] == '3')
+            {
+                $header->status = 3;
+                $message.='hapus';
+            }
+            else if($inputs['new_status'] == '4') {
+                $header->status = 4;
+                $message.='batalkan';
+            }
+            else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Error. Halaman akan reload dan harap coba lagi!',
+                    'need_reload' => true
+                ]);
+            }
+            TransactionDetail::where('header_id',$header->id)->update(['claim_status'=>3]);
+            $header->status_changed_by = Sentinel::getUser()->id;
+            $header->save();
+
+            return response()->json([
+                'need_reload' => true,
+                'status' => 'success',
+                'message' => $message,
+                'no_reset_form' => true
+            ]);
+
+        }
+
+    }
+
     function doNextStep(Request $request)
     {
         $inputs= $request->all();
@@ -108,6 +147,7 @@ class TransController extends Controller
         }
         if($inputs['trans_set_to'] == '3') {
             $header->status = 3;
+            $header->status_changed_by = Sentinel::getUser()->id;
             $header->save();
             $qs = [];
             if(UserService::isSuperadmin()) {

@@ -89,6 +89,8 @@ Route::post('/ongoing-trans-next-step', 'TransController@doNextStep')->name('do.
 Route::post('/ongoing-trans-last-step', 'TransController@doLastStep')->name('do.cashier.last-step');
 Route::post('/add-item-ongoing-trans', 'TransController@addItemTrans')->name('do.cashier.ongoing-add-item');
 Route::post('/update-item-ongoing-trans', 'TransController@updateItemTrans')->name('do.cashier.ongoing-update-item');
+Route::post('/change-status-trans', 'TransController@changeStatus')->name('do.changestatus');
+
 
 Route::get('/cashier', 'TransactionController@getCashier')->name('get.cashier');
 Route::get('/cashier-next-payment', 'TransactionController@getCashierPelunasan')->name('get.cashier.next-payment');
