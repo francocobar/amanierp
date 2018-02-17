@@ -66,7 +66,7 @@ class TransactionController extends Controller
     {
         $headers = null;
         $keyword = '';
-        $status = [2, 3, 4];
+        $status = [2, 4];
         $headers = TransactionHeader::with(['rentingDatas'])
                     ->whereIn('status', $status);
         if(request()->invoice)
@@ -105,8 +105,6 @@ class TransactionController extends Controller
                                 ->where('last_payment_date', null)
                                 ->orderBy('updated_at');
             }
-
-
         }
 
         return view('cashier.search-invoice',[
