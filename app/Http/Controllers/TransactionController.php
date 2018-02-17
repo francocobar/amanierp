@@ -110,7 +110,7 @@ class TransactionController extends Controller
         }
 
         return view('cashier.search-invoice',[
-            'headers' => $headers->get(),
+            'headers' => $headers->whereIn('status', $status)->get(),
             'keyword' => $keyword
         ]);
 
