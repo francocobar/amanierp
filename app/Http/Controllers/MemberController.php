@@ -23,7 +23,6 @@ class MemberController extends Controller
 
     function addMember()
     {
-        return "2";
         if(strtolower($this->role_user->slug) == 'superadmin') {
             $branches = Branch::all();
             return view('member.add-member',[
