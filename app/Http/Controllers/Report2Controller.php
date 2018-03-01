@@ -78,7 +78,7 @@ class Report2Controller extends Controller
 
             $headers =  TransactionHeader::whereYear('created_at', $year)
                             ->whereMonth('created_at', $month)
-                            ->where('status', [2, 4]);
+                            ->whereIn('status', [2, 4]);
             $installments = NextPayment::whereYear('created_at', $year)
                             ->whereMonth('created_at', $month);
             $data['title'] = 'Laporan '.$branch_selected.' bulan '.HelperService::monthName($month).' '.$year;
@@ -89,9 +89,13 @@ class Report2Controller extends Controller
             $headers = $headers->where('branch_id', intval($branch));
             $installments = $installments->where('branch_id', intval($branch));
         }
-        $headers = $headers->get();
         $installments  = $installments->get();
+        $headers = $headers->get();
         $data['headers'] = $headers;
+        // foreach ($data['headers'] as $key => $value) {
+        //     echo $value->branch_id.",";
+        // }
+        // return "";
         $data['installments'] = $installments;
         $data['transaction_total'] = $headers->sum('grand_total_item_price')
                                 -$headers->sum('discount_total_fixed_value')

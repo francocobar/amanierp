@@ -23,9 +23,8 @@ class MemberController extends Controller
 
     function addMember()
     {
-        $role_user = UserService::getRoleByUser();
-
-        if(strtolower($role_user->slug) == 'superadmin') {
+        return "2";
+        if(strtolower($this->role_user->slug) == 'superadmin') {
             $branches = Branch::all();
             return view('member.add-member',[
                 'branches' => $branches,

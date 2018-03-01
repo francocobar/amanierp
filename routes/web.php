@@ -30,6 +30,7 @@ Route::post('/add-employee.do', 'EmployeeController@addEmployeeDo')->name('add.e
 Route::get('/my-salary', 'EmployeeController@mySalary')->name('my.salary');
 
 Route::get('/add-member', 'MemberController@addMember')->name('add.member');
+Route::get('/edit-member/{member_id}', 'MemberController@editMember')->name('edit.member');
 Route::post('/add-member.do', 'MemberController@addMemberDo')->name('add.member.do');
 Route::get('/members/{page}', 'MemberController@getMembers')->name('get.members');
 Route::post('/members', 'MemberController@getMembersByAjax')->name('get.members.by.ajax');
