@@ -42,6 +42,7 @@ class MemberServiceProvider extends ServiceProvider
             $last_member = Member::where('branch_id', $inputs['branch_id'])
                                         ->where('member_id','like',$prefix_member_id.'%')
                                         ->orderBy('created_at', 'desc')
+                                        ->withTrashed()
                                         ->first();
 
             if($last_member != null) {
@@ -70,7 +71,7 @@ class MemberServiceProvider extends ServiceProvider
             if(strlen($member_id_check[1]) != 4) {
                 return ['error' => 'Format ID lama salah, setelah huruf wajib 4 digit Angka'];
             }
-            
+
             $flag = Member::where('member_id', $inputs['member_id'])->first();
             if($flag) {
                 return ['error' => 'Member ID sudah pernah didaftarkan!'];
