@@ -18,12 +18,12 @@
             <div class="portlet-title">
                 <div class="caption">
                     <i class="fa fa-user-plus font-purple-rev"></i>
-                    <span class="caption-subject font-purple-rev bold uppercase">Tambah Member</span>
+                    <span class="caption-subject font-purple-rev bold uppercase">Edit Member</span>
                 </div>
             </div>
             <div class="portlet-body">
                 <!-- BEGIN FORM-->
-                {!! Form::open(['id' => 'form_edit_member', 'route' => 'add.member.do', 'class'=>'form-horizontal']) !!}
+                {!! Form::open(['id' => 'form_add_member', 'route' => 'edit.member.do', 'class'=>'form-horizontal']) !!}
                     <div class="form-body">
                         <div class="form-group">
                             <label class="control-label col-md-3">Id Member
@@ -32,17 +32,18 @@
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" placeholder="KOSONGKAN kecuali menggunakan Id lama"class="form-control" name="member_id" /> </div>
+                                    <input type="text" class="form-control" value="{{$member->member_id}}"  disabled /> </div>
+                                    <input type="hidden" name="editmember" value="{{$flag}}" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="control-label col-md-3">Nama Member
-                                <span class="required"> * </span>
+                                <span class="required"></span>
                             </label>
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" class="form-control" name="full_name" /> </div>
+                                    <input type="text" class="form-control" value="{{$member->full_name}}" disabled /> </div>
                             </div>
                         </div>
                         <div class="form-group  margin-top-20">
@@ -52,7 +53,7 @@
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" class="form-control" name="place_of_birth" /> </div>
+                                    <input type="text" class="form-control" value="{{$member->place_of_birth}}" name="place_of_birth" /> </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -61,7 +62,7 @@
                             </label>
                             <div class="col-md-4">
                                 <div class="input-group input-medium">
-                                    <input type="text" placeholder="dd-mm-yyyy" class="datepicker form-control" id="dob" name="dob">
+                                    <input type="text" placeholder="dd-mm-yyyy" value="{{$member->dob_form_value()}}"  class="datepicker form-control" id="dob" name="dob">
                                 </div>
                             </div>
                         </div>
@@ -72,7 +73,7 @@
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" class="form-control" name="phone" /> </div>
+                                    <input type="text" class="form-control"  value="{{$member->phone}}" name="phone" /> </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -82,7 +83,7 @@
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" class="form-control" name="email" /> </div>
+                                    <input type="text" class="form-control" value="{{$member->email}}" name="email" /> </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -92,7 +93,7 @@
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <textarea class="form-control" rows="3" name="address"></textarea></div>
+                                    <textarea class="form-control" rows="3" name="address">{{$member->address}}</textarea></div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -102,37 +103,28 @@
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-                                    <input type="text" placeholder="Kota/Kabupaten/Provinsi"class="form-control" name="stay_at" /> </div>
+                                    <input type="text" value="{{$member->stay_at}}" placeholder="Kota/Kabupaten/Provinsi"class="form-control" name="stay_at" /> </div>
                             </div>
                         </div>
-                        @if($role_slug == 'superadmin')
                         <div class="form-group">
-                            <label class="control-label col-md-3">Cabang
-                                <span class="required"> * </span>
+                            <label class="control-label col-md-3">Cabang Mendaftar
+                                <span class="required"></span>
                             </label>
                             <div class="col-md-4">
                                 <div class="input-icon right">
                                     <i class="fa"></i>
-
-                                    <select class="form-control" name="branch">
-                                        <option value="">Pilih Cabang</option>
-                                        @foreach($branches as $branch)
-                                            <option value="{{Crypt::encryptString($branch->id)}}">{{$branch->branch_name}}</option>
-                                        @endforeach
-                                    </select>
+                                    <input type="text" value="{{$member->branch->branch_name}}" class="form-control" disabled/>
                                 </div>
                             </div>
                         </div>
-                        @elseif($role_slug == 'manager')
-                            <input type="hidden" class="form-control" value="add_by_manager" name="branch" />
-                        @endif
+
                         <div class="form-group">
                             <label class="control-label col-md-3">Member Sejak
-                                <span class="required"> * </span>
+                                <span class="required"></span>
                             </label>
                             <div class="col-md-4">
                                 <div class="input-group input-medium">
-                                    <input type="text" placeholder="dd-mm-yyyy" class="datepicker form-control" name="member_since">
+                                    <input type="text" placeholder="dd-mm-yyyy" value="{{$member->membersince_form_value()}}" class="datepicker form-control" name="member_since">
                                 </div>
                             </div>
                         </div>
@@ -145,7 +137,8 @@
                         </div>
                         <div class="row">
                             <div class="col-md-offset-3 col-md-9">
-                                <button type="submit" class="btn purple-rev">Submit</button>
+                                <button type="submit" class="btn purple-rev">Perbaharui</button>
+                                <a href="{{ request()->referer ? request()->referer : ''}}" class="btn btn-default">Kembali</a>
                             </div>
                         </div>
                     </div>

@@ -152,9 +152,10 @@ class HelperServiceProvider extends ServiceProvider
     {
         if($type==1) {//date only
             $exploded = explode('-', $db_date);
-            
+
             return $exploded[2].' '.HelperService::monthName($exploded[1]).' '.$exploded[0];
         }
+
 
         //datetime
         return HelperService::inaDate($db_date->toDateString()).' '.$db_date->toTimeString();
@@ -190,7 +191,15 @@ class HelperServiceProvider extends ServiceProvider
 
         $paging = '';
 
-        for ($i=1; $i <= $total_page ; $i++) {
+        $start = 1;
+        if($page > 5 ) {
+            $start = $page - 2;
+        }
+        $max = $total_page;
+        if($total_page - 20 > $start + 20) {
+            $max = $start + 20;
+        }
+        for ($i=$start; $i <= $max ; $i++) {
             $paging .= "<li class='".($i==$page?'active':'')."'>
                 <a href='".$i."?name=".request()->name."'>".$i."</a>
             </li>";

@@ -11,6 +11,7 @@ use App\Member;
 use HelperService;
 use MemberService;
 use EmployeeService;
+use Sentinel;
 
 class MemberController extends Controller
 {
@@ -100,32 +101,93 @@ class MemberController extends Controller
         $take = 20;
         $skip = ($page - 1) * $take;
 
-        $members = null;
+        $members = Member::whereNotNull('member_id');
+        $keyword = request()->name;
+        $keyword_show = '';
+        if($keyword)
+        {
+            $keyword = str_replace('+',' ',$keyword);
+            $members = $members->where(function ($query) use ($keyword) {
+                    $query->where('full_name', 'like', '%'.$keyword.'%')
+                            ->orWhere('member_id', 'like', '%'.$keyword.'%');
+                });
+            $keyword_show = " <b> hasil pencarian: ".$keyword."</b> <a style='color: red; ' href='".route('get.members', 1)."'>[x]</a>";
+        }
         $role_user = UserService::getRoleByUser();
-        if(strtolower($role_user->slug)=='superadmin') {
-            $members = Member::get();
-            $total = $members->count();
-            $members = Member::skip($skip)->take($take)
-                            ->with(['branch'])->orderBy('full_name')->get();
-            // dd($employees);
-        }
-        else if(strtolower($role_user->slug)=='manager') {
+        if(strtolower($role_user->slug)=='manager') {
             $employee_data = EmployeeService::getEmployeeByUser();
-            $members = Member::where('branch_id', $employee_data->branch_id)->get();
-            $total = $members->count();
-            $members = Member::where('branch_id', $employee_data->branch_id)->skip($skip)->take($take)
-                            ->with(['branch'])->orderBy('full_name')->get();
-            // dd($employees);
+            $members = $members->where('branch_id', $employee_data->branch_id);
         }
-        if($members!= null && $members->count()) {
+        $total = $members->get()->count();
+        $members_show = $members->skip($skip)->take($take)
+                        ->with(['branch'])->orderBy('full_name')->get();
+        if($members_show!= null && $members_show->count()) {
             return view('member.members',[
-                'members' => $members,
+                'members' => $members_show,
                 'role_slug' => strtolower($role_user->slug),
-                'message' => HelperService::dataCountingMessage($total, $skip+1, $skip+$members->count(), $page),
+                'message' => HelperService::dataCountingMessage($total, $skip+1, $skip+$members_show->count(), $page),
+                'keyword' => $keyword_show,
                 'total_page' => ceil($total/$take)
             ]);
         }
         abort(404);
+    }
+
+    function editMember(Request $request)
+    {
+        $member_id = str_replace('-',' ', $request->member_id);
+        $member = Member::where('member_id', $member_id)
+                    ->with(['branch'])->first();
+        $editmemberflag['member_id'] = $member_id;
+        $editmemberflag['my_user_id'] = Sentinel::getUser()->id;
+
+        return view('member.edit-member', [
+            'member' => $member,
+            'flag' => encrypt($editmemberflag)
+        ]);
+    }
+
+    function editMemberDo(Request $request)
+    {
+        $flag = $request->editmember;
+        $editmemberflag = decrypt($flag);
+        if($editmemberflag['my_user_id'] == Sentinel::getUser()->id)
+        {
+            $inputs = $request->all();
+            $inputs['email'] = trim($inputs['email']);
+            $inputs['address'] = trim($inputs['address']);
+            $inputs['phone'] = trim($inputs['phone']);
+            $inputs['place_of_birth'] = trim($inputs['place_of_birth']);
+            $inputs['dob'] = HelperService::createDateFromString(trim($inputs['dob']));
+            // dd($inputs['dob']);
+            $inputs['member_since'] = HelperService::createDateFromString(trim($inputs['member_since']));
+            $inputs['stay_at'] = trim($inputs['stay_at']);
+            $member = Member::where('member_id', $editmemberflag['member_id'])
+                        ->first();
+            if($member) {
+                $member->update($inputs);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Member berhasil diperbaharui',
+                    'no_reset_form' => true
+                ]);
+            }
+        }
+    }
+
+    function removeMemberDo(Request $request)
+    {
+        $inputs = $request->all();
+        if(MemberService::removeMember($inputs))
+        {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Member berhasil dihapus',
+                'need_reload' => true,
+                'no_reset_form' => true
+            ]);
+        }
     }
 
 }

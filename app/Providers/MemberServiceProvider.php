@@ -8,6 +8,9 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Sentinel;
 use HelperService;
 use App\Member;
+use App\Services\PayUService\Exception;
+use App\Log;
+use DB;
 
 class MemberServiceProvider extends ServiceProvider
 {
@@ -79,5 +82,32 @@ class MemberServiceProvider extends ServiceProvider
         }
         $inputs['full_name'] = ucwords($inputs['full_name']);
         return Member::create($inputs);
+    }
+
+    public static function removeMember($inputs)
+    {
+        DB::beginTransaction();
+        try {
+            $member_id = trim($inputs['member_id']);
+            $member = Member::where('member_id', $member_id)->first();
+
+            $log = new Log();
+            $log->log_text = trim($inputs['log']);
+            $log->log_by = Sentinel::getUser()->id;
+            $log->log_for = 'remove member '. $member_id;
+            $log->save();
+
+            $member->update(['deleted_by'=>Sentinel::getUser()->id,
+                    'deleted_reason' => $log->id
+                ]);
+            $member->delete();
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            return false;
+        }
+
+
+        return true;
     }
 }
