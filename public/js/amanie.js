@@ -386,7 +386,7 @@ function validateForm($form, $function){
 
 function resetForm ($form)
 {
-	$form.find('input').not(':input[type=hidden], :input[type=radio]').val('');
+	$form.find('input').not(':input[type=hidden], :input[type=radio], :input[type=checkbox]').val('');
 	$form.find('textarea').val('');
 	$form.find('select').val('');
 	$form.find('select').trigger('change');

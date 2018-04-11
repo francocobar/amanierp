@@ -182,7 +182,7 @@
         <!-- BEGIN CORE PLUGINS -->
         <script src="{{ URL::asset('js/jquery.js') }} " type="text/javascript"></script>
         <script src="{{ URL::asset('js/jquery-ui.js') }} " type="text/javascript"></script>
-        <script src="{{ URL::asset('js/amanie.js') }} " type="text/javascript"></script>
+        <script src="{{ URL::asset('js/amanie.js') }}?v=20181" type="text/javascript"></script>
         <!-- <script src="{{ URL::asset('assets/global/plugins/moment.min.js') }} " type="text/javascript"></script> -->
         <script src="{{ URL::asset('assets/global/plugins/bootstrap/js/bootstrap.min.js') }} " type="text/javascript"></script>
         <!--
