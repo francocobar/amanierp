@@ -14,6 +14,8 @@ use App\Item;
 use Illuminate\Support\Facades\DB;
 use HelperService;
 use UserService;
+use App\Log;
+use \Carbon\Carbon;
 
 class TransController extends Controller
 {
@@ -101,12 +103,41 @@ class TransController extends Controller
     function changeStatus(Request $request)
     {
         $inputs = $request->all();
+        if(empty($inputs['log']) || empty($inputs['new_status']) || empty($inputs['header_id']))
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Bad Request. Halaman akan reload!',
+                'need_reload' => true
+            ]);
+        }
         $header = TransactionHeader::find($inputs['header_id']);
+
         if($header)
         {
+            if($header->cashier_user_id != Sentinel::getUser()->id)
+            {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized. Halaman akan reload!',
+                    'need_reload' => true
+                ]);
+            }
             $message = 'Transaksi berhasil di';
             if($inputs['new_status'] == '3')
             {
+                if(true)
+                {
+                    $header_date = Carbon::create($header->created_at->year, $header->created_at->month, $header->created_at->day,0,0,0);
+                    if(Carbon::today()->diffInDays($header_date) > 0)
+                    {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => '<b style="color:red;">Gagal Menghapus</b>. Transaksi yang sudah lewat tanggal tidak dapat dihapus!',
+                            'need_reload' => true
+                        ]);
+                    }
+                }
                 $header->status = 3;
                 $message.='hapus';
             }
@@ -121,10 +152,29 @@ class TransController extends Controller
                     'need_reload' => true
                 ]);
             }
-            TransactionDetail::where('header_id',$header->id)->update(['claim_status'=>3]);
-            $header->status_changed_by = Sentinel::getUser()->id;
-            $header->save();
+            DB::beginTransaction();
+            try {
+                TransactionDetail::where('header_id',$header->id)->update(['claim_status'=>3]);
+                $header->status_changed_by = Sentinel::getUser()->id;
 
+                $log = new Log();
+                $log->log_text = trim($inputs['log']);
+                $log->log_by = Sentinel::getUser()->id;
+                if($inputs['new_status'] == '3') {
+                    $log->log_for = 'remove trx '.$header->id;
+                }
+                else if($inputs['new_status'] == '4') {
+                    $log->log_for = 'cancel trx '.$header->id;
+                }
+                $log->save();
+                $header->log_status_change = $log->id;
+                $header->save();
+                DB::commit();
+            } catch (Exception $e) {
+                DB::rollback();
+                return false;
+            }
+            //create log
             return response()->json([
                 'need_reload' => true,
                 'status' => 'success',

@@ -22,14 +22,19 @@
             e.preventDefault();
             $new_status = $(this).attr('data-status-to');
             $header_id = $(this).attr('data-header-id');
+            $alasan = '';
             if($(this).attr('data-status-to') == "3") {
                 $message = 'Anda yakin ingin menghapus transaksi ini? <br/><b>Konsekuensi menghapus adalah setiap pembayaran pada transaksi ini akan dianggap tidak ada (omset dari transaksi ini mejadi 0).</b>';
+                $alasan = 'menghapus';
             }
             else {
                 $message = 'Anda yakin ingin membatalkan transaksi ini? <br/><b>Konsekuensi membatalkan adalah piutang pada transaksi ini akan menjadi 0. Yang sudah dibayarkan akan tetap tercatat sebagai omset.</b>';
+                $alasan = 'membatalkan';
             }
+            $top_msg = 'Harap sebutkan alasan Anda ' + $alasan + ' transaksi ini?';
+            $top_msg += '<textarea id="reason_temp" class="bootbox-input bootbox-input-textarea form-control"></textarea>';
             bootbox.confirm({
-                message: $message,
+                message: $top_msg + '<br/>' + $message,
                 buttons: {
                     confirm: {
                         label: 'Ya, saya yakin',
@@ -42,13 +47,22 @@
                 },
                 callback: function (result) {
                     if(result) {
-                        $('#new_status').val($new_status);
-                        $('#header_id').val($header_id);
-                        validateForm($('#change_status'));
+                        $reason_temp = $.trim($('#reason_temp').val());
+                        if($reason_temp == '') {
+                            alert('Harap isi alasan Anda!');
+                             return false;
+                        }
+                        else {
+                            $('#log').val($reason_temp);
+                            $('#new_status').val($new_status);
+                            $('#header_id').val($header_id);
+                            validateForm($('#change_status'));
+                        }
                     }
                     else {
                         $('#new_status').val(0);
                         $('#header_id').val(0);
+                        $('#log').val('');
                     }
                 }
             });
@@ -159,10 +173,10 @@
                                         @if($header->isDebt())
                                          | <a href="{{route('get.cashier.next-payment',['invoice'=>str_replace('/','-', $header->invoice_id)])}}">Pembayaran Berikutnya</a>
                                         @endif
-                                        @if(UserService::isSuperadmin())
+                                        @if($header->cashier_user_id == Sentinel::getUser()->id)
                                          | <a data-header-id="{{$header->id}}" href="" class="change_status" data-status-to="4">Batalkan</a>
                                          | <a data-header-id="{{$header->id}}" class="change_status" data-status-to="3">Hapus</a>
-                                    @endif
+                                         @endif
                                     @else
                                         ----
                                     @endif
@@ -175,6 +189,7 @@
                 {!! Form::open(['route' => 'do.changestatus', 'id'=>'change_status','style'=>'diplay: none;'])!!}
                     <input type="hidden" id="new_status" name="new_status" />
                     <input type="hidden" id="header_id" name="header_id" />
+                    <input type="hidden" id="log" name="log" />
                 {!! Form::close() !!}
                 @else
                     @if(request()->today)

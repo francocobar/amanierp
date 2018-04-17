@@ -89,7 +89,14 @@ class Report2Controller extends Controller
             $headers = $headers->where('branch_id', intval($branch));
             $installments = $installments->where('branch_id', intval($branch));
         }
-        $installments  = $installments->get();
+        $installments_temp  = $installments->get();
+        $ids = [];
+        foreach ($installments_temp as $key => $value) {
+            if($value->header->status==2) {
+                $ids[] = $value->header_id;
+            }
+        }
+        $installments = $installments->whereIn('header_id', $ids)->get();
         $headers = $headers->get();
         $data['headers'] = $headers;
         // foreach ($data['headers'] as $key => $value) {
