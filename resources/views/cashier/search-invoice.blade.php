@@ -173,7 +173,7 @@
                                         @if($header->isDebt())
                                          | <a href="{{route('get.cashier.next-payment',['invoice'=>str_replace('/','-', $header->invoice_id)])}}">Pembayaran Berikutnya</a>
                                         @endif
-                                        @if($header->cashier_user_id == Sentinel::getUser()->id)
+                                        @if($permissionChangeStatus)
                                          | <a data-header-id="{{$header->id}}" href="" class="change_status" data-status-to="4">Batalkan</a>
                                          | <a data-header-id="{{$header->id}}" class="change_status" data-status-to="3">Hapus</a>
                                          @endif

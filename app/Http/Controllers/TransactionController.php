@@ -110,7 +110,8 @@ class TransactionController extends Controller
 
         return view('cashier.search-invoice',[
             'headers' => $headers->whereIn('status', $status)->get(),
-            'keyword' => $keyword
+            'keyword' => $keyword,
+            'permissionChangeStatus' => Sentinel::getUser()->hasAccess(['changeStatus.trans'])
         ]);
 
 

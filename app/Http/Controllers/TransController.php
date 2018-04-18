@@ -23,7 +23,7 @@ class TransController extends Controller
     {
         $this->middleware('authv2');
         $this->middleware('checkrole_sa_manager')->except(['changeStatus']);
-        $this->middleware('superadmin')->only(['changeStatus']);
+        // $this->middleware('superadmin')->only(['changeStatus']);
     }
 
     function ongoingTrans($trans_id)
@@ -102,6 +102,14 @@ class TransController extends Controller
     }
     function changeStatus(Request $request)
     {
+        if(!Sentinel::getUser()->hasAccess(['changeStatus.trans']))
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. Halaman akan reload!',
+                'need_reload' => true
+            ]);
+        }
         $inputs = $request->all();
         if(empty($inputs['log']) || empty($inputs['new_status']) || empty($inputs['header_id']))
         {
@@ -115,14 +123,6 @@ class TransController extends Controller
 
         if($header)
         {
-            if($header->cashier_user_id != Sentinel::getUser()->id)
-            {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Unauthorized. Halaman akan reload!',
-                    'need_reload' => true
-                ]);
-            }
             $message = 'Transaksi berhasil di';
             if($inputs['new_status'] == '3')
             {
