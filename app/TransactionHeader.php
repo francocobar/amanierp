@@ -17,6 +17,12 @@ class TransactionHeader extends Model
         return $for_view ? HelperService::maskMoney($return) : $return;
     }
 
+    function totalIdrDiscount($for_view=false)
+    {
+        $return = $this->total_item_discount+$this->discount_total_fixed_value;
+        return $for_view ? HelperService::maskMoney($return) : $return;
+    }
+
     function firstPayment($for_view=false)
     {
         $return = $this->total_paid-$this->change;
@@ -90,9 +96,19 @@ class TransactionHeader extends Model
         return $this->grand_total_item_price-$this->total_item_discount-$this->discount_total_fixed_value + $this->others;
     }
 
+    function log()
+    {
+        return $this->hasOne('App\Log', 'id', 'log_status_change');
+    }
+
+
     function paymentStatus($for_view=false)
     {
         if($this->status==3) {
+            if($this->log)
+            {
+                return "Transaksi dihapus.<br/><i style='font-weight: bold;'><u>Note/Reason:</u> ".$this->log->log_text."</i>";
+            }
             if($this->paid_value==0) {
                 return "Transaksi dihapus sebelum selesai pembayaran";
             }
@@ -100,7 +116,12 @@ class TransactionHeader extends Model
         }
 
         if($this->status==4) {
-            return "Transaksi dibatalkan, <br/>yang sudah dibayar: ".$this->paidValue($for_view);
+            $return = "Transaksi dibatalkan, <br/>yang sudah dibayar: ".$this->paidValue($for_view);
+            if($this->log)
+            {
+                $return .= "<br/><i style='font-weight: bold;'><u>Note/Reason:</u> ".$this->log->log_text."</i>";
+            }
+            return $return;
         }
 
         if(!$this->is_debt) {

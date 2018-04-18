@@ -107,7 +107,22 @@ class TransactionController extends Controller
                 $status = [2];
             }
         }
+        else if(request()->ke_galeri)
+        {
+            $array = Crypt::decrypt(request()->ke_galeri);
+            $branch_id = $array['branch_id'];
+            $headers = $headers->whereDate('created_at', '<=', Carbon::today()->toDateString())
+                            ->where('is_debt', 1)
+                            ->where('ke_galeri', 1)
+                            ->where('last_payment_date', null)
+                            ->orderBy('updated_at');
+            if($branch_id != 0) {
+                $headers = $headers->where('branch_id', $branch_id);
+            }
 
+            $status = [2];
+            $keyword = 'Tagihan ke Galeri yang belum dilunaskan per hari ini';
+        }
         return view('cashier.search-invoice',[
             'headers' => $headers->whereIn('status', $status)->get(),
             'keyword' => $keyword,

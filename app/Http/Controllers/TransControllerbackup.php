@@ -53,9 +53,10 @@ class TransController extends Controller
     function doLastStep(Request $request)
     {
         $inputs= $request->all();
-        // dd($inputs);
-
-        // dd('stop');
+        if(isset($inputs['$ke_galeri']))
+        {
+            dd('ada');
+        }
         $payment_flag = Crypt::decryptString($inputs['payment']);
         $payment_flag_id = str_replace('Payment-','',$payment_flag);
         if($payment_flag_id != trim($inputs['ongoing_trans_id'])) {
@@ -95,18 +96,8 @@ class TransController extends Controller
         $header->payment_type = $inputs['payment_type'];
         $header->status = 2;
         $header->save();
-        if(isset($inputs['ke_galeri']))
-        {
-            $ke_galeri = HelperService::unmaskMoney($inputs['ke_galeri']);
-            // dd($ke_galeri);
-            // $header = '';
-            $this->createTagihanKeGaleri($header, $ke_galeri);
-            DB::commit();
-        }
-        else {
-            DB::commit();
-        }
 
+        DB::commit();
         $qs = [];
         $to = '';
         if(UserService::isSuperadmin())
@@ -469,6 +460,7 @@ class TransController extends Controller
             {
                 $new_trans->customer_phone = trim($param['add_trans_guest_phone']);
             }
+            $new_trans->ke_galeri = isset($param['ke_galeri']) ? $param['ke_galeri'] : false;
         }
         $new_trans->save();
         //belum milih
@@ -477,30 +469,13 @@ class TransController extends Controller
 
     function createTagihanKeGaleri($header, $total)
     {
+
         $param['cashier_id'] = $header->cashier_user_id;
         $param['branch_id'] = $header->branch_id;
         $param['add_trans_guest_name'] = 'Amanie Galeri';
         $param['add_trans_guest_phone'] = '07367324812';
+        $param['ke_galeri'] = true;
         $tagihan_header= $this->addNewTrans($param, 2);
-        $tagihan_header->ke_galeri = true;
-        $tagihan_header->is_debt = true;
-        $tagihan_header->debt = $total;
-        $tagihan_header->grand_total_item_price = $total;
-        $tagihan_header->status=2;
-        $tagihan_header->save();
-        // echo $tagihan_header->id;
-
-        $new_detail = new TransactionDetail();
-        $new_detail->header_id = $tagihan_header->id;
-        $new_detail->item_id = 1;
-        $new_detail->item_price = $total;
-        $new_detail->custom_name = 'Tagihan Trx #'.$header->id.' '. $header->invoice_id;
-        $new_detail->item_qty = 1;
-        $new_detail->item_total_price = $new_detail->item_price*$new_detail->item_qty;
-        $new_detail->item_discount_input = null;
-        $new_detail->item_discount_type = null;
-        $new_detail->item_discount_fixed_value = 0;
-        $new_detail->save();
     }
 
     function generateInvoiceId($branch_id)

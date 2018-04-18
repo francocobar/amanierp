@@ -35,6 +35,21 @@
 <div style="margin-bottom: 10px; text-align: center;">
     <input id="btn_finish" type="button" value="Selesai" class="btn btn-success" />
 </div>
+@if($header->totalIdrDiscount()>0)
+<div style="margin-bottom: 10px;">
+    <input type="hidden" id="total_discount" value="{{$header->totalIdrDiscount()}}" />
+    <label>
+    <b>PENTING</b><br/><br/>
+    Terdapat diskon sebesar {{$header->totalIdrDiscount(true)}} pada transaksi ini.<br/>Jika terdapat sebagian
+    atau seluruh dari diskon tersebut ditagihkan ke Galeri, tuliskan besarannya pada field berikut.</label>
+    <input placeholder="jumlah yang ditagihkan ke galeri" type="text" id="ke_galeri" name="ke_galeri" class="mask-money form-control" />
+</div>
+<div style="margin-bottom: 10px;">
+    Jika anda mengisi kotak diatas, maka setelah Anda menekan tombol <b>Selesai</b> di atas
+    akan otomatis membuat invoice tagihan untuk Galeri. List invoice dari cabang Anda
+    untuk Galeri dapat dilihat di Aplikasi Kasir pada tombol <b>Tagihan ke Galeri</b>.
+</div>
+@endif
 {!! Form::close() !!}
 
 

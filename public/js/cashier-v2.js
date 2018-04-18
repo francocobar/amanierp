@@ -544,7 +544,16 @@ var Payment = $(function(){
                 }
             }
             calculateChange();
-            $('#form_finish_trans').submit();
+            $submit = true;
+            if($('#ke_galeri').length)
+            {
+                $submit = validateKeGaleri();
+            }
+            if($submit)
+            {
+                $('#form_finish_trans').submit();
+            }
+
         });
 
         $('#paid_value').change(function(){
@@ -554,6 +563,33 @@ var Payment = $(function(){
         $('#total_paid').change(function(){
             calculateChange();
         });
+
+        $('#ke_galeri').change(function(){
+            validateKeGaleri();
+        });
+
+        function validateKeGaleri()
+        {
+            if($.trim($('#ke_galeri').val()) != '')
+            {
+                $ke_galeri = unmaskMoney($('#ke_galeri').val());
+                $total_discount = unmaskMoney($('#total_discount').val());
+                if($ke_galeri>$total_discount) {
+                    alert('Jumlah yg ditagihkan ke galeri tidak dapat melebihi total diskon');
+                    $('#ke_galeri').val('');
+                    return false;
+                }
+                if($ke_galeri<0) {
+                    alert('Jumlah yg ditagihkan ke galeri tidak dapat minus');
+                    $('#ke_galeri').val('');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+
     }
     else {
         return false;

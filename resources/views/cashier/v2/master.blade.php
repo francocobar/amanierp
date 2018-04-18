@@ -60,7 +60,7 @@
         <script src="../js/jquery.js" type="text/javascript"></script>
         <script src="../js/jquery-ui.js" type="text/javascript"></script>
         <script src="../js/amanie.js" type="text/javascript"></script>
-        <script src="../js/cashier-v2.js" type="text/javascript"></script>
+        <script src="../js/cashier-v2.js?v=20181" type="text/javascript"></script>
         <script src="https://printjs-4de6.kxcdn.com/print.min.js" type="text/javascript"></script>
 
         <!-- <script src="../assets/global/plugins/moment.min.js" type="text/javascript"></script> -->

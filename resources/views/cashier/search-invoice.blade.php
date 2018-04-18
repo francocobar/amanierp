@@ -194,6 +194,8 @@
                 @else
                     @if(request()->today)
                     Belum ada <i class="bold">{{$keyword}}</i>.
+                    @elseif(request()->ke_galeri)
+                        Tidak ada <i class="bold">{{$keyword}}</i>.
                     @else
                     Tidak ada invoice yang invoice id nya (mengandung) <i class="bold">{{$keyword}}</i>.
                     @endif
