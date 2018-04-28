@@ -53,7 +53,7 @@ class TransController extends Controller
     function doLastStep(Request $request)
     {
         $inputs= $request->all();
-        // dd($inputs);
+        // dd(HelperService::unmaskMoney($inputs['paid_value']));
 
         // dd('stop');
         $payment_flag = Crypt::decryptString($inputs['payment']);
@@ -92,7 +92,7 @@ class TransController extends Controller
         }
 
         $header->total_paid = $total_paid;
-        $header->payment_type = $inputs['payment_type'];
+        $header->payment_type =  $inputs['payment_type'];
         $header->status = 2;
         $header->save();
         if(isset($inputs['ke_galeri']))
@@ -445,6 +445,21 @@ class TransController extends Controller
             }
             return view('cashier.v2.add-trans-guest', $data);
         }
+
+        else if(trim($inputs['add_trans_type']) == '3')
+        {
+            if(isset($inputs['add_trans_for_branch']) && !empty(trim($inputs['add_trans_for_branch']))) {
+                $branch = Branch::find($inputs['add_trans_for_branch']);
+                // dd($inputs['add_trans_member']);
+                if($branch)
+                {
+                    $inputs['branch'] = $branch;
+                    $this->addNewTrans($inputs, 3);
+                    return redirect()->route('get.cashier.v2',$query_string);
+                }
+            }
+            return view('cashier.v2.add-trans-branch', $data);
+        }
         abort(404);
     }
 
@@ -469,6 +484,15 @@ class TransController extends Controller
             {
                 $new_trans->customer_phone = trim($param['add_trans_guest_phone']);
             }
+        }
+
+        else if($type==3)
+        {
+            $branch = $param['branch'];
+            $new_trans->member_id = $branch->id;
+            $new_trans->customer_name = 'Cabang '.$branch->branch_name;
+            $new_trans->customer_phone = $branch->phone;
+            $new_trans->antar_cabang = true;
         }
         $new_trans->save();
         //belum milih

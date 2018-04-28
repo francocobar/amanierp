@@ -34,6 +34,10 @@
 </div>
 <div style="margin-bottom: 10px; text-align: center;">
     <input id="btn_finish" type="button" value="Selesai" class="btn btn-success" />
+    @if($header->antar_cabang)
+
+    <input id="btn_finish_with_skip" type="button" value="Selesai dengan belum ada pembayaran" class="btn btn-warning" />
+    @endif
 </div>
 @if($header->totalIdrDiscount()>0)
 <div style="margin-bottom: 10px;">

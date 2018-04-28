@@ -36,11 +36,15 @@
                     <b>Kasir / Cabang</b><br/>
                     {{'#'.$header->cashier_user_id.' '.$header->cashier->first_name.' '.$header->cashier->last_name}}
                     {{' / '.$header->branch->branch_name}}
-                    <hr/><b>Member</b><br/>
+                    <hr/><b>Customer</b><br/>
                     @if($header->member)
-                    {{'#'.$header->member_id.' '.$header->member->full_name}}
+                    {{$header->member->full_name.' #'.$header->member_id}}
+                    @elseif($header->member_id)
+                    {{$header->customer_name.' #'.$header->member_id}}
+                    @elseif($header->customer_name)
+                    {{$header->customer_name}}
                     @else
-                        -
+                        N/A
                     @endif
                 </div>
                 <div class="col-xs-4">

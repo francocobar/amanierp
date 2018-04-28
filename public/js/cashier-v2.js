@@ -113,6 +113,75 @@ var MemberAutoComplete = $(function() {
     }
 });
 
+var BranchAutoComplete = $(function() {
+    if($('#branchautocomplete').length) {
+        var cache_branch = {};
+        $('#branchautocomplete').autocomplete({
+            minLength: 3,
+
+            source: function(request, response) {
+                var term_branch = request.term;
+                if($('#add_trans_branch').length)
+                {
+                    request.other_term = $('#add_trans_branch').val();
+                }
+
+                if (term_branch in cache_branch) {
+                    response(cache_branch[term_branch]);
+                    return;
+                }
+
+                $.getJSON($('#get_branches').val(), request, function( data, status, xhr ) {
+                        cache_branch[term_branch] = data;
+                        response( data );
+                    });
+            },
+            focus: function(event, data) {
+                return false;
+            },
+            select: function( event, ui ) {
+                $('#branch_selected_name').text(ui.item.branch_name);
+                $('#branch_selected_phone').text(ui.item.phone);
+                $('#branch_selected_address').text(ui.item.address);
+                $('#branch_selected').text(ui.item.id);
+                $('#add_trans_for_branch').val(ui.item.id);
+                $('#branchautocomplete').val('Cabang ' + ui.item.branch_name + '#' + ui.item.id);
+                $('#branchautocomplete').prop('disabled', true);
+                $('#panel_confirmation').show();
+                return false;
+            }
+        })
+        .autocomplete("instance")._renderItem = function( ul, data ) {
+            return $("<li>")
+            .append("<div><b>Cabang " + data.branch_name + " #"+ data.id +"</b> | " + data.phone + "</div>")
+            .appendTo( ul );
+        };
+
+        $('#reset').click(function(){
+            $('#branch_selected_name').text('');
+            $('#branch_selected_phone').text('');
+            $('#branch_selected_address').text('');
+            $('#branch_selected').text('');
+            $('#add_trans_member').val('');
+            $('#branchautocomplete').val('');
+            $('#branchautocomplete').prop('disabled', false);
+            $('#panel_confirmation').hide();
+        });
+
+        $('#btn_add_trans_branch').click(function(){
+            bootbox.dialog({
+                title: 'Harap tunggu. Jangan tutup halaman ini.',
+                message: '<p><i class="fa fa-spin fa-spinner"></i> Loading...</p>'
+            });
+            $('#add_trans_type').val('3');
+            $('#form_add_trans').submit();
+        });
+    }
+    else {
+        return false;
+    }
+});
+
 var Guest = $(function() {
     if($('#guest').length) {
         $('#reset').click(function(){
@@ -501,7 +570,15 @@ var Payment = $(function(){
             }
             $('#change').text(maskMoney($change));
         }
-
+        if($('#btn_finish_with_skip').length)
+        {
+            $('#btn_finish_with_skip').click(function(e){
+                e.preventDefault();
+                $('#payment_type').val(1);
+                $('input[name="lunas"]').trigger('click');
+                $('#form_finish_trans').submit();
+            });
+        }
         $('#btn_finish').click(function(e){
             e.preventDefault();
             if($('#payment_type').val()=='') {
@@ -598,6 +675,7 @@ var Payment = $(function(){
 
 jQuery(document).ready(function() {
     MemberAutoComplete.init();
+    BranchAutoComplete.init();
     Guest.init();
     AddItemTrans.init();
     Payment.init();
@@ -622,6 +700,10 @@ jQuery(document).ready(function() {
                 {
                     text: 'Guest (Non-Member)',
                     value: '2',
+                },
+                {
+                    text: 'Antar Cabang',
+                    value: '3',
                 },
             ],
             callback: function (result) {

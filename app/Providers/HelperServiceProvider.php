@@ -237,6 +237,7 @@ class HelperServiceProvider extends ServiceProvider
 
     static function unmaskMoney($masked_money)
     {
+        if(empty($masked_money)) return 0;
         return str_replace('.', '', $masked_money);
     }
 }

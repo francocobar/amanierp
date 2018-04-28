@@ -797,6 +797,26 @@ class TransactionController extends Controller
         return response()->json($members);
     }
 
+    function getBranchesForTrans()
+    {
+
+        $other = 0;
+        if(UserService::isSuperadmin() && request()->other_term)
+        {
+            $other = Crypt::decryptString(request()->other_term);
+        }
+        else
+        {
+            $employee = EmployeeService::getEmployeeByUser();
+            $other = $employee->branch_id;
+        }
+        $members = Branch::where('branch_name', 'like', '%'.request()->term.'%')
+                        ->where('id', '!=', $other)
+                        ->get(['id', 'branch_name','phone', 'address'])->toArray();
+
+        return response()->json($members);
+    }
+
     function getBranches($item_id=null, $date_to_rent=null)
     {
         // return "oke";

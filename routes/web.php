@@ -101,6 +101,7 @@ Route::post('/cashier-next-payment.do/{invoice_id}', 'TransactionController@doPe
 Route::get('/items/{branch}', 'TransactionController@getItems')->name('get.items.cashier');
 Route::get('/pic', 'TransactionController@getPic')->name('get.pic.cashier');
 Route::get('/members', 'TransactionController@getMembers')->name('get.members.cashier');
+Route::get('/branches-for-cashier', 'TransactionController@getBranchesForTrans')->name('get.branchesfor.cashier');
 Route::get('/branches-sewa/{item_id?}.{date_to_rent?}', 'TransactionController@getBranches')->name('get.branches.cashier');
 Route::post('/transaction.do', 'TransactionController@doTransaction')->name('do.transaction');
 
