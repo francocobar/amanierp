@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="portlet light">
             <div class="portlet-title">
                 <div class="caption">
@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="portlet light">
             <div class="portlet-title">
                 <div class="caption">
@@ -68,16 +68,21 @@
                     <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
+                            <th> Trx Id </th>
                             <th> Invoice Id </th>
                             <th> Insentif </th>
+                            <th> Dibagikan oleh </th>
+                            <th> Ditanggung Cabang </th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($transactions as $transaction)
+                        @foreach($incentives as $incentive)
                         <tr>
-                            <td>{{$transaction->header->invoice_id}}
-                            </td>
-                            <td>{{HelperService::maskMoney($transaction->item_qty*$transaction->pic_incentive)}}</td>
+                            <td>{{$incentive->detail->header->id}}
+                            <td>{{$incentive->detail->header->invoice_id}}</td>
+                            <td>{{HelperService::maskMoney($incentive->incentive)}}</td>
+                            <td>{{ '#'.$incentive->setBy->id.' '.$incentive->setBy->first_name }}</td>
+                            <td>{{ $incentive->branch->branch_name }}</td>
                         </tr>
                         @endforeach
                     </tbody>

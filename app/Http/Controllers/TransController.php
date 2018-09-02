@@ -10,6 +10,8 @@ use App\Branch;
 use App\Member;
 use App\TransactionHeader;
 use App\TransactionDetail;
+use App\EmployeeIncentive;
+use App\DetailQtyLog;
 use App\Item;
 use Illuminate\Support\Facades\DB;
 use HelperService;
@@ -53,7 +55,7 @@ class TransController extends Controller
     function doLastStep(Request $request)
     {
         $inputs= $request->all();
-        // dd(HelperService::unmaskMoney($inputs['paid_value']));
+        // dd($inputs['qty_done']);
 
         // dd('stop');
         $payment_flag = Crypt::decryptString($inputs['payment']);
@@ -65,6 +67,30 @@ class TransController extends Controller
         DB::beginTransaction();
         $header = TransactionHeader::find(trim($inputs['ongoing_trans_id']));
         $cashier = Sentinel::getUser();
+        $details = TransactionDetail::where('header_id', $header->id)->with(['itemInfo'])->get();
+        foreach ($details as $key => $detail) {
+            $detail->item_qty_done = $inputs['qty_done'][$detail->id];
+            if($detail->item_qty > $inputs['qty_done'][$detail->id]) {
+                $detail->claim_status = 1;
+            }
+            else if($detail->item_qty == $inputs['qty_done'][$detail->id]) {
+                $detail->claim_status = 2;
+            }
+            if($detail->itemInfo && $detail->itemInfo->item_type==2) {
+                // dd($detail->itemInfo->jasaIncentive);
+                $detail->pic_incentive = 0;
+                for($i=0; $i<$detail->item_qty_done; $i++)
+                {
+                    $emp_incentive = new EmployeeIncentive();
+                    $emp_incentive->detail_id = $detail->id;
+                    $emp_incentive->employee_id = '';
+                    $emp_incentive->incentive = $detail->itemInfo->jasaIncentive->incentive;
+                    $emp_incentive->branch_id = $header->branch_id;
+                    $emp_incentive->save();
+                }
+            }
+            $detail->save();
+        }
         if($header->status != 1 || $header->cashier_user_id != $cashier->id)
         {
             return redirect()->route('get.cashier.v2');
@@ -107,14 +133,20 @@ class TransController extends Controller
             DB::commit();
         }
 
-        $qs = [];
+
         $to = '';
         if(UserService::isSuperadmin())
         {
             $to = '&b='.$header->branch_id;
         }
-        $redirect_to = env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=1'.$to;
-        return redirect($redirect_to);
+        if(env('APP_ENV') != 'local') {
+            $redirect_to = env('PRINT_URL').str_replace('/','-',$header->invoice_id).'?redirect_back=1'.$to;
+            return redirect($redirect_to);
+        }
+        $qs = [];
+        if(UserService::isSuperadmin()) {
+            $qs = ['branch'=>$header->branch_id];
+        }
         return redirect()->route('get.cashier.v2',$qs);
     }
 
@@ -236,7 +268,8 @@ class TransController extends Controller
         // dd($cashier_first_name->first_name);
         $data['header'] = $header;
         $data['branch'] = Branch::find($branch_id);
-
+        $data['details'] = TransactionDetail::where('header_id',$header->id)->with(['itemInfo'])->get();
+        // dd($data['details']);
         return view('cashier.v2.ongoing-trans-payment', $data);
         return "do payment";
     }
@@ -543,6 +576,123 @@ class TransController extends Controller
         }
 
         return $prefix_invoice.sprintf("%05d", $number_id);
+    }
+
+    function pendingTrans()
+    {
+        if(request()->b && request()->key)
+        {
+            $branch = Branch::find(Crypt::decryptString(request()->b));
+            if($branch) {
+                $header = null;
+                if(is_numeric(request()->key)) {
+                    $header = TransactionHeader::find(intval(request()->key));
+                }
+                else {
+                    $header = TransactionHeader::where('invoice_id', trim(request()->key))->first();
+                }
+                if($header) {
+                    $data['branch'] = $branch;
+                    $data['details'] = TransactionDetail::where('header_id',$header->id)->with(['employeeIncentives'])->get();
+                    $data['header'] = $header;
+                    return view('cashier.v2.pending-trans', $data);
+                }
+                else {
+                    abort(404);
+                }
+            }
+
+        }
+        abort(404);
+    }
+
+    function updateQtyPendingTrans(Request $request)
+    {
+        $inputs = $request->all();
+        DB::beginTransaction();
+        $other_req = decrypt($inputs['params']);
+        $branch = Branch::find($other_req['branch_id']);
+        if(!$branch) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error1. Terjadi kesalahan.',
+                'need_reload' => true
+            ]);
+        }
+        $flag_header = $other_req['header_id'];
+        $now_user = Sentinel::getUser();
+        foreach($inputs as $key => $value) {
+            if(is_numeric($value)) {
+                if(intval($value) > 0) {
+                    $data = decrypt($key);
+                    $detail = TransactionDetail::find($data['detail_id']);
+
+                    if($detail && $detail->header_id ==$flag_header && $detail->item_qty-$detail->item_qty_done == $data['qty_max'] && intval($value)<=$data['qty_max']) {
+                        $detail->item_qty_done = $detail->item_qty_done + intval($value);
+                        if($detail->itemInfo && $detail->itemInfo->item_type==2) {
+                            // dd($detail->itemInfo->jasaIncentive);
+                            $detail->pic_incentive = 0;
+                            for($i=0; $i<intval($value); $i++)
+                            {
+                                $emp_incentive = new EmployeeIncentive();
+                                $emp_incentive->detail_id = $detail->id;
+                                $emp_incentive->employee_id = '';
+                                $emp_incentive->incentive = $detail->itemInfo->jasaIncentive->incentive;
+                                $emp_incentive->branch_id = $branch->id;
+                                $emp_incentive->save();
+                            }
+                        }
+                        $detail->save();
+                        $log = new DetailQtyLog();
+                        $log->detail_id = $detail->id;
+                        $log->log_by = $now_user->id;
+                        $log->log_text = 'qty selesai +'.$value;
+                        $log->save();
+                    }
+                    else {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Error2. Terjadi kesalahan.',
+                            'need_reload' => true
+                        ]);
+                    }
+                }
+            }
+        }
+        DB::commit();
+        return response()->json([
+            'need_reload' => true,
+            'status' => 'success',
+            'message' => 'Update Qty berhasil!',
+            'no_reset_form' => true
+        ]);
+    }
+    function employeeIncentive()
+    {
+        if(request()->b && request()->key)
+        {
+            $branch = Branch::find(Crypt::decryptString(request()->b));
+            if($branch) {
+                $header = null;
+                if(is_numeric(request()->key)) {
+                    $header = TransactionHeader::find(intval(request()->key));
+                }
+                else {
+                    $header = TransactionHeader::where('invoice_id', trim(request()->key))->first();
+                }
+                if($header) {
+                    $data['branch'] = $branch;
+                    $data['details'] = TransactionDetail::where('header_id',$header->id)->with(['employeeIncentives'])->get();
+                    $data['header'] = $header;
+                    return view('cashier.v2.employee-incentive', $data);
+                }
+                else {
+                    abort(404);
+                }
+            }
+
+        }
+        abort(404);
     }
 
 }

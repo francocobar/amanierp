@@ -380,12 +380,11 @@ class EmployeeController extends Controller
                                         ->where('valid_since','<=',Carbon::today()->toDateString())
                                         ->orderBy('valid_since', 'desc')
                                         ->first();
-            $transactions = TransactionDetail::with(['header'])->where('item_pic', $employee_data->employee_id)
+            $incentives = EmployeeIncentive::with(['detail','branch','setBy'])->where('employee_id', $employee_data->employee_id)
                                                 ->whereDate('created_at','>=', Carbon::now()->firstOfMonth()->toDateString())
                                                 ->whereDate('created_at', '<=', Carbon::now()->endOfMonth()->toDateString())
                                                 ->get();
-
-
+                                                // dd($incentives);
             $selects = array(
                 'sum(incentive) AS sum_incentive',);
             $sum_incentive =  EmployeeIncentive::where('employee_id', $employee_data->employee_id)
@@ -397,7 +396,7 @@ class EmployeeController extends Controller
             return view('employee.my-salary',[
                 'employee_salaries' => $employee_salaries,
                 'salary_now' => $salary_now,
-                'transactions' =>$transactions,
+                'incentives' =>$incentives,
                 'total_incentive' => $sum_incentive[0]['sum_incentive']
             ]);
         }
@@ -422,58 +421,30 @@ class EmployeeController extends Controller
     function doSetIncetives(Request $request)
     {
         $inputs = $request->all();
-        $detail_id = intval(Crypt::decryptString($inputs['detail']));
-        $detail = TransactionDetail::with(['header','itemInfo','employeeIncentives'])->whereNull('item_pic')
-                                ->where('pic_incentive','>',0)
-                                ->where('id', $detail_id)
-                                ->first();
-        if($detail) {
-            $pb_incentive = [];
-            $pb_incentive['item_id'] = $detail->item_id;
-            $pb_incentive['qty_item'] = $detail->item_qty;
-            // $pb_discount['modal_total'] = $pb_discount['turnover'] = 0 - $potongan_total;
-            $already = $detail->employeeIncentives->sum('incentive');
-            if($already < $detail->pic_incentive) {
-                $employee = Employee::where('employee_id', trim($inputs['employee_id']))->first();
-                if($employee) {
-                    $incentive_input = [
-                        'detail_id' => $detail_id,
-                        'employee_id' => $employee->employee_id,
-                        'incentive'=> HelperService::unmaskMoney(trim($inputs['incentive'])),
-                        'set_by' => Sentinel::getUser()->id,
-                    ];
-                    // dd($already+$incentive_input['incentive']);
-                    DB::beginTransaction();
-                    $incentive = EmployeeIncentive::create($incentive_input);
-                    $pb_incentive['header_id'] = $detail->header_id;
-                    $pb_incentive['detail_id'] = $detail->id;
-                    $pb_incentive['modal_total'] = $incentive_input['incentive'];
-                    $pb_incentive['branch_id'] = $employee->branch_id;
-                    $pb_incentive['description'] = 'Insetif Karyawan: '.HelperService::maskMoney(intval($incentive_input['incentive']));
-                    $pb_incentive['turnover'] = 0;
-                    $pb_incentive['profit'] = $pb_incentive['turnover']-$pb_incentive['modal_total'];
-                    PembukuanBranch::create($pb_incentive);
-                    if($already+$incentive_input['incentive'] >= $detail->pic_incentive) {
-                         $detail->item_pic = 'ok';
-                         $detail->save();
-                    }
+        $incentive_id= intval(Crypt::decryptString($inputs['detail']));
 
-                    DB::commit();
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => 'Insetif berhasil dibagikan!',
-                        'need_reload' => true
-                    ]);
-                }
+        $incentive = EmployeeIncentive::find($incentive_id);
+        if($incentive) {
+            $employee = Employee::where('employee_id', trim($inputs['employee_id']))->first();
+            if($employee) {
+                DB::beginTransaction();
+                $incentive->employee_id = $employee->employee_id;
+                $incentive->set_by = Sentinel::getUser()->id;
+                $incentive->save();
+                DB::commit();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Insetif berhasil dibagikan!',
+                    'need_reload' => true
+                ]);
             }
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error1. Insetif sudah pernah dibagikan semua!',
-                'need_reload' => true
-            ]);
-        }
 
-        return "404";
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Error1. Insetif gagal dibagikan!',
+            'need_reload' => true
+        ]);
 
     }
 }

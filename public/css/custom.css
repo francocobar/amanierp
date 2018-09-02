@@ -108,3 +108,16 @@ table.table.table-striped.table-bordered.table-hover th {
     opacity: 1;
   }
 }
+
+td.payment-qty-done {
+    text-align: left;
+}
+td.payment-qty-done input {
+    width: 100px;
+    float: left;
+    margin-right: 10px;
+}
+
+.vmiddle-center td {
+    vertical-align: middle !important;
+}

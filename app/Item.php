@@ -24,7 +24,7 @@ class Item extends Model
     }
     function jasaIncentive()
     {
-        return $this->hasOne('App\JasaIncentive', 'item_id_jasa', 'item_id');
+        return $this->hasOne('App\JasaIncentive', 'item_id_jasa', 'item_id')->orderBy('created_at','desc');
     }
 
     function branchStock()

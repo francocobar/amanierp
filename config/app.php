@@ -186,7 +186,7 @@ return [
         App\Providers\ConstantServiceProvider::class,
         App\Providers\MemberServiceProvider::class,
         App\Providers\StockServiceProvider::class,
-        App\Providers\VoucherServiceProvider::class
+        App\Providers\VoucherServiceProvider::class,
 
 
     ],

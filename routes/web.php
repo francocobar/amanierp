@@ -87,6 +87,9 @@ Route::get('/dashboard', 'UserController@dashboard')->name('dashboard');
 
 Route::get('/cashier-v2', 'TransactionController@getCashier2')->name('get.cashier.v2');
 Route::post('/add-trans', 'TransController@addTrans')->name('do.cashier.add-transaction');
+Route::get('/employee-incentive/{b}/{key?}', 'TransController@employeeIncentive')->name('do.cashier.employee-incentive');
+Route::get('/pending-trans/{b}/{key?}', 'TransController@pendingTrans')->name('do.cashier.check-pending');
+Route::post('/update-pending-trans', 'TransController@updateQtyPendingTrans')->name('do.cashier.update-pending');
 Route::get('/ongoing-trans/{trans_id}', 'TransController@ongoingTrans')->name('get.cashier.ongoing');
 Route::post('/ongoing-trans-next-step', 'TransController@doNextStep')->name('do.cashier.next-step');
 Route::post('/ongoing-trans-last-step', 'TransController@doLastStep')->name('do.cashier.last-step');

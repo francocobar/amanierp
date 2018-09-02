@@ -1,3 +1,14 @@
+var is_loading = false;
+function loadingCashier()
+{
+    is_loading = true;
+    bootbox.dialog({
+        title: 'Harap tunggu. Jangan tutup halaman ini.',
+        message: '<p style="text-align: center"><i class="fa fa-spin fa-spinner"></i> Loading...</p>',
+        closeButton: false,
+    });
+}
+
 var ItemAutoComplete = $(function() {
     if($('#add_detail_item').length) {
         var cache = {};
@@ -579,6 +590,18 @@ var Payment = $(function(){
                 $('#form_finish_trans').submit();
             });
         }
+
+        $('.js-qty-done').change(function(e){
+            $now_val = parseInt($.trim($(this).val()));
+            if($now_val > parseInt($(this).attr('max'))) {
+                alert('tidak bisa lebih dari qty');
+                $(this).val($(this).attr('max'));
+            }
+            else if($now_val < 0 ) {
+                alert('tidak bisa minus');
+                $(this).val($(this).attr('max'));
+            }
+        });
         $('#btn_finish').click(function(e){
             e.preventDefault();
             if($('#payment_type').val()=='') {
@@ -679,6 +702,41 @@ jQuery(document).ready(function() {
     Guest.init();
     AddItemTrans.init();
     Payment.init();
+
+    $('.btn-search-invoice').click(function(){
+        $url = '';
+        if($(this).attr('data-for') == 'incentive') {
+            $url = $.trim($('#url-incentive').val());
+        }
+        else if($(this).attr('data-for') == 'pending') {
+            $url = $.trim($('#url-check-pending').val());
+        }
+        else {
+            alert('terjadi kesalahan');
+            location.reload();
+        }
+        bootbox.prompt({
+            title: "Masukkan Invoice Id atau Trx Id",
+            inputType: 'text',
+            buttons: {
+               confirm: {
+                   label: 'Lanjut',
+                   className: 'btn purple-rev'
+               },
+               cancel: {
+                   label: 'Batal'
+               }
+            },
+            callback: function (result) {
+                if(result) {
+                    // console.log($url);
+                    loadingCashier();
+                    window.location.href = $url + result.split('/').join('-');
+                }
+            }
+
+        });
+    });
     $('#add_trans').click(function(){
         bootbox.prompt({
             title: "Transaksi untuk?",
@@ -731,5 +789,19 @@ jQuery(document).ready(function() {
         if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
             e.preventDefault();
         }
+    });
+
+    //bagikan incentive
+    $('.js-bagikan').click(function(e){
+        e.preventDefault();
+        if($(this).attr('data-now') == 'hidden') {
+            $(this).next('span').css('visibility','unset');
+            $(this).attr('data-now', 'unset');
+        }
+        else {
+            $(this).next('span').css('visibility','hidden');
+            $(this).attr('data-now', 'hidden');
+        }
+
     });
 });

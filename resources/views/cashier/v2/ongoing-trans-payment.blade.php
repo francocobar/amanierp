@@ -39,6 +39,25 @@
     <input id="btn_finish_with_skip" type="button" value="Selesai dengan belum ada pembayaran" class="btn btn-warning" />
     @endif
 </div>
+<div class="table-scrollable" style="margin-bottom: 10px; text-align: center;">
+<table class="table table-striped table-bordered table-hover">
+    <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Sudah Terpenuhi sebanyak?<br/>(isi 0 jika belum sama sekali)</th>
+    </tr>
+    @foreach($details as $detail)
+    <tr class="vmiddle-center">
+        <td style="text-align: left">{{is_numeric($detail->item_id) ? '#' : $detail->item_id}} {{$detail->custom_name ? $detail->custom_name : $detail->itemInfo->item_name}}</td>
+        <td>{{$detail->item_qty}}</td>
+        <td class="payment-qty-done">
+            <input autocomplete="off" value="{{$detail->item_qty}}" min="0" max="{{$detail->item_qty}}" class="form-control js-qty-done" type="number" name="qty_done[{{$detail->id}}]"  />
+            <a class="btn red js-set-0">Belum Sama Sekali</a>
+        </td>
+    </tr>
+    @endforeach
+</table>
+</div>
 @if($header->totalIdrDiscount()>0)
 <div style="margin-bottom: 10px;">
     <input type="hidden" id="total_discount" value="{{$header->totalIdrDiscount()}}" />
@@ -55,7 +74,27 @@
 </div>
 @endif
 {!! Form::close() !!}
-
-
 <input type="hidden" id="total_fix" value="{{$header->totalTransaction()}}" />
+@section('blade-script')
+<script>
+$(document).ready(function(){
+    $('.js-set-0').click(function(e){
+        e.preventDefault();
+        if($(this).parents('td').find('input').prop('readonly')) {
+            $(this).parents('td').find('input').prop('readonly', false);
+            $(this).parents('td').find('input').val($(this).parents('td').find('input').attr('max'));
+        }
+        else {
+            $(this).parents('td').find('input').prop('readonly', true);
+            $(this).parents('td').find('input').val(0);
+        }
+
+    });
+
+    $('#btn_finish').click(function(e){
+
+    });
+});
+</script>
+@endsection
 @endsection
