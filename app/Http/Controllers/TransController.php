@@ -591,7 +591,8 @@ class TransController extends Controller
                     $header = TransactionHeader::find(intval(request()->key));
                 }
                 else {
-                    $header = TransactionHeader::where('invoice_id', trim(request()->key))->first();
+                    $invoice_id = str_replace('-','/',trim(request()->key));
+                    $header = TransactionHeader::where('invoice_id', $invoice_id)->first();
                 }
                 if($header) {
                     $data['branch'] = $branch;
@@ -680,7 +681,8 @@ class TransController extends Controller
                     $header = TransactionHeader::find(intval(request()->key));
                 }
                 else {
-                    $header = TransactionHeader::where('invoice_id', trim(request()->key))->first();
+                    $invoice_id = str_replace('-','/',trim(request()->key));
+                    $header = TransactionHeader::where('invoice_id', $invoice_id)->first();
                 }
                 if($header) {
                     $data['branch'] = $branch;
