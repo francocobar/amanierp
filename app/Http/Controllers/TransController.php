@@ -434,7 +434,8 @@ class TransController extends Controller
         $employee_data = EmployeeService::getEmployeeByUser();
         $branch_id = $employee_data != null ? $employee_data->branch_id : 0;
         $query_string = [];
-        if($branch_id == 0)
+        $is_superadmin = UserService::isSuperadmin();
+        if($branch_id == 0 || $is_superadmin)
         {
             if(isset($inputs['add_trans_branch'])) {
                 $branch_id = Crypt::decryptString($inputs['add_trans_branch']);
@@ -448,7 +449,7 @@ class TransController extends Controller
         $add_trans_parse_decrypt = Crypt::decryptString($inputs['add_trans_parse']);
         $cashier= Sentinel::getUser();
         // dd($cashier_first_name->first_name);
-        if($add_trans_parse_decrypt!=$cashier->first_name.'-'.$branch_id)
+        if(!$is_superadmin && $add_trans_parse_decrypt!=$cashier->first_name.'-'.$branch_id)
         {
             abort(404);
         }
@@ -456,6 +457,7 @@ class TransController extends Controller
 
         $inputs['branch_id'] = $branch_id;
         $inputs['cashier_id'] = $cashier->id;
+        // dd(trim($inputs['add_trans_type']));
         if(trim($inputs['add_trans_type']) == '1')
         {
             if(isset($inputs['add_trans_member']) && !empty(trim($inputs['add_trans_member']))) {
