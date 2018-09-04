@@ -55,6 +55,11 @@
                     <span class="title">Daftar Karyawan</span>
                 </a>
             </li>
+            <li class="nav-item ">
+                <a href="{{route('get.employees.incentives')}}"  class="nav-link ">
+                    <span class="title">Insentif Karyawan</span>
+                </a>
+            </li>
         </ul>
     </li>
 
