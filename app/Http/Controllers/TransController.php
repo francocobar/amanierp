@@ -84,7 +84,7 @@ class TransController extends Controller
                     $emp_incentive = new EmployeeIncentive();
                     $emp_incentive->detail_id = $detail->id;
                     $emp_incentive->employee_id = '';
-                    $emp_incentive->incentive = $detail->itemInfo->jasaIncentive->incentive;
+                    $emp_incentive->incentive = $detail->itemInfo->jasaIncentive ? $detail->itemInfo->jasaIncentive->incentive : 0;
                     $emp_incentive->branch_id = $header->branch_id;
                     $emp_incentive->save();
                 }
@@ -640,7 +640,7 @@ class TransController extends Controller
                                 $emp_incentive = new EmployeeIncentive();
                                 $emp_incentive->detail_id = $detail->id;
                                 $emp_incentive->employee_id = '';
-                                $emp_incentive->incentive = $detail->itemInfo->jasaIncentive->incentive;
+                                $emp_incentive->incentive = $detail->itemInfo->jasaIncentive ? $detail->itemInfo->jasaIncentive->incentive : 0;
                                 $emp_incentive->branch_id = $branch->id;
                                 $emp_incentive->save();
                             }
