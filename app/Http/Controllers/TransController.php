@@ -645,6 +645,9 @@ class TransController extends Controller
                                 $emp_incentive->save();
                             }
                         }
+                        if($detail->item_qty_done == $detail->item_qty_done) {
+                            $detail->claim_status = 2;
+                        }
                         $detail->save();
                         $log = new DetailQtyLog();
                         $log->detail_id = $detail->id;
