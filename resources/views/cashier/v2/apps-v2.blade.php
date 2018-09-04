@@ -22,7 +22,7 @@
     <h2><a href="{{route('search.invoice.cashier',['ke_galeri'=>Crypt::encrypt(array('branch_id'=>$branch->id))])}}" target="_blank" class="btn btn-warning">Tagihan ke Galeri</a></h2>
     <h2><a href="{{route('search.invoice.cashier',['today'=>Crypt::encrypt(array('branch_id'=>$branch->id, 'still_debt'=>true))])}}" target="_blank" class="btn btn-danger">Transaksi Belum Lunas</a></h2>
     <h2><a class="btn btn-success btn-search-invoice" data-for="incentive">Insentif Untuk Karyawan</a></h2>
-    <h2><a href="{{route('do.cashier.employee-incentive', ['b'=>Crypt::encryptString($branch->id)]) }}/unset" class="btn btn-warning">Insentif Untuk Karyawan yang beum dibagikan</a></h2>
+    <h2><a href="{{route('do.cashier.employee-incentive', ['b'=>Crypt::encryptString($branch->id)]) }}/unset" class="btn btn-warning">Insentif Untuk Karyawan yang belum dibagikan</a></h2>
     <h2><a class="btn btn-success btn-search-invoice" data-for="pending">Cek / Update Transaksi Pending</a></h2>
     @if(UserService::isSuperadmin())
     <h1>Superadmin</h1>
