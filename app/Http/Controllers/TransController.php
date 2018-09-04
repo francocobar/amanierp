@@ -76,7 +76,7 @@ class TransController extends Controller
             else if($detail->item_qty == $inputs['qty_done'][$detail->id]) {
                 $detail->claim_status = 2;
             }
-            if($detail->itemInfo && $detail->itemInfo->item_type==2) {
+            if($detail->itemInfo && ($detail->itemInfo->item_type==2 || $detail->itemInfo->item_type==4)) {
                 // dd($detail->itemInfo->jasaIncentive);
                 $detail->pic_incentive = 0;
                 for($i=0; $i<$detail->item_qty_done; $i++)
@@ -632,7 +632,7 @@ class TransController extends Controller
 
                     if($detail && $detail->header_id ==$flag_header && $detail->item_qty-$detail->item_qty_done == $data['qty_max'] && intval($value)<=$data['qty_max']) {
                         $detail->item_qty_done = $detail->item_qty_done + intval($value);
-                        if($detail->itemInfo && $detail->itemInfo->item_type==2) {
+                        if($detail->itemInfo && ($detail->itemInfo->item_type==2 || $detail->itemInfo->item_type==4)) {
                             // dd($detail->itemInfo->jasaIncentive);
                             $detail->pic_incentive = 0;
                             for($i=0; $i<intval($value); $i++)
