@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
           'App\Console\Commands\SetStaffRolesDefatult',
            'App\Console\Commands\UpdateMemberData',
             'App\Console\Commands\UpdateIncentives',
+             'App\Console\Commands\CheckMissedIncentive',
             'App\Console\Commands\GivePermissionRemoveTrans'
     ];
 

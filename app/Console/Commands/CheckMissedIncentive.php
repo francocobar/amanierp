@@ -3,17 +3,17 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Member;
-use App\EmployeeIncentive;
+use App\Item;
+use HelperService;
 
-class UpdateMemberData extends Command
+class CheckMissedIncentive extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:memberid';
+    protected $signature = 'check:missedincentive';
 
     /**
      * The console command description.
@@ -39,12 +39,17 @@ class UpdateMemberData extends Command
      */
     public function handle()
     {
-        $all = Member::get();
-
-        foreach ($all as $key => $member) {
-            $this->info($member->member_id);
-            $member->member_id = strtoupper($member->member_id);
-            $member->save();
+        $all_jasa = Item::whereIn('item_type', [2,4])->get();
+        foreach ($all_jasa as $key => $item) {
+            $string = '*#'.$item->item_id.' '.$item->item_name.'* insentif: ';
+            if($item->jasaIncentive) {
+                $string.= ' '.HelperService::maskMoney($item->jasaIncentive->incentive);
+            }
+            else {
+                $string.='0';
+            }
+            echo "\n";
+            $this->info($string);
         }
     }
 }
