@@ -1,49 +1,22 @@
 @extends('cashier.v2.master')
 
 @section('content')
-<h2>Insentif Karyawan | <a class="btn btn-default" href="{{route('get.cashier.v2',['branch'=>$branch->id])}}">< Kembali</a></h2>
+<h2>Insentif Karyawan yang belum dibagikan| <a class="btn btn-default" href="{{route('get.cashier.v2',['branch'=>$branch->id])}}">< Kembali</a></h2>
 <div class="ui-widget">
-    <h4><b>Invoice Id :</b> {{$header->invoice_id}}</h4>
-    <h4><b>Trx Id :</b> {{$header->id}}</h4>
-    <div class="table-scrollable" style="margin-bottom: 10px; text-align: center;">
-        <table class="table table-striped table-bordered table-hover">
-            <tr>
-                <th style="width: 40%;">Item</th>
-                <th style="width: 100px !important;">Qty (sudah / total)</th>
-                <th>Insentif</th>
-            </tr>
-            @foreach($details as $detail)
-            <tr class="big-tr vmiddle-center">
-                <td style="text-align: left">{{$detail->item_id}} {{$detail->custom_name ? $detail->custom_name : $detail->itemInfo->item_name}}</td>
-                <td>
-                    {{$detail->item_qty_done}} / {{$detail->item_qty}}</td>
-                <td>
-                    @if($detail->employeeIncentives)
-                        <ul class="list-group" style="text-align: left">
-                            @foreach($detail->employeeIncentives as $emp_incentive)
-                            <li class="list-group-item">
-                                    @if($emp_incentive->employee_id)
-                                        {{HelperService::maskMoney($emp_incentive->incentive)}} dibagikan ke
-                                        {{ $emp_incentive->employee->employee_id.' '.$emp_incentive->employee->full_name }} oleh
-                                        {{ '#'.$emp_incentive->setBy->id.' '.$emp_incentive->setBy->first_name }}
-                                    @elseif($branch->id == $emp_incentive->branch_id)
-                                        <a class="btn btn-default">{{HelperService::maskMoney($emp_incentive->incentive)}}</a>
-                                        <a data-detail="{{Crypt::encryptString($emp_incentive->id)}}" class="btn btn-success modal_set" data-incentive="{{HelperService::maskMoney($emp_incentive->incentive)}}">Bagikan</a>
-                                    @else
-                                        <a class="btn btn-default">{{HelperService::maskMoney($emp_incentive->incentive)}}</a> <a class="btn btn-warning">Belum Dibagikan</a>
-                                    @endif
-                                    | Insentif tanggung jawab cabang {{ $emp_incentive->branch->branch_name }}
-                            </li>
-                            @endforeach
-                        </ul>
-                    @else
-
-                    @endif
-                </td>
-            </tr>
-            @endforeach
-        </table>
-    </div>
+    @foreach($unset as $emp_incentive)
+    <li class="list-group-item">
+        <b>Invoice Id :</b> {{$emp_incentive->detail->header->invoice_id}}<br/>
+        <b>Trx Id :</b> {{$emp_incentive->detail->header_id}}<br/>
+        <b>Item :</b> {{$emp_incentive->detail->item_id.' - '.$emp_incentive->detail->itemInfo->item_name}}<br/>
+        @if($branch->id == $emp_incentive->branch_id)
+            <a class="btn btn-default">{{HelperService::maskMoney($emp_incentive->incentive)}}</a>
+            <a data-invoice="{{$emp_incentive->detail->header->invoice_id}}" data-trx="{{$emp_incentive->detail->header_id}}" data-item="{{$emp_incentive->detail->item_id.' - '.$emp_incentive->detail->itemInfo->item_name}}" data-detail="{{Crypt::encryptString($emp_incentive->id)}}" class="btn btn-success modal_set" data-incentive="{{HelperService::maskMoney($emp_incentive->incentive)}}">Bagikan</a>
+        @else
+            <a class="btn btn-default">{{HelperService::maskMoney($emp_incentive->incentive)}}</a> <a class="btn btn-warning">Belum Dibagikan</a>
+        @endif
+        | Insentif tanggung jawab cabang {{ $emp_incentive->branch->branch_name }}
+    </li>
+    @endforeach
 </div>
 <div class="modal fade" id="modal_set_incentive" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
@@ -52,8 +25,8 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h2 class="modal-title">Bagikan Insentif</h2>
-            <h4><b>Invoice Id :</b> {{$header->invoice_id}}</h4>
-            <h4><b>Trx Id :</b> {{$header->id}}</h4>
+            <h4><b>Invoice Id :</b> <span id="invoice-selected"></span></h4>
+            <h4><b>Trx Id :</b> <span id="trx-selected"></span></h4>
             <h4><b>Item:</b> <span id="item-selected"></span></h4>
         </div>
         <div class="modal-body">
@@ -114,9 +87,9 @@ $(function() {
 jQuery(document).ready(function() {
     $('.modal_set').click(function(){
         $('#max_incentive').text(maskMoney($(this).attr('data-maximum')));
-        $item = $(this).parents('.big-tr').find('td:first-child').html();
-        // console.log($item);
-        $('#item-selected').html($item);
+        $('#item-selected').html($(this).attr('data-item'));
+        $('#trx-selected').html($(this).attr('data-trx'));
+        $('#invoice-selected').html($(this).attr('data-invoice'));
         $('#detail').val($(this).attr('data-detail'));
         $('#incentive').val($(this).attr('data-incentive'));
         $('#employee_id').val('');

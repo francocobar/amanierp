@@ -164,6 +164,22 @@ class EmployeeController extends Controller
         abort(404);
     }
 
+    function getEmployeesIncentives()
+    {
+        $otday = Carbon::today();
+        $month = request()->month ? request()->month : $otday->month;
+        $year = request()->year ? request()->year : $otday->year;
+        // $incentives = EmployeeIncentive::whereMonth('created_at', $month)->whereYear('created_at', $year)->get();
+
+        $incentives =  DB::select("select employee_id, sum(incentive) as total_incentive from employee_incentives
+            where month(created_at) >= '".$month."'
+            and year(created_at) <= '".$year."' group by employee_id order by total_incentive desc");
+        return view('employee.employee-incentives',[
+            'incentives' => $incentives,
+            'month_selected' => $month,
+            'year_selected' => $year
+        ]);
+    }
     function getEmployees($page)
     {
         // dd($page);

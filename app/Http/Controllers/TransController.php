@@ -19,6 +19,7 @@ use UserService;
 use App\Log;
 use \Carbon\Carbon;
 
+
 class TransController extends Controller
 {
     public function __construct()
@@ -682,6 +683,12 @@ class TransController extends Controller
                 $header = null;
                 if(is_numeric(request()->key)) {
                     $header = TransactionHeader::find(intval(request()->key));
+                }
+                else if(request()->key=='unset') {
+                    $unset = EmployeeIncentive::where('employee_id', '')->where('branch_id', $branch->id)->get();
+                    $data['unset'] = $unset;
+                    $data['branch'] = $branch;
+                    return view('cashier.v2.employee-incentive-unset', $data);
                 }
                 else {
                     $invoice_id = str_replace('-','/',trim(request()->key));

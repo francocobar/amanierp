@@ -28,6 +28,11 @@
                     <span class="title">Daftar Sewa</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{route('get.items.paket',['page'=>1])}}" class="nav-link ">
+                    <span class="title">Daftar Paket</span>
+                </a>
+            </li>
         </ul>
     </li>
 
