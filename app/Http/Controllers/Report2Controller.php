@@ -236,6 +236,7 @@ class Report2Controller extends Controller
             ".$item_ids."
             group by item_id
             order by qty desc LIMIT 30");
+            dd($data['top_items']);
         return view('report2.top-items-report', $data);
     }
 
