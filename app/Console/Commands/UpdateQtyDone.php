@@ -43,7 +43,7 @@ class UpdateQtyDone extends Command
             if($detail->created_at->format('d')<4) {
                 if($detail->header->status==2 && $detail->header->branch_id !=1) {
                     $detail->item_qty_done = $detail->item_qty;
-                    $detail->status=2;
+                    $detail->claim_status=2;
                     $detail->save();
                 }
 
