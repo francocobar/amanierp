@@ -303,7 +303,7 @@ class Report2Controller extends Controller
         return view('report2.sales-details-report', $data);
     }
 
-    function getSsalesdetailsByAjax(Request $request)
+    function getSalesdetailsByAjax(Request $request)
     {
         $inputs = $request->all();
         $data = [];
