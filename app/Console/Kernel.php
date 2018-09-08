@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
            'App\Console\Commands\UpdateMemberData',
             'App\Console\Commands\UpdateIncentives',
              'App\Console\Commands\CheckMissedIncentive',
+              'App\Console\Commands\UpdateQtyDone',
             'App\Console\Commands\GivePermissionRemoveTrans'
     ];
 
