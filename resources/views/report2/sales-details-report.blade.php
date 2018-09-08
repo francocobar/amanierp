@@ -134,7 +134,7 @@ $(document).ready(function(){
                                 <th scope="col">No</th>
                                 <th scope="col">Item ID</th>
                                 <th scope="col">Item Name</th>
-                                <th scope="col">Qty Selesai / Total</th>
+                                <th scope="col">Qty Selesai</th>
                                 <th scope="col">Total Rupiah Transaksi</th>
                             </tr>
                         </thead>
@@ -148,7 +148,7 @@ $(document).ready(function(){
                                     <input type="hidden" value="{{$top_item->item_id}}" name="item_id[]" />
                                 </td>
                                 <td class='{{$top_item->item_id}} anic'>Loading . . .</td>
-                                <td>{{$top_item->qty_done}} / {{$top_item->qty}}</td>
+                                <td>{{$top_item->qty}}</td>
                                 <td class='{{$top_item->item_id}}_idr anic'>Loading . . .</td>
                             </tr>
                                 <?php $number = $number+1; ?>
