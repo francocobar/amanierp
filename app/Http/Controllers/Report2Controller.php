@@ -228,7 +228,7 @@ class Report2Controller extends Controller
             and DATE(created_at) <= '".$to."')";
             // dd($item_ids);
         }
-        $data['top_items'] = DB::select("select item_id, sum(item_qty_done) as qty from transaction_details
+        $data['top_items'] = DB::select("select item_id, sum(item_qty_done) as qty_done, sum(item_qty) as qty from transaction_details
             where item_id like 'I%'
             and item_qty_done>0
             and DATE(created_at) >= '".$from."'
@@ -293,7 +293,7 @@ class Report2Controller extends Controller
             and DATE(created_at) <= '".$to."')";
             // dd($item_ids);
         }
-        $data['top_items'] = DB::select("select item_id, sum(item_qty_done) as qty from transaction_details
+        $data['top_items'] = DB::select("select item_id, sum(item_qty_done) as qty_done, sum(item_qty) as qty from transaction_details
             where item_id like 'I%'
             and item_qty_done>0
             and DATE(created_at) >= '".$from."'
