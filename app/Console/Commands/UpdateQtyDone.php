@@ -39,6 +39,7 @@ class UpdateQtyDone extends Command
     public function handle()
     {
         $details = TransactionDetail::whereMonth('created_at', 8)->whereYear('created_at', 2018)->get();
+        
         foreach ($details as $key => $detail) {
             if($detail->header->status==2 && $detail->header->branch_id !=1) {
                 $detail->item_qty_done = $detail->item_qty;

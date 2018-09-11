@@ -329,11 +329,11 @@ class Report2Controller extends Controller
         $total_trans = TransactionDetail::whereDate('created_at','>=', $from)
                                                ->whereDate('created_at','<=',$to)
                                                ->whereIn('item_id', $inputs['item_ids'])
-                                               ->where('claim_status', 1);
+                                               ->where('item_qty_done','>',0);
         $costumize_items = TransactionDetail::whereDate('created_at','>=', $from)
                                                ->whereDate('created_at','<=',$to)
                                                ->whereNotIn('item_id', $inputs['item_ids'])
-                                               ->where('claim_status', 1);
+                                               ->where('item_qty_done','>',0);
         $discount = TransactionHeader::whereDate('created_at','>=', $from)
                                                ->whereDate('created_at','<=',$to)
                                                ->where('status', 2);
