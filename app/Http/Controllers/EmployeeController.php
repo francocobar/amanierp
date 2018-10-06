@@ -98,7 +98,6 @@ class EmployeeController extends Controller
         $random = rand(13579, 98642);
         $inputs_user['password'] .= $random;
 
-        $valid_since =
         $new_user = UserService::createUser($inputs_user);
         $role = Sentinel::getRoleRepository()->findBySlug('staff');
         $role->users()->attach($new_user);

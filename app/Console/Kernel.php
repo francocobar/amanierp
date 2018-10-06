@@ -13,13 +13,16 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-         'App\Console\Commands\CreateFirstUsers',
-          'App\Console\Commands\SetStaffRolesDefatult',
-           'App\Console\Commands\UpdateMemberData',
-            'App\Console\Commands\UpdateIncentives',
-             'App\Console\Commands\CheckMissedIncentive',
-              'App\Console\Commands\UpdateQtyDone',
-            'App\Console\Commands\GivePermissionRemoveTrans'
+        'App\Console\Commands\CreateFirstUsers',
+        'App\Console\Commands\SetStaffRolesDefatult',
+        'App\Console\Commands\UpdateMemberData',
+        'App\Console\Commands\UpdateIncentives',
+        'App\Console\Commands\CheckMissedIncentive',
+        'App\Console\Commands\UpdateQtyDone',
+        'App\Console\Commands\GivePermissionRemoveTrans',
+        'App\Console\Commands\UpdateEmployeeId',
+        'App\Console\Commands\UpdateEmployeeId2',
+        'App\Console\Commands\ForTesting'
     ];
 
     /**

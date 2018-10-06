@@ -14,7 +14,7 @@ $(document).ready(function(){
             title: "#" + $employee_id + " " +  $employee_full_name + " bekerja sejak:",
             inputType: 'date',
             callback: function (result) {
-                if(result != null) {
+                if(result) {
                     $('#ws_date').val(result);
                     $('#ws_employee_id').val($employee_id);
                     validateForm($('#ws_form'));
