@@ -144,6 +144,7 @@ class EmployeeController extends Controller
 
     function addEmployee()
     {
+        return "Fitur ini sedang ditutup sampai generate Employee Id baru selesai";
         $role_user = UserService::getRoleByUser();
 
         if(strtolower($role_user->slug) == 'superadmin') {
