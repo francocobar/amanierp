@@ -160,7 +160,6 @@ class EmployeeController extends Controller
                 'role_slug' => strtolower($role_user->slug)
             ]);
         }
-        return "oke";
         abort(404);
     }
 
@@ -302,6 +301,19 @@ class EmployeeController extends Controller
         ]);
     }
 
+    function doUpdateWorkSince()
+    {
+        $employee_data = Employee::where('employee_id',request()->employee_id)
+                                    ->first();
+
+        $employee_data->work_since = request()->work_since.' 00:00:00';
+        $employee_data->save();
+        return response()->json([
+            'status' => 'success',
+            'message' =>'Tanggal mulai bekerja berhasil diset!',
+            'need_reload' => true
+        ]);
+    }
     function setNewSalary(Request $request, $employee_id, $user_id)
     {
         $employee_data = Employee::where('employee_id',$employee_id)

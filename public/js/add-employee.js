@@ -1,5 +1,4 @@
 var FormValidation = function () {
-
     var datepicker1 = function() {
         $('#dob').datepicker({
             changeMonth: true,

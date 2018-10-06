@@ -2,10 +2,33 @@
 <?php /*
 @section('optional_css')
 @endsection
+*/ ?>
 
 @section('optional_js')
+<script>
+$(document).ready(function(){
+    $('.js-set-work-since').click(function(e){
+        $employee_id = $(this).attr('data-employee-id');
+        $employee_full_name = $(this).attr('data-employee-fullname');
+        bootbox.prompt({
+            title: "#" + $employee_id + " " +  $employee_full_name + " bekerja sejak:",
+            inputType: 'date',
+            callback: function (result) {
+                if(result != null) {
+                    $('#ws_date').val(result);
+                    $('#ws_employee_id').val($employee_id);
+                    validateForm($('#ws_form'));
+                }
+                else {
+                    $('#ws_date').val('');
+                    $('#ws_employee_id').val('');
+                }
+            }
+        });
+    });
+});
+</script>
 @endsection
-*/ ?>
 
 @section('content')
 <div class="row">
@@ -29,6 +52,7 @@
                                 <th scope="col" style="width:450px !important">Id Karyawan</th>
                                 <th scope="col">Nama</th>
                                 <th scope="col">Cabang</th>
+                                <th scope="col">Bekerja Sejak</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,6 +69,7 @@
                                     </td>
                                     <td>{{$employee->full_name}}</td>
                                     <td>{{$employee->branch->branch_name}}</td>
+                                    <td>{!!$employee->workSince('view') == 'Unset' ? '<a class="js-set-work-since" data-employee-fullname="'.$employee->full_name.'" data-employee-id="'.$employee->employee_id.'">Set Tanggal Mulai Bekerja</a>' : $employee->workSince('view') !!}</td>
                             @endforeach
                         </tbody>
                     </table>
@@ -53,4 +78,9 @@
         </div>
     </div>
 </div>
+
+{!! Form::open(['id' => 'ws_form', 'route' => 'update.employee.work-since.do','class'=>'form-horizontal']) !!}
+    <input id="ws_employee_id" type="hidden" class="form-control" value="" name="employee_id" />
+    <input id="ws_date" type="hidden" class="form-control" value="" name="work_since" />
+{!! Form::close() !!}
 @endsection

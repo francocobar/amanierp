@@ -72,6 +72,7 @@ Route::post('/update-configuration-paket/{configuration_id}', 'ItemController@up
 
 Route::get('/employees/unset-incentives', 'EmployeeController@unsetIncetives')->name('unset.incentives.employees');
 Route::post('/employees/set-incentive.do', 'EmployeeController@doSetIncetives')->name('set.incentives.employee.do');
+Route::post('/employees/update-work-since.do', 'EmployeeController@doUpdateWorkSince')->name('update.employee.work-since.do');
 Route::get('/employees/incentives', 'EmployeeController@getEmployeesIncentives')->name('get.employees.incentives');
 Route::get('/employees/{page}', 'EmployeeController@getEmployees')->name('get.employees');
 Route::get('/employee/{employee_id}.{user_id}', 'EmployeeController@getEmployeeAndUser')->name('get.employee.user');
