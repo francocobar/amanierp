@@ -41,7 +41,7 @@ class CheckNewId extends Command
         $all_employee = Employee::all();
 
         foreach ($all_employee as $key => $employee) {
-            if($employee->old_employee_id != $employees->employee_id)
+            if($employee->old_employee_id != $employee->employee_id)
             {
                 $this->info('nama: '.$employee->full_name);
                 $this->info('id karyawan lama: '.$employee->old_employee_id);
