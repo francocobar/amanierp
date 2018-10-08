@@ -86,6 +86,16 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="control-label col-md-3">Mulai Bekerja
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <div class="input-icon right">
+                                    <input type="text" class="form-control" id="work_since" name="work_since">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="control-label col-md-3">Gaji berlaku dari
                                 <span class="required"> * </span>
                             </label>

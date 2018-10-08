@@ -38,7 +38,7 @@ class ForTesting extends Command
      */
     public function handle()
     {
-        $latest_employee_id = Employee::orderBy('employee_id', 'desc')->first();
+        $latest_employee_id = Employee::orderBy('employee_id', 'desc')->where('employee_id','not like', 'e%')->first();
         if($latest_employee_id) {
             $latest_suffix = intval(substr($latest_employee_id->employee_id, 4, 4));
             $new_suffix = sprintf('%04d', $latest_suffix+1);

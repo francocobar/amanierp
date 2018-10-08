@@ -8,6 +8,15 @@ var FormValidation = function () {
         });
     };
 
+    var datepicker2 = function() {
+        $('#work_since').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: 'dd-mm-yy',
+            yearRange: "1900:{{'2046'}}"
+        });
+    };
+
 
     var maskMoney = function() {
         $(".mask-money").maskMoney({
@@ -89,6 +98,10 @@ var FormValidation = function () {
                         required: true,
                         dateFormat: true,
                     },
+                    work_since: {
+                        required: true,
+                        dateFormat: true,
+                    },
                     salary: {
                         required: true,
                     }
@@ -132,6 +145,7 @@ var FormValidation = function () {
         init: function () {
             handleValidation1();
             datepicker1();
+            datepicker2();
             maskMoney();
         }
 

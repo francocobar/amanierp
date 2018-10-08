@@ -18,6 +18,7 @@ use App\TransactionDetail;
 use App\EmployeeIncentive;
 use Illuminate\Support\Facades\DB;
 use App\PembukuanBranch;
+use DateTime;
 
 class EmployeeController extends Controller
 {
@@ -103,36 +104,35 @@ class EmployeeController extends Controller
         $role->users()->attach($new_user);
         //create employee data
         $inputs['user_id'] = $new_user->id;
-        $prefix_employee_id = HelperService::getPrefixEmployeeId($inputs['branch_id']);
-
-        $number_id = 1;
-
-        $last_employee = Employee::where('branch_id', $inputs['branch_id'])
-                                    ->where('employee_id','like',$prefix_employee_id.'%')
-                                    ->orderBy('created_at', 'desc')
-                                    ->first();
-
-        if($last_employee != null) {
-            $last_number_id = str_replace($prefix_employee_id,'',$last_employee->employee_id);
-            $number_id = $last_number_id+1;
+        $latest_employee_id = Employee::orderBy('employee_id', 'desc')->where('employee_id','not like', 'e%')->first();
+        $new_suffix = '';
+        if($latest_employee_id) {
+            $latest_suffix = intval(substr($latest_employee_id->employee_id, 4, 4));
+            $new_suffix = sprintf('%04d', $latest_suffix+1);
         }
 
-        $inputs['employee_id'] = $prefix_employee_id.sprintf("%04d", $number_id);
+
         // dd($dob);
         $inputs['dob'] = HelperService::createDateFromString(trim($inputs['dob']));
+        $inputs['work_since'] = HelperService::createDateFromString(trim($inputs['work_since']));
+        $prefix = DateTime::createFromFormat('Y-m-d H:i:s', Carbon::today()->firstOfMonth()->toDateString().' 00:00:00')->format('ym');
+
+        $inputs['employee_id'] = $prefix.$new_suffix;
         unset($inputs['_token']);
         unset($inputs['branch']);
 
-        $inputs['employee_salary'] = str_replace('.', '', $inputs['salary']);
-        if($inputs['salary_since'] == 'this_month') {
+        $salary = $inputs['salary'];
+        unset($inputs['salary']);
+        $salary_since = $inputs['salary_since'];
+        unset($inputs['salary_since'] );
+        $employee_data = EmployeeService::createEmployee($inputs);
+        $inputs['employee_salary'] = str_replace('.', '', $salary);
+        if($salary_since == 'this_month') {
             $inputs['valid_since'] = Carbon::today()->firstOfMonth()->toDateString();
         }
         else {
             $inputs['valid_since'] =  Carbon::today()->firstOfMonth()->addMonth(1)->toDateString();
         }
-
-        $employee_data = EmployeeService::createEmployee($inputs);
-
         $employee_salary = EmployeeService::setSalary($employee_data, $inputs);
         return response()->json([
             'status' => 'success',
@@ -144,7 +144,7 @@ class EmployeeController extends Controller
 
     function addEmployee()
     {
-        return "Fitur ini sedang ditutup sampai generate Employee Id baru selesai";
+        // return "Fitur ini sedang ditutup sampai generate Employee Id baru selesai";
         $role_user = UserService::getRoleByUser();
 
         if(strtolower($role_user->slug) == 'superadmin') {
