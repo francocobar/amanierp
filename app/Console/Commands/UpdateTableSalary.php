@@ -49,7 +49,7 @@ class UpdateTableSalary extends Command
                 {
                     $salary->employee_id = $employee->employee_id;
                     $salary->save();
-                    $this->info($employee->employee_id)
+                    $this->info($employee->employee_id);
                 }
                 $this->info('****************************');
             }
