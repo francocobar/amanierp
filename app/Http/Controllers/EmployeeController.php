@@ -154,7 +154,7 @@ class EmployeeController extends Controller
                 'role_slug' => strtolower($role_user->slug)
             ]);
         }
-
+        return "mulai sekarang tambahkan karyawan dilakukan oleh superadmin";
         if(strtolower($role_user->slug) == 'manager') {
             return view('employee.add-employee',[
                 'role_slug' => strtolower($role_user->slug)
