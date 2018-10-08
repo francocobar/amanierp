@@ -46,6 +46,7 @@ class CheckNewId extends Command
                 $this->info('nama: '.$employee->full_name);
                 $this->info('id karyawan lama: '.$employee->old_employee_id);
                 $this->info('id karyawan baru: '.$employee->employee_id);
+                $this->info('****************************');
             }
         }
     }
