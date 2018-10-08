@@ -43,14 +43,16 @@ class UpdateEmployeeId2 extends Command
         $counter = 1;
         foreach ($all_employee as $key => $employee) {
             $this->info('old id: '.$employee->old_employee_id);
-            $this->info('work since: '.DateTime::createFromFormat('Y-m-d H:i:s', $employee->work_since)->format('d/m/Y'));
-            $new_id = DateTime::createFromFormat('Y-m-d H:i:s', $employee->work_since)->format('ym');
-            $new_id = $new_id. sprintf('%04d', $counter);
-            $this->info('new id: '. $new_id);
-            $this->info('****************************');
-            $employee->employee_id = $new_id;
-            $employee->save();
-            $counter++;
+            if($employee->work_since) {
+                $this->info('work since: '.DateTime::createFromFormat('Y-m-d H:i:s', $employee->work_since)->format('d/m/Y'));
+                $new_id = DateTime::createFromFormat('Y-m-d H:i:s', $employee->work_since)->format('ym');
+                $new_id = $new_id. sprintf('%04d', $counter);
+                $this->info('new id: '. $new_id);
+                $this->info('****************************');
+                $employee->employee_id = $new_id;
+                $employee->save();
+                $counter++;
+            }
         }
     }
 }
