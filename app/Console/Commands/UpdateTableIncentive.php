@@ -54,5 +54,13 @@ class UpdateTableIncentive extends Command
                 $this->info('****************************');
             }
         }
+        $incentives = EmployeeIncentive::where('employee_id', 'EKMN0021')->get();
+        foreach($incentives as $incentive)
+        {
+            $incentive->employee_id = '13100012';
+            $incentive->save();
+            $this->info('13100012');
+        }
+        $this->info('****************************zz');
     }
 }
