@@ -80,12 +80,14 @@
                 <a href="{{route('get.members',['page'=>1])}}"  class="nav-link ">
                     <span class="title">Daftar Member</span>
                 </a>
-            </li><?php/*
+            </li>
+            <!--
             <li class="nav-item ">
                 <a href="{{route('export.members')}}"  class="nav-link ">
                     <span class="title">Export Members (EXCEL)</span>
                 </a>
-            </li>*/?>
+            </li>
+        -->
         </ul>
     </li>
 
