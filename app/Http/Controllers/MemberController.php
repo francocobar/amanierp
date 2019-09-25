@@ -12,6 +12,7 @@ use HelperService;
 use MemberService;
 use EmployeeService;
 use Sentinel;
+use Excel;
 
 class MemberController extends Controller
 {
@@ -188,6 +189,11 @@ class MemberController extends Controller
                 'no_reset_form' => true
             ]);
         }
+    }
+
+    function exportMembers()
+    {
+        return view('member.export-members',['branches'=>Branch::all()]);
     }
 
 }

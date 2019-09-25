@@ -187,7 +187,7 @@ return [
         App\Providers\MemberServiceProvider::class,
         App\Providers\StockServiceProvider::class,
         App\Providers\VoucherServiceProvider::class,
-
+        Maatwebsite\Excel\ExcelServiceProvider::class,
 
     ],
 
@@ -250,7 +250,8 @@ return [
         'Constant' => App\Providers\ConstantServiceProvider::class,
         'MemberService' => App\Providers\MemberServiceProvider::class,
         'StockService' => App\Providers\StockServiceProvider::class,
-        'VoucherService' => App\Providers\VoucherServiceProvider::class
+        'VoucherService' => App\Providers\VoucherServiceProvider::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

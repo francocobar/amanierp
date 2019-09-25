@@ -35,6 +35,8 @@ Route::post('/edit-member.do', 'MemberController@editMemberDo')->name('edit.memb
 Route::post('/add-member.do', 'MemberController@addMemberDo')->name('add.member.do');
 Route::post('/remove-member.do', 'MemberController@removeMemberDo')->name('remove.member.do');
 Route::get('/members/{page}', 'MemberController@getMembers')->name('get.members');
+Route::get('/export-members', 'MemberController@exportMembers')->name('export.members');
+Route::get('/do-export-members/{branch_id}', 'ExportExcelController@getMemberByBranch')->name('export.members.do');
 Route::post('/members', 'MemberController@getMembersByAjax')->name('get.members.by.ajax');
 
 Route::get('/add-item', 'ItemController@addItem')->name('add.item');
