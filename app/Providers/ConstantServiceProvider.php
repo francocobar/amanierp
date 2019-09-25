@@ -21,6 +21,7 @@ class ConstantServiceProvider extends ServiceProvider
     const type_id_jasa = 2;
     const type_id_sewa = 3;
     const type_id_paket = 4;
+    const type_id_paket_series = 5;
 
     const status_pending = 1;
     const status_rejected = 2;

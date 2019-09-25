@@ -27,8 +27,12 @@
         }
     },
     "autoload-dev": {
+        "classmap": [
+            "database"
+        ],
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+                "App\\": "app/"
         }
     },
     "scripts": {

@@ -25,7 +25,8 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\ForTesting',
         'App\Console\Commands\CheckNewId',
         'App\Console\Commands\UpdateTableSalary',
-        'App\Console\Commands\UpdateTableIncentive'
+        'App\Console\Commands\UpdateTableIncentive',
+        'App\Console\Commands\SetItemPriceTable'
     ];
 
     /**

@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-
 class RouteServiceProvider extends ServiceProvider
 {
     /**
@@ -26,6 +25,13 @@ class RouteServiceProvider extends ServiceProvider
         //
 
         parent::boot();
+        Route::model('trans_id', 'App\Model\Cashier\HeaderOngoing');
+        Route::model('branch_id', 'App\Branch');
+        Route::model('trx_id', 'App\Model\Transaction\TrxHeader');
+
+    //     Route::bind('user', function ($value) {
+    //     return App\User::where('name', $value)->first() ?? abort(404);
+    // });
     }
 
     /**

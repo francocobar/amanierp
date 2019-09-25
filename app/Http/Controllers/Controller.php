@@ -15,6 +15,5 @@ class Controller extends BaseController
     public function __construct()
     {
         $role_user = UserService::getRoleByUser();
-        dd('oke');
     }
 }

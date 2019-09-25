@@ -10,6 +10,53 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+//RouteServiceProvider.php
+Route::prefix('cashier')->group(function () {
+    Route::namespace('Cashier')->group(function () {
+        // Controllers Within The "App\Http\Controllers\Cashier"
+        Route::get('/index/branch-{branch_id}.php', 'TransactionController@index')->name('cashier.index');
+        Route::get('/payment/branch-{branch_id}/ongoing-transaction-{trans_id}', 'PaymentController@paymentOngoingTrans')->name('cashier.payment-ongoing-transaction');
+        Route::get('/deposit/branch-{branch_id}/ongoing-transaction-{trans_id}', 'DepositController@depositOngoingTrans')->name('cashier.deposit-ongoing-transaction');
+        Route::post('/payment/branch-{branch_id}/ongoing-transaction-{trans_id}', 'PaymentController@payOngoingTrans')->name('cashier.pays-ongoing-transaction');
+        Route::get('/payment/branch-{branch_id}/transaction-{trx_id}', 'PaymentController@paymentTrans')->name('cashier.payment-transaction');
+
+        Route::get('/series/branch-{branch_id}/ongoing-transaction-{trans_id}', 'SeriesController@seriesOngoingTrans')->name('cashier.series-ongoing-transaction');
+        // Route::post('/payment/branch-{branch_id}/ongoing-transaction-{trans_id}', 'PaymentController@payOngoingTrans')->name('cashier.pays-ongoing-transaction');
+
+        // Route::get('/creates/transaction', 'TransactionController@createsTransaction')->name('cashier.creates-transaction');
+        //type_trans: 1 member, 2 umum / guest
+        Route::post('/creates/transaction-{type_trans}-at-{branch_id}.do', 'TransactionController@createTransaction')->name('cashier.creates-transaction.post');
+        Route::post('/get/ongoing-transactions/{branch_id}', 'TransactionController@getOngoingTransactions')->name('cashier.ongoing-transactions');
+        Route::get('/searches/items/{trans_id}/{keyword}', 'SearchController@searchItems')->name('cashier.searches-items');
+        Route::get('/searches/series-items/{trans_id}/{keyword}', 'SearchController@searchSeriesItems')->name('cashier.searches-series-items');
+        Route::get('/searches/members', 'SearchController@searchMembers')->name('cashier.searches-members');
+
+        //Ongoing transaction START
+        //get by id
+        Route::post('/get/ongoing-transaction/{trans_id?}', 'OngoingTransactionController@getById')->name('cashier.get-ongoing-transaction');
+        Route::post('/remove/ongoing-transaction/{trans_id?}', 'OngoingTransactionController@removeById')->name('cashier.remove-ongoing-transaction');
+        //add item by id
+        Route::post('/add-item/ongoing-transaction/{trans_id?}', 'OngoingTransactionController@addItem')->name('cashier.add-item-ongoing-transaction');
+        Route::post('/update-item/ongoing-transaction/{trans_id?}', 'OngoingTransactionController@updateItem')->name('cashier.update-item-ongoing-transaction');
+        Route::post('/remove-item/ongoing-transaction/{item_code}/{trans_id}', 'OngoingTransactionController@removeItem')->name('cashier.remove-item-ongoing-transaction');
+        Route::post('/apply-coupon/{trans_id?}', 'OngoingTransactionController@applyCoupon')->name('cashier.apply-coupon');
+
+        //Ongoing transaction END
+    });
+});
+
+Route::prefix('promo')->group(function () {
+    Route::namespace('Promo')->group(function () {
+        // Controllers Within The "App\Http\Controllers\Promo"
+        Route::get('/coupon-management', 'CouponController@couponManagement')->name('promo.coupon-management');
+        Route::post('/creates-coupon', 'CouponController@createCoupon')->name('promo.creates-coupon');
+        Route::post('/coupons', 'CouponController@getAllCoupons')->name('promo.coupons');
+    });
+});
+
+
 Route::get('/info', function(){
     return phpinfo();
 });

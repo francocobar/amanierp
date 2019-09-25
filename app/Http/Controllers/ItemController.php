@@ -46,7 +46,8 @@ class ItemController extends Controller
             Crypt::encryptString(Constant::type_id_produk) => 'Produk',
             Crypt::encryptString(Constant::type_id_jasa) => 'Jasa',
             Crypt::encryptString(Constant::type_id_sewa) => 'Sewa',
-            Crypt::encryptString(Constant::type_id_paket) => 'Paket'
+            Crypt::encryptString(Constant::type_id_paket) => 'Paket',
+            Crypt::encryptString(Constant::type_id_paket_series) => 'Paket Series'
         ];
         return view('item.add-item',[
             'item_types' => $item_types

@@ -29,9 +29,10 @@ class TransController extends Controller
         // $this->middleware('superadmin')->only(['changeStatus']);
     }
 
-    function ongoingTrans($trans_id)
+    function ongoingTrans($header)
     {
-        $header = TransactionHeader::find($trans_id);
+        // $header = TransactionHeader::find($trans_id);
+        // dd($trans_id);
         $cashier = Sentinel::getUser();
         if($header->status != 1 || $header->cashier_user_id != $cashier->id)
         {

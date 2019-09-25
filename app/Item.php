@@ -10,8 +10,6 @@ class Item extends Model
 {
     use SoftDeletes;
     protected $guarded = [];
-    public $incrementing = false;
-    protected $primaryKey = 'item_id';
     protected $dates = ['deleted_at'];
     function branch()
     {
@@ -30,5 +28,15 @@ class Item extends Model
     function branchStock()
     {
         return $this->belongsTo('App\BranchStock', 'item_id', 'item_id');
+    }
+
+    function itemPrice()
+    {
+        return $this->hasMany('App\ItemPrice', 'item_id', 'id');
+    }
+
+    function isSeries()
+    {
+        return $this->item_type == 5;
     }
 }
